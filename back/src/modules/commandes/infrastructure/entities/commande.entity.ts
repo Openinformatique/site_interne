@@ -6,12 +6,14 @@ import { ClientEntity } from '../../../clients/infrastructure/entities/client.en
 /**
  * Entité TypeORM de la table `commandes`.
  *
- * Reprise de la table `Commande` de l'application historique. Une
- * commande est toujours rattachée à un contrat ; `client_id` est conservé
- * (filtrage direct par client) et sa cohérence avec le contrat est
- * garantie par la clé étrangère composite
+ * Reprise de la table `Commande` de l'application historique. Le contrat
+ * est facultatif (commandes et devis hors contrat). Lorsqu'il est
+ * renseigné, sa cohérence avec `client_id` est garantie par la clé
+ * étrangère composite
  * (client_contrat_id, client_id) → client_contrats (id, client_id).
  *
+ * Les jours ont 4 décimales : l'application historique y stocke des
+ * heures converties en jours (ex. : 0,5 h = 0,0625 j).
  * Les colonnes decimal sont renvoyées en chaîne par le driver mssql.
  */
 @Entity({ name: 'commandes' })
@@ -25,8 +27,8 @@ export class CommandeEntity extends IdentityAuditableEntity {
   client?: ClientEntity;
 
   @Index('IDX_commandes_client_contrat_id')
-  @Column({ name: 'client_contrat_id', type: 'int' })
-  clientContratId!: number;
+  @Column({ name: 'client_contrat_id', type: 'int', nullable: true })
+  clientContratId!: number | null;
 
   @ManyToOne(() => ClientContratEntity, { onDelete: 'NO ACTION' })
   @JoinColumn([
@@ -69,8 +71,8 @@ export class CommandeEntity extends IdentityAuditableEntity {
   @Column({
     name: 'nb_jours_commande',
     type: 'decimal',
-    precision: 7,
-    scale: 2,
+    precision: 9,
+    scale: 4,
     nullable: true,
   })
   nbJoursCommande!: string | null;
@@ -79,8 +81,8 @@ export class CommandeEntity extends IdentityAuditableEntity {
   @Column({
     name: 'nb_jours_prevus',
     type: 'decimal',
-    precision: 7,
-    scale: 2,
+    precision: 9,
+    scale: 4,
     nullable: true,
   })
   nbJoursPrevus!: string | null;

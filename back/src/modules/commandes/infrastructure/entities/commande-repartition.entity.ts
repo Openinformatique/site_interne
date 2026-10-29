@@ -14,8 +14,8 @@ export class CommandeRepartitionEntity extends IdentityAuditableEntity {
   @Column({
     name: 'nb_jours',
     type: 'decimal',
-    precision: 5,
-    scale: 2,
+    precision: 9,
+    scale: 4,
     nullable: true,
   })
   nbJours!: string | null;

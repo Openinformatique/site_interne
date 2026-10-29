@@ -47,7 +47,7 @@ Colonnes renommées ou retypées notables :
 | `Commande.Date_Cloture_Commande`             | `commandes.date_cloture`                                                       |
 | `Commande.Type_cde`                          | `commandes.type_commande`                                                      |
 | `Commande.Montant` NUMERIC(24,6)             | `montant` decimal(18,2)                                                        |
-| `Nb_Jours_*` REAL, `nbjours` INTEGER         | decimal(7,2) / decimal(5,2)                                                    |
+| `Nb_Jours_*` REAL, `nbjours` INTEGER         | decimal(9,4) (heures converties en jours, ex. 0,0625 j = 0,5 h)                |
 | `Document_Commande.Doc_Bin`                  | fichier dans le stockage (`fichier_identifiant`, `type_mime`, `taille_octets`) |
 | `Pointage.DateH_debut` / `DateH_fin`         | `date_heure_debut` / `date_heure_fin`                                          |
 | `Pointage.Facturable` INTEGER                | `facturable` bit                                                               |
@@ -56,9 +56,10 @@ Colonnes renommées ou retypées notables :
 
 ## Règles d'intégrité
 
-- Une commande est rattachée à un contrat **de son propre client** : clé
-  étrangère composite `(client_contrat_id, client_id)` →
-  `client_contrats (id, client_id)`.
+- Le contrat d'une commande est facultatif (commandes et devis hors
+  contrat, `IDClient_contrat = 0` dans l'ancien schéma). Lorsqu'il est
+  renseigné, c'est un contrat **de son propre client** : clé étrangère
+  composite `(client_contrat_id, client_id)` → `client_contrats (id, client_id)`.
 - Un pointage sans client correspond à du temps interne ; client, commande
   et contact y sont facultatifs.
 - Ajouts par rapport à l'ancien schéma : clés étrangères vers `users`
