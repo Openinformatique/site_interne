@@ -1,0 +1,101 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Icons</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Lucide icons</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Lucide Icons</h6>
+        <p class="text-secondary mb-2">Experience a clean and consistent icon set with <a href="https://lucide.dev/" target="_blank" rel="noopener noreferrer"> Lucide Icons</a>.</p>
+        <p class="text-secondary mb-3">Explore <a href="https://lucide.dev/icons/" target="_blank" rel="noopener noreferrer"> full list of Icons</a>.</p>
+        
+        <div class="table-responsive">
+          <table class="table table-bordered mb-4">
+            <tbody>
+              <tr>
+                <td>Example</td>
+                <td>Code</td>
+              </tr>
+              <tr>
+                <td>
+                  <lucide-icon [img]="giftIcon" size="30" />
+                </td>
+                <td>
+                  <code>
+                    &lt;lucide-icon [img]="giftIcon" size="30" /&gt;
+                  </code>
+                  <hr />
+                  <code>
+                    import &#123; LucideAngularModule, GiftIcon &#125; from 'lucide-angular'; <br><br>
+                    &#64;Component(&#123; <br>
+                      &nbsp;&nbsp;... <br>
+                      &nbsp;&nbsp;imports: [ &nbsp;&nbsp;LucideAngularModule &nbsp;&nbsp;] <br>
+                    &#125;) <br><br>
+                    export class AppComponent &#123; <br>
+                      &nbsp;&nbsp;readonly giftIcon = GiftIcon; <br>
+                    &#125;
+                  </code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="container">
+          <div class="icons-list row">
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="activityIcon" /> activity
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="badgeCheckIcon" /> badge-check
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="cameraIcon" /> camera
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="cloudRainIcon" /> cloud-rain
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="downloadIcon" /> download
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="fileTextIcon" /> file-text
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="globeIcon" /> globe
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="headphonesIcon" /> headphones
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="mailIcon" /> mail
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="sunIcon" /> sun
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="tagIcon" /> tag
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+              <lucide-icon [img]="zapIcon" /> zap
+            </div>
+          </div>
+          <div class="mt-4 text-center">
+            <a
+              class="btn btn-primary"
+              href="https://lucide.dev/icons/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View all icons
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

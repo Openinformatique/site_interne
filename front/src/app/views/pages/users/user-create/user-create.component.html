@@ -1,0 +1,51 @@
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Nouvel utilisateur</h5>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3">
+      <div class="col-md-6">
+        <label for="email" class="form-label">E-mail</label>
+        <input id="email" type="email" class="form-control" formControlName="email"
+               [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid" />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <div class="invalid-feedback">
+            @if (form.controls.email.hasError('taken')) { Cet e-mail est déjà utilisé. }
+            @else { Adresse e-mail invalide. }
+          </div>
+        }
+      </div>
+
+      <div class="col-md-6">
+        <label for="displayName" class="form-label">Nom affiché</label>
+        <input id="displayName" type="text" class="form-control" formControlName="displayName"
+               [class.is-invalid]="form.controls.displayName.touched && form.controls.displayName.invalid" />
+        @if (form.controls.displayName.touched && form.controls.displayName.invalid) {
+          <div class="invalid-feedback">Le nom affiché est obligatoire.</div>
+        }
+      </div>
+
+      <div class="col-md-6">
+        <label for="password" class="form-label">Mot de passe</label>
+        <input id="password" type="password" class="form-control" formControlName="password" autocomplete="new-password"
+               [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid" />
+        <div class="form-text">Min 8 caractères, avec majuscule, minuscule, chiffre et symbole.</div>
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <div class="invalid-feedback d-block">Mot de passe trop faible (voir la règle ci-dessus).</div>
+        }
+      </div>
+
+      <div class="col-md-6">
+        <label for="role" class="form-label">Rôle</label>
+        <select id="role" class="form-select" formControlName="role">
+          @for (r of roles; track r) {
+            <option [value]="r">{{ labels[r] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">Créer</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="cancel()">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>

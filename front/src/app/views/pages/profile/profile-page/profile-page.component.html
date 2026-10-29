@@ -1,0 +1,49 @@
+<div class="row g-3">
+  <div class="col-md-5">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Mon profil</h5>
+        @if (me(); as u) {
+          <p class="mb-1"><span class="text-secondary">Nom :</span> {{ u.displayName }}</p>
+          <p class="mb-1"><span class="text-secondary">E-mail :</span> {{ u.email }}</p>
+          <p class="mb-0"><span class="text-secondary">Rôle :</span> <span class="badge bg-primary">{{ labels[u.role] }}</span></p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Changer mon mot de passe</h5>
+        <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3">
+          <div class="col-12">
+            <label for="cur" class="form-label">Mot de passe actuel</label>
+            <input id="cur" type="password" class="form-control" formControlName="currentPassword" autocomplete="current-password"
+                   [class.is-invalid]="form.controls.currentPassword.hasError('wrong')" />
+            @if (form.controls.currentPassword.hasError('wrong')) {
+              <div class="invalid-feedback d-block">Mot de passe actuel incorrect.</div>
+            }
+          </div>
+          <div class="col-md-6">
+            <label for="new" class="form-label">Nouveau mot de passe</label>
+            <input id="new" type="password" class="form-control" formControlName="newPassword" autocomplete="new-password"
+                   [class.is-invalid]="form.controls.newPassword.touched && form.controls.newPassword.invalid" />
+            <div class="form-text">Min 8, maj/min/chiffre/symbole.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="conf" class="form-label">Confirmer</label>
+            <input id="conf" type="password" class="form-control" formControlName="confirm" autocomplete="new-password"
+                   [class.is-invalid]="form.controls.confirm.hasError('mismatch')" />
+            @if (form.controls.confirm.hasError('mismatch')) {
+              <div class="invalid-feedback d-block">Les mots de passe ne correspondent pas.</div>
+            }
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">Mettre à jour</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

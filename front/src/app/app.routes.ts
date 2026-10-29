@@ -1,0 +1,77 @@
+import { Routes } from '@angular/router';
+import { BaseComponent } from './views/layout/base/base.component';
+import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/auth/role.guard';
+import { uiAccessGuard } from './core/ui-access/ui-access.guard';
+import { UserRole } from './core/models/enums';
+import { DASHBOARD_UI_KEYS } from './views/pages/dashboard/access/dashboard-access.keys';
+import { USERS_UI_KEYS } from './views/pages/users/access/users-access.keys';
+
+export const routes: Routes = [
+  { path: 'auth', loadChildren: () => import('./views/pages/auth/auth.routes')},
+  {
+    path: '',
+    component: BaseComponent,
+    canActivateChild: [authGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadChildren: () => import('./views/pages/dashboard/dashboard.routes'),
+        canActivate: [uiAccessGuard],
+        data: { uiAccessKey: DASHBOARD_UI_KEYS.PAGE_ACCESS },
+      },
+      {
+        path: 'users',
+        loadChildren: () => import('./views/pages/users/users.routes'),
+        canActivate: [roleGuard, uiAccessGuard],
+        data: { roles: [UserRole.Admin, UserRole.Manager], uiAccessKey: USERS_UI_KEYS.PAGE_ACCESS },
+      },
+      {
+        path: 'profile',
+        loadChildren: () => import('./views/pages/profile/profile.routes'),
+      },
+      {
+        path: 'apps',
+        loadChildren: () => import('./views/pages/apps/apps.routes')
+      },
+      {
+        path: 'ui-components',
+        loadChildren: () => import('./views/pages/ui-components/ui-components.routes')
+      },
+      {
+        path: 'advanced-ui',
+        loadChildren: () => import('./views/pages/advanced-ui/advanced-ui.routes')
+      },
+      {
+        path: 'forms',
+        loadChildren: () => import('./views/pages/forms/forms.routes')
+      },
+      {
+        path: 'charts',
+        loadChildren: () => import('./views/pages/charts/charts.routes')
+      },
+      {
+        path: 'tables',
+        loadChildren: () => import('./views/pages/tables/tables.routes')
+      },
+      {
+        path: 'icons',
+        loadChildren: () => import('./views/pages/icons/icons.routes')
+      },
+      {
+        path: 'general',
+        loadChildren: () => import('./views/pages/general/general.routes')
+      }
+    ]
+  },
+  {
+    path: 'error',
+    loadComponent: () => import('./views/pages/error/error.component').then(c => c.ErrorComponent),
+  },
+  {
+    path: 'error/:type',
+    loadComponent: () => import('./views/pages/error/error.component').then(c => c.ErrorComponent)
+  },
+  { path: '**', redirectTo: 'error/404', pathMatch: 'full' }
+];

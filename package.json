@@ -1,0 +1,16 @@
+{
+  "name": "site_interne",
+  "private": true,
+  "scripts": {
+    "docker:db:up": "npm run docker:db:up --prefix back",
+    "docker:db:down": "npm run docker:db:down --prefix back",
+    "docker:db:restart": "npm run docker:db:restart --prefix back",
+    "docker:db:logs": "npm run docker:db:logs --prefix back",
+    "docker:db:status": "npm run docker:db:status --prefix back",
+    "db:init": "npm run db:init --prefix back",
+    "migration:run": "npm run migration:run --prefix back",
+    "seed": "npm run seed --prefix back",
+    "start:dev": "npm run start:dev --prefix back",
+    "start:front": "npm start --prefix front"
+  }
+}

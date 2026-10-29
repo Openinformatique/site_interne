@@ -1,0 +1,127 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">General pages</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Pricing</li>
+  </ol>
+</nav>
+
+<div class="text-center mb-5 mt-5">
+  <h2 class="mb-2">Simple, transparent pricing</h2>
+  <p class="text-secondary fs-5 fw-normal">
+    Choose the plan that fits your team. No hidden fees.
+  </p>
+</div>
+
+<div class="text-center mb-5">
+  <div class="d-inline-flex align-items-center bg-secondary bg-opacity-10 rounded-pill px-3 py-2">
+    <span
+      class="me-2 fw-semibold"
+      [class.text-primary]="!isAnnual"
+      [class.text-secondary]="isAnnual"
+    >
+      Monthly
+    </span>
+
+    <div class="form-check form-switch mx-2 mb-0">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="billingToggle"
+        [checked]="isAnnual"
+        (change)="toggleBilling()"
+      />
+    </div>
+
+    <span
+      class="ms-2 fw-semibold"
+      [class.text-primary]="isAnnual"
+      [class.text-secondary]="!isAnnual"
+    >
+      Annual
+      <span class="badge bg-success ms-1 fs-12px">
+        Save 20%
+      </span>
+    </span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row justify-content-center g-4">
+    @for (plan of plans; track plan.name) {
+      <div class="col-md-6 col-lg-4 xxl-3 stretch-card">
+        <div
+          class="card position-relative"
+          [class.border-secondary]="plan.highlight"
+          [class.border-2]="plan.highlight"
+        >
+          @if (plan.highlight) {
+            <span
+              class="badge bg-success position-absolute start-50 translate-middle-x mt-3 fs-13px"
+              style="top: -27px"
+            >
+              Most Popular
+            </span>
+          }
+
+          <div class="card-body d-flex flex-column align-items-center">
+            <lucide-icon
+              [img]="plan.icon"
+              class="icon-xxl bg-secondary bg-opacity-10 rounded-circle p-2 my-3"
+              [class.text-primary]="plan.color === 'primary'"
+              [class.text-success]="plan.color === 'success'"
+            />
+
+            <h4 class="mt-2 mb-1 text-center">{{ plan.name }}</h4>
+
+            <h1 class="mb-1 text-center display-5 fw-bold">
+              ${{ plan.price }}<span class="fs-5 fw-normal text-secondary">/mo</span>
+            </h1>
+
+            <div class="mb-4 text-secondary text-center fw-semibold">
+              {{ plan.subtitle }}
+            </div>
+
+            <ul class="list-unstyled">
+              @for (feature of plan.features; track feature.text) {
+                <li class="d-flex align-items-center mb-2">
+                  <span
+                    class="w-20px h-20px d-inline-flex align-items-center justify-content-center rounded-circle me-2 bg-opacity-10"
+                    [class.bg-success]="feature.included"
+                    [class.text-success]="feature.included"
+                    [class.bg-danger]="!feature.included"
+                    [class.text-danger]="!feature.included"
+                  >
+                    <lucide-icon
+                      [img]="feature.included ? checkIcon : xIcon"
+                      class="icon-sm"
+                    />
+                  </span>
+                  <span [class.text-secondary]="!feature.included">
+                    {{ feature.text }}
+                  </span>
+                </li>
+              }
+            </ul>
+
+            <div class="w-100">
+              @if (!plan.contactSales) {
+                <button
+                  class="btn w-100"
+                  [class.btn-outline-primary]="!plan.highlight && plan.color === 'primary'"
+                  [class.btn-success]="plan.highlight && plan.color === 'success'"
+                  [class.fw-bold]="plan.highlight"
+                >
+                  Start 14-day trial
+                </button>
+              } @else {
+                <button class="btn btn-outline-primary w-100">
+                  Contact sales
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

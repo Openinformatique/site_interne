@@ -1,0 +1,64 @@
+<div class="container-xxl">
+  <div class="row w-100 mx-0 auth-page">
+    <div class="col-md-10 col-lg-8 col-xl-6 mx-auto">
+      <div class="card">
+        <div class="row">
+          <div class="col-md-4 pe-md-0">
+            <div class="auth-side-wrapper" [style.background-image]="'url(https://placehold.co/250x650)'"></div>
+          </div>
+          <div class="col-md-8 ps-md-0">
+            <div class="auth-form-wrapper px-4 py-5">
+              <a class="nobleui-logo d-block mb-2">ERP <span>OpenInfo</span></a>
+              <h5 class="text-secondary fw-normal mb-4">Connectez-vous à votre espace.</h5>
+
+              <form class="forms-sample" [formGroup]="form" (ngSubmit)="submit()">
+                <div class="mb-3">
+                  <label for="email" class="form-label">Adresse e-mail</label>
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-control"
+                    formControlName="email"
+                    autocomplete="username"
+                    placeholder="vous@exemple.com"
+                    [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid" />
+                  @if (form.controls.email.touched && form.controls.email.invalid) {
+                    <div class="invalid-feedback">Adresse e-mail invalide.</div>
+                  }
+                </div>
+
+                <div class="mb-3">
+                  <label for="password" class="form-label">Mot de passe</label>
+                  <input
+                    type="password"
+                    id="password"
+                    class="form-control"
+                    formControlName="password"
+                    autocomplete="current-password"
+                    placeholder="Mot de passe"
+                    [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid" />
+                  @if (form.controls.password.touched && form.controls.password.invalid) {
+                    <div class="invalid-feedback">Le mot de passe est requis.</div>
+                  }
+                </div>
+
+                @if (errorMessage()) {
+                  <div class="alert alert-danger mb-3" role="alert">{{ errorMessage() }}</div>
+                }
+
+                <button type="submit" class="btn btn-primary" [disabled]="loading()">
+                  @if (loading()) {
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Connexion…
+                  } @else {
+                    Se connecter
+                  }
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

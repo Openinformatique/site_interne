@@ -1,0 +1,48 @@
+<!doctype html>
+<!--
+
+Theme: NobleUI - Angular Admin Template
+Author: NobleUI
+Website: https://nobleui.com
+Contact: nobleui.team@gmail.com
+Purchase: https://1.envato.market/nobleui_angular
+License: You must have a valid Envato license to legally use this template for your project.
+
+-->
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>ERP OpenInfo</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="css/splash-screen.css">
+
+  <!-- Preload logo images, so it starts loading before Angular bootstraps -->
+  <link rel="preload" as="image" href="images/logo-mini-light.png">
+  <link rel="preload" as="image" href="images/logo-mini-dark.png">
+</head>
+<body>
+
+  <!-- START: Setting up theme mode on page load for the splash screen -->
+  <script>
+    const themeMode = localStorage.getItem('theme');
+    if (themeMode) {
+      document.documentElement.setAttribute('data-bs-theme', themeMode);
+    } else {
+      document.documentElement.setAttribute('data-bs-theme', window.matchMedia('(prefers-color-scheme: dark)').matches? 'dark': 'light');
+    }
+  </script>
+  <!-- END: Setting up theme mode on page load for the splash screen -->
+
+  <app-root>
+    <!-- START: Splash screen -->
+    <div class="splash-screen">
+      <div class="logo"></div>
+      <div class="spinner"></div>
+    </div>
+    <!-- END: Splash screen -->
+  </app-root>
+
+</body>
+</html>

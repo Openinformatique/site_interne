@@ -1,0 +1,112 @@
+<section class="users-page">
+  <header class="page-heading">
+    <div class="heading-title">
+      <span class="heading-icon"><lucide-icon [img]="Users" [size]="24" /></span>
+      <div>
+        <h1>Utilisateurs</h1>
+        <p class="subtitle">Gérez les comptes et les accès de votre application.</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="filters-bar" aria-label="Filtres des utilisateurs">
+    <span class="search-input"><lucide-icon [img]="Search" [size]="18" aria-hidden="true" /><input type="search" placeholder="Rechercher (e-mail, nom)..." [formControl]="searchControl" /></span>
+    <span class="select-input"><select [formControl]="roleControl" aria-label="Filtrer par rôle"><option value="">Tous les rôles</option>@for (r of roles; track r) { <option [value]="r">{{ roleLabels[r] }}</option> }</select><lucide-icon [img]="ChevronDown" [size]="15" aria-hidden="true" /></span>
+    <span class="select-input"><select [formControl]="statusControl" aria-label="Filtrer par statut"><option value="">Tous les statuts</option><option value="true">Actifs</option><option value="false">Désactivés</option></select><lucide-icon [img]="ChevronDown" [size]="15" aria-hidden="true" /></span>
+    <div class="view-toggle" role="group" aria-label="Affichage">
+      <button type="button" [class.active]="view() === 'grid'" (click)="setView('grid')" aria-label="Vue grille"><lucide-icon [img]="LayoutGrid" [size]="17" /></button>
+      <button type="button" [class.active]="view() === 'list'" (click)="setView('list')" aria-label="Vue liste"><lucide-icon [img]="List" [size]="17" /></button>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <app-page-loader />
+  } @else if (users().length === 0) {
+    <div class="panel empty-panel"><app-empty-state title="Aucun utilisateur" message="Ajustez votre recherche ou vos filtres." /></div>
+  } @else {
+    @if (view() === 'grid') {
+      <div class="users-grid">
+        @for (user of users(); track user.id) {
+          <article class="user-card" [class.is-inactive]="!user.isActive">
+            <div class="user-card-head">
+              <span class="avatar {{ roleClass(user.role) }}">{{ initials(user) }}<span class="presence" [class.off]="!user.isActive"></span></span>
+              <div class="user-id">
+                <h3>{{ user.displayName }}</h3>
+                <span class="role-badge {{ roleClass(user.role) }}">{{ roleLabels[user.role] }}</span>
+                <p class="user-email">{{ user.email }}</p>
+              </div>
+              @if (isAdmin() && user.id !== currentUserId()) {
+                <div ngbDropdown container="body" placement="bottom-end" class="card-menu">
+                  <button type="button" class="icon-button" aria-label="Plus d'actions" ngbDropdownToggle><lucide-icon [img]="MoreVertical" [size]="18" /></button>
+                  <div ngbDropdownMenu>
+                    <button ngbDropdownItem (click)="viewProfile(user)"><lucide-icon [img]="UserRound" [size]="15" /> Voir le profil</button>
+                    <button ngbDropdownItem *appUiVisible="UsersUiKeys.CHANGE_ROLE_BUTTON" (click)="changeRole(user)"><lucide-icon [img]="SlidersHorizontal" [size]="15" /> Gérer les rôles</button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="user-card-body">
+              <div class="detail"><span class="d-label"><lucide-icon [img]="Mail" [size]="15" /> E-mail</span><span class="d-value">{{ user.email }}</span></div>
+              <div class="detail"><span class="d-label"><span class="dot" [class.off]="!user.isActive"></span> Statut</span><span class="d-value"><span class="status-pill" [class.off]="!user.isActive">{{ user.isActive ? 'Actif' : 'Désactivé' }}</span></span></div>
+              <div class="detail"><span class="d-label"><lucide-icon [img]="CalendarDays" [size]="15" /> Créé le</span><span class="d-value">{{ user.createdAt | dateFr }}</span></div>
+              <div class="detail"><span class="d-label"><lucide-icon [img]="Shield" [size]="15" /> Rôle</span><span class="d-value">{{ roleLabels[user.role] }}</span></div>
+            </div>
+
+            <div class="user-card-actions">
+              <button type="button" class="card-action" (click)="viewProfile(user)"><lucide-icon [img]="UserRound" [size]="16" /> Voir le profil</button>
+              @if (isAdmin() && user.id !== currentUserId()) {
+                <button type="button" class="card-action primary" *appUiVisible="UsersUiKeys.CHANGE_ROLE_BUTTON" (click)="changeRole(user)"><lucide-icon [img]="SlidersHorizontal" [size]="16" /> Gérer les rôles</button>
+                
+              }
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="panel users-table-panel">
+        <div class="table-responsive">
+          <table class="users-table">
+            <thead><tr>
+              <th><button type="button" class="sort-th" (click)="sortBy('displayName')" [class.active]="isSorted('displayName')">Utilisateur <lucide-icon [img]="sortIcon('displayName')" [size]="13" /></button></th>
+              <th><button type="button" class="sort-th" (click)="sortBy('role')" [class.active]="isSorted('role')">Rôle <lucide-icon [img]="sortIcon('role')" [size]="13" /></button></th>
+              <th><button type="button" class="sort-th" (click)="sortBy('isActive')" [class.active]="isSorted('isActive')">Statut <lucide-icon [img]="sortIcon('isActive')" [size]="13" /></button></th>
+              <th><button type="button" class="sort-th" (click)="sortBy('createdAt')" [class.active]="isSorted('createdAt')">Créé le <lucide-icon [img]="sortIcon('createdAt')" [size]="13" /></button></th>
+              @if (isAdmin()) { <th class="actions-column">Actions</th> }
+            </tr></thead>
+            <tbody>
+              @for (user of users(); track user.id) {
+                <tr [class.is-inactive]="!user.isActive">
+                  <td>
+                    <div class="user-cell">
+                      <span class="avatar sm {{ roleClass(user.role) }}">{{ initials(user) }}</span>
+                      <span class="user-cell-text"><strong>{{ user.displayName }}</strong><small>{{ user.email }}</small></span>
+                    </div>
+                  </td>
+                  <td><span class="role-badge {{ roleClass(user.role) }}">{{ roleLabels[user.role] }}</span></td>
+                  <td><span class="status-pill" [class.off]="!user.isActive">{{ user.isActive ? 'Actif' : 'Désactivé' }}</span></td>
+                  <td class="muted">{{ user.createdAt | dateFr }}</td>
+                  @if (isAdmin()) {
+                    <td class="actions-cell" (click)="$event.stopPropagation()">
+                      <button type="button" class="icon-button" aria-label="Voir le profil" (click)="viewProfile(user)"><lucide-icon [img]="UserRound" [size]="17" /></button>
+                      @if (user.id !== currentUserId()) {
+                        <div ngbDropdown container="body" placement="bottom-end" class="d-inline-block">
+                          <button type="button" class="icon-button" aria-label="Plus d'actions" ngbDropdownToggle><lucide-icon [img]="MoreVertical" [size]="17" /></button>
+                          <div ngbDropdownMenu>
+                            <button ngbDropdownItem *appUiVisible="UsersUiKeys.CHANGE_ROLE_BUTTON" (click)="changeRole(user)"><lucide-icon [img]="SlidersHorizontal" [size]="15" /> Gérer les rôles</button>
+                          </div>
+                        </div>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <app-pagination [meta]="meta()" (pageChange)="onPage($event)" (pageSizeChange)="onPageSize($event)" />
+  }
+</section>

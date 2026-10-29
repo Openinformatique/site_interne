@@ -1,0 +1,17 @@
+<div class="modal-header">
+  <h5 class="modal-title">Changer le rôle</h5>
+  <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+</div>
+<div class="modal-body">
+  <p class="mb-2">Utilisateur : <strong>{{ user.displayName }}</strong> <span class="text-secondary">({{ user.email }})</span></p>
+  <label class="form-label" for="roleSelect">Nouveau rôle</label>
+  <select id="roleSelect" class="form-select" [(ngModel)]="selected">
+    @for (r of roles; track r) {
+      <option [ngValue]="r">{{ labels[r] }}</option>
+    }
+  </select>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()">Annuler</button>
+  <button type="button" class="btn btn-primary" (click)="modal.close(selected)">Enregistrer</button>
+</div>

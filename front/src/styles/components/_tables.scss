@@ -1,0 +1,54 @@
+// Tables 
+
+.table {
+  margin-bottom: 0;
+
+  >:not(:last-child)>:last-child>* {
+		border-bottom-color: inherit;
+	}
+
+  thead {
+    th {
+      border-top: 0;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: $secondary;
+      i {
+        margin-left: 0.325rem;
+      }
+    }
+  }
+
+  th,
+  td {
+    white-space: nowrap;
+  }
+}
+
+// START: ng-bootstrap table
+th[sortable] {
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+th[sortable].desc:before,
+th[sortable].asc:before {
+  content: "";
+  border: solid;
+  border-width: 0 1px 1px 0;
+  padding: 3px;
+  transform: rotate(45deg) scale(1.2);
+  transform-origin: center;
+  float: left;
+  margin-left: -14px;
+  margin-top: 4px;
+}
+
+th[sortable].desc:before {
+  margin-top: 7px;
+	transform: rotate(225deg) scale(1.2);
+	-ms-transform: rotate(225deg) scale(1.2);
+}
+// END: ng-bootstrap table

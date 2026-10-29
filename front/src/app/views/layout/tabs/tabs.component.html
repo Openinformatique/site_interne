@@ -1,0 +1,41 @@
+<div class="workspace-tabs-bar">
+  <div class="workspace-tabs" role="tablist" aria-label="Pages ouvertes">
+    @for (tab of tabs(); track tab.id) {
+      <div class="workspace-tab" [class.is-active]="tab.id === activeTabId()">
+        <button
+          type="button"
+          class="workspace-tab-trigger"
+          role="tab"
+          [attr.aria-selected]="tab.id === activeTabId()"
+          [attr.tabindex]="tab.id === activeTabId() ? 0 : -1"
+          [title]="tab.title"
+          (click)="activateTab(tab.id)"
+          (keydown)="handleTabKeydown($event, tab.id)">
+          <span class="workspace-tab-label">{{ tab.title }}</span>
+        </button>
+
+        @if (tab.closable) {
+          <button
+            type="button"
+            class="workspace-tab-close"
+            [attr.aria-label]="'Fermer ' + tab.title"
+            [title]="'Fermer ' + tab.title"
+            (click)="closeTab($event, tab.id)">
+            <lucide-icon [img]="closeIcon" [size]="14" />
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (hasClosableTabs()) {
+    <button
+      type="button"
+      class="workspace-tabs-close-all"
+      aria-label="Fermer tous les onglets"
+      title="Fermer tous les onglets"
+      (click)="closeAllTabs()">
+      <!-- <lucide-icon [img]="closeIcon" [size]="14" /> -->Tout fermer
+    </button>
+  }
+</div>

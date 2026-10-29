@@ -1,0 +1,15 @@
+<div class="modal-header">
+  <h5 class="modal-title">Profil de {{ user.displayName }}</h5>
+  <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+</div>
+<div class="modal-body">
+  <p class="mb-1"><span class="text-secondary">Nom :</span> {{ user.displayName }}</p>
+  <p class="mb-1"><span class="text-secondary">E-mail :</span> {{ user.email }}</p>
+  <p class="mb-1"><span class="text-secondary">Rôle :</span> <span class="badge bg-primary">{{ labels[user.role] }}</span></p>
+  <p class="mb-1"><span class="text-secondary">Statut :</span> {{ user.isActive ? 'Actif' : 'Désactivé' }}</p>
+  <p class="mb-1"><span class="text-secondary">Créé le :</span> {{ user.createdAt | dateFr }}</p>
+  <p class="mb-0"><span class="text-secondary">Dernière connexion :</span> {{ user.lastLoginAt | dateFr:true }}</p>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()">Fermer</button>
+</div>

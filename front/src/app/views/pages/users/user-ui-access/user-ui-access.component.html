@@ -1,0 +1,150 @@
+@if (loading()) {
+  <app-page-loader />
+} @else if (notFound() || !user()) {
+  <app-empty-state title="Utilisateur introuvable" message="Cet utilisateur n'existe pas ou plus." />
+} @else {
+  <section class="user-ui-access-page">
+    <button type="button" class="back-link" (click)="back()"><lucide-icon [img]="ArrowLeft" [size]="16" /> Retour aux utilisateurs</button>
+
+    <header class="header-card panel">
+      <div class="identity">
+        <span class="avatar {{ roleClass(user()!.role) }}">{{ initials(user()!) }}<span class="presence" [class.off]="!user()!.isActive"></span></span>
+        <div class="identity-text">
+          <h1>{{ user()!.displayName }}</h1>
+          <p class="email">{{ user()!.email }}</p>
+          <span class="role-badge {{ roleClass(user()!.role) }}">{{ roleLabels[user()!.role] }}</span>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-tile">
+          <span class="stat-icon indigo"><lucide-icon [img]="LayoutGrid" [size]="19" /></span>
+          <div><strong>{{ totalModulesCount() }}</strong><span>Modules</span></div>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-icon green"><lucide-icon [img]="Eye" [size]="19" /></span>
+          <div><strong>{{ visibleElementsCount() }}</strong><span>Éléments visibles</span></div>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-icon blue"><lucide-icon [img]="LayersIcon" [size]="19" /></span>
+          <div><strong>{{ totalElementsCount() }}</strong><span>Total éléments</span></div>
+        </div>
+      </div>
+
+      @if (lastSavedAt()) {
+        <div class="last-update">
+          <span class="label">Dernière mise à jour</span>
+          <strong>{{ lastSavedAt() | dateFr:true }}</strong>
+          @if (lastSavedBy()) { <span class="by">par {{ lastSavedBy() }}</span> }
+        </div>
+      }
+    </header>
+
+    <div class="toolbar panel">
+      <span class="search-input">
+        <lucide-icon [img]="Search" [size]="16" aria-hidden="true" />
+        <input #searchInput type="search" placeholder="Rechercher une page ou un élément..." [formControl]="searchControl" />
+        <kbd class="shortcut-hint">⌘K</kbd>
+      </span>
+      @if (isAdmin()) {
+        <div class="toolbar-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="toggleAll(true)"><lucide-icon [img]="Eye" [size]="15" /> Tout afficher</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="toggleAll(false)"><lucide-icon [img]="EyeOff" [size]="15" /> Tout masquer</button>
+          <button type="button" class="btn btn-outline-danger" [disabled]="saving()" (click)="reset()"><lucide-icon [img]="RotateCcw" [size]="15" /> Réinitialiser</button>
+          <button type="button" class="btn btn-primary" [disabled]="!dirty() || saving()" (click)="save()"><lucide-icon [img]="Save" [size]="15" /> Enregistrer</button>
+        </div>
+      }
+    </div>
+
+    @if (dirty()) {
+      <p class="dirty-banner">Modifications non enregistrées.</p>
+    }
+
+    <div class="content-layout">
+      <aside class="categories-nav panel">
+        <h2>Catégories</h2>
+        <ul>
+          @for (group of baseGroups(); track group.moduleKey) {
+            <li>
+              <button
+                type="button"
+                class="category-item"
+                [class.active]="selectedModuleKey() === group.moduleKey"
+                (click)="selectModule(group.moduleKey)"
+              >
+                <lucide-icon [img]="moduleIcon(group.moduleKey)" [size]="16" />
+                <span>{{ group.moduleLabel }}</span>
+                <span class="badge-count" [class.has-restrictions]="hiddenCountForModule(group.moduleKey) > 0">
+                  {{ hiddenCountForModule(group.moduleKey) }}
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      </aside>
+
+      <main class="main-content">
+        @for (group of groups(); track group.moduleKey) {
+          <section class="module-group">
+            <h2 class="module-title">{{ group.moduleLabel }}</h2>
+
+            @for (page of group.pages; track page.pageKey) {
+              <article class="page-panel panel">
+                <div class="page-panel-header">
+                  <label class="page-checkbox">
+                    <input type="checkbox" [checked]="pageChecked(page)" [disabled]="!isAdmin()" (change)="toggle(page.pageAccess.key)" />
+                    <span class="page-icon"><lucide-icon [img]="pageIcon(page.pageKey)" [size]="17" /></span>
+                    <strong>{{ page.pageLabel }}</strong>
+                    <span class="count-badge">{{ page.elements.length }} élément{{ page.elements.length > 1 ? 's' : '' }}</span>
+                  </label>
+
+                  <div class="page-panel-actions">
+                    @if (isAdmin()) {
+                      <button type="button" class="link-action" (click)="showAllForPage(page)">Tout afficher</button>
+                      <button type="button" class="link-action" (click)="hideAllForPage(page)">Tout masquer</button>
+                    }
+                    <button
+                      type="button"
+                      class="icon-button"
+                      [attr.aria-label]="isExpanded(page.pageKey) ? 'Réduire' : 'Déplier'"
+                      (click)="toggleExpand(page.pageKey)"
+                    >
+                      <lucide-icon [img]="isExpanded(page.pageKey) ? ChevronUp : ChevronDown" [size]="16" />
+                    </button>
+                  </div>
+                </div>
+
+                @if (isExpanded(page.pageKey) && page.elements.length) {
+                  <ul class="element-list">
+                    @for (element of page.elements; track element.key) {
+                      <li>
+                        <label class="element-checkbox" [class.disabled]="!pageChecked(page)">
+                          <input
+                            type="checkbox"
+                            [checked]="isChecked(element.key)"
+                            [disabled]="!isAdmin() || !pageChecked(page)"
+                            (change)="toggle(element.key)"
+                          />
+                          <span class="element-label">{{ element.label }}</span>
+                          <span class="element-type">{{ element.type }}</span>
+                        </label>
+                        <lucide-icon
+                          class="visibility-icon"
+                          [class.is-hidden]="!isChecked(element.key)"
+                          [img]="isChecked(element.key) ? Eye : EyeOff"
+                          [size]="15"
+                        />
+                      </li>
+                    }
+                  </ul>
+                }
+              </article>
+            }
+          </section>
+        } @empty {
+          <app-empty-state title="Aucun résultat" message="Aucune page ou élément ne correspond à votre recherche." />
+        }
+      </main>
+    </div>
+  </section>
+}

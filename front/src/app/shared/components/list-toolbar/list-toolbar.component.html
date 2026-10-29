@@ -1,0 +1,12 @@
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <div class="flex-grow-1" style="max-width: 320px;">
+    <input type="search" class="form-control" [formControl]="search" [placeholder]="placeholder()" />
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <ng-content select="[filters]"></ng-content>
+    @if (showExport()) {
+      <button type="button" class="btn btn-outline-secondary" (click)="exportClick.emit()">Exporter</button>
+    }
+    <ng-content></ng-content>
+  </div>
+</div>

@@ -1,0 +1,92 @@
+<nav class="navbar">
+  <div class="navbar-content">
+
+    <div class="logo-mini-wrapper">
+      <img src="images/logo-mini-light.png" class="logo-mini logo-mini-light" alt="logo">
+      <img src="images/logo-mini-dark.png" class="logo-mini logo-mini-dark" alt="logo">
+    </div>
+
+    <!-- Recherche globale (branchée en F10) -->
+    <div class="search-form position-relative">
+      <div class="input-group">
+        <div class="input-group-text">
+          <lucide-icon [img]="searchIcon" />
+        </div>
+        <input type="text" class="form-control" placeholder="Rechercher (contact, produit, commande, facture)…"
+               [formControl]="searchControl" (focus)="searchOpen.set(results().length > 0)" />
+      </div>
+      @if (searchOpen() && results().length > 0) {
+        <div class="dropdown-menu show w-100 mt-1" style="max-height: 360px; overflow-y: auto;">
+          @for (r of results(); track r.type + r.id) {
+            <button type="button" class="dropdown-item d-flex justify-content-between align-items-center" (click)="goToResult(r)">
+              <span class="text-truncate">
+                <strong>{{ r.label }}</strong>
+                <span class="text-secondary small ms-1">{{ r.subtitle }}</span>
+              </span>
+              <span class="badge bg-light text-dark ms-2">{{ typeLabels[r.type] }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <ul class="navbar-nav">
+      <!-- Bascule thème clair/sombre -->
+      <li class="theme-switcher-wrapper nav-item">
+        <input type="checkbox" (change)="onThemeCheckboxChange($event)" id="theme-switcher">
+        <label for="theme-switcher">
+          <div class="box">
+            <div class="ball"></div>
+            <div class="icons">
+              <lucide-icon [img]="sunIcon" />
+              <lucide-icon [img]="moonIcon" />
+            </div>
+          </div>
+        </label>
+      </li>
+
+      <!-- Profil utilisateur -->
+      <li class="nav-item nav-profile" ngbDropdown>
+        <a class="nav-link" ngbDropdownToggle id="profileDropdown">
+          <img class="w-30px h-30px ms-1 rounded-circle" src="https://placehold.co/30x30" alt="profil">
+        </a>
+        <div ngbDropdownMenu class="px-0" aria-labelledby="profileDropdown">
+          <div class="d-flex flex-column align-items-center border-bottom px-5 py-3">
+            <div class="text-center">
+              <p class="tx-16 fw-bolder mb-0">{{ user()?.displayName }}</p>
+              <p class="fs-12px text-secondary mb-1">{{ user()?.email }}</p>
+              @if (roleLabel()) {
+                <span class="badge bg-primary">{{ roleLabel() }}</span>
+              }
+            </div>
+          </div>
+          <ul class="list-unstyled p-1">
+            <li>
+              <a routerLink="/profile" class="dropdown-item py-2 d-flex ms-0">
+                <lucide-icon [img]="userIcon" class="icon-md me-2" />
+                <span>Mon profil</span>
+              </a>
+            </li>
+            <li>
+              <a routerLink="/profile/sessions" class="dropdown-item py-2 d-flex ms-0">
+                <lucide-icon [img]="monitorIcon" class="icon-md me-2" />
+                <span>Mes sessions</span>
+              </a>
+            </li>
+            <li>
+              <a href="" (click)="onLogout($event)" class="dropdown-item py-2 d-flex ms-0">
+                <lucide-icon [img]="logOutIcon" class="icon-md me-2" />
+                <span>Déconnexion</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+
+    <a href="" class="sidebar-toggler" (click)="toggleSidebar($event)">
+      <lucide-icon [img]="textAlignJustifyIcon" />
+    </a>
+
+  </div>
+</nav>

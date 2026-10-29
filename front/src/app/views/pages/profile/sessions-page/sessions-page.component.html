@@ -1,0 +1,48 @@
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="card-title mb-0">Mes sessions actives</h5>
+      <button type="button" class="btn btn-outline-danger btn-sm" (click)="logoutAll()">
+        Déconnecter toutes mes sessions
+      </button>
+    </div>
+
+    @if (loading()) {
+      <app-page-loader />
+    } @else if (sessions().length === 0) {
+      <app-empty-state title="Aucune session active" />
+    } @else {
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>Appareil</th>
+              <th>IP</th>
+              <th>Dernière activité</th>
+              <th>Expire le</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of sessions(); track s.id) {
+              <tr>
+                <td>
+                  {{ s.userAgent || 'Appareil inconnu' }}
+                  @if (s.isCurrent) { <span class="badge bg-success ms-1">Session courante</span> }
+                </td>
+                <td>{{ s.ipAddress || '—' }}</td>
+                <td>{{ s.lastUsedAt | dateFr: true }}</td>
+                <td>{{ s.expiresAt | dateFr }}</td>
+                <td class="text-end">
+                  <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="s.isCurrent" (click)="revoke(s)">
+                    Révoquer
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

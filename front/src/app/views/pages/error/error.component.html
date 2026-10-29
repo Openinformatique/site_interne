@@ -1,0 +1,20 @@
+<div class="main-wrapper">
+  <div class="page-wrapper full-page">
+    <div class="page-content container-xxl d-flex align-items-center justify-content-center">
+
+      <div class="row w-100 mx-0 auth-page">
+        <div class="col-md-8 col-xl-6 mx-auto d-flex flex-column align-items-center">
+          <img src="images/others/404.svg" class="img-fluid mb-2" alt="404">
+          <h1 class="fw-bolder mt-2 fs-150px text-secondary">{{type}}</h1>
+          <h4 class="mb-2">{{title}}</h4>
+          <p class="text-secondary mb-3 text-center w-75" [innerHTML]="desc"></p>
+          <button type="button" class="btn btn-primary btn-icon-text" routerLink="/dashboard">
+            <lucide-icon [img]="houseIcon" class="btn-icon-prepend" />
+            Back to Home
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,37 @@
+# ------------------------------------------------------------------
+# .gitignore racine — complète front/.gitignore et back/.gitignore
+# (les règles s'appliquent récursivement à tout le repo)
+# ------------------------------------------------------------------
+
+# Dépendances
+node_modules/
+
+# Builds, caches et couverture de tests
+dist/
+build/
+.angular/cache/
+coverage/
+
+# Environnements — seuls les fichiers *.example sont versionnés
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Logs
+logs/
+*.log
+
+# Claude Code — réglages personnels locaux
+.claude/settings.local.json
+CLAUDE.local.md
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Système d'exploitation
+.DS_Store
+Thumbs.db
+desktop.ini
