@@ -15,8 +15,10 @@ horaires des salariés. Il est créé par la migration `CreateSchemaMetier`.
   `IDUtilisateur_creation/maj` et `DateH_creation/maj`.
 - `actif` (ex-`Enr_Actif`) est distinct de la suppression logique.
 - Les colonnes alimentées par le paramétrage (`type_action`, `type_commande`,
-  `mode_reglement`, `groupe`, `poste`, `type_document`) stockent une
+  `mode_reglement`, `groupe`, `type_document`) stockent une
   `cle_parametre` de la table `parametres`, sans clé étrangère.
+  `contacts.poste` est en revanche un libellé en clair (50 caractères,
+  contre 20 dans l'ancien schéma qui tronquait certains postes).
 
 ## Correspondance avec l'ancien schéma
 
@@ -50,9 +52,11 @@ Colonnes renommées ou retypées notables :
 | `Nb_Jours_*` REAL, `nbjours` INTEGER         | decimal(9,4) (heures converties en jours, ex. 0,0625 j = 0,5 h)                |
 | `Document_Commande.Doc_Bin`                  | fichier dans le stockage (`fichier_identifiant`, `type_mime`, `taille_octets`) |
 | `Pointage.DateH_debut` / `DateH_fin`         | `date_heure_debut` / `date_heure_fin`                                          |
-| `Pointage.Facturable` INTEGER                | `facturable` bit                                                               |
-| `IDUTILISATEUR` (INTEGER)                    | `utilisateur_id` (UUID vers `users`)                                           |
-| `UTILISATEUR.Login` / `MotdePasse`           | `users.email` / non repris (nouveau mot de passe)                              |
+| `Pointage.Facturable` INTEGER                | `facturable` smallint (codes 0, 1, 3, 4 repris tels quels)                     |
+| `Pointage.Temps_facturable` REAL             | `temps_facturable` decimal(9,4), en heures                                     |
+| `IDUTILISATEUR` (INTEGER)                    | `utilisateur_id` (UUID vers `users`), retrouvé via `users.login`               |
+| `UTILISATEUR.Login`                          | `users.login` (initiales, unique) ; e-mail `<login>@openinformatique.com`      |
+| `UTILISATEUR.MotdePasse`                     | non repris (nouveau mot de passe à définir)                                    |
 
 ## Règles d'intégrité
 
@@ -70,5 +74,6 @@ Colonnes renommées ou retypées notables :
 
 ## Points ouverts
 
-- Unité de `pointages.temps_facturable` (heures, minutes ou jours).
+- Signification des codes 3 et 4 de `pointages.facturable` (0 = non
+  facturable, 1 = facturable).
 - Sémantique de `parametres_tables.modifiable_super`.

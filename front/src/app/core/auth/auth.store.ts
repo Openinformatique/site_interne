@@ -53,9 +53,9 @@ export class AuthStore {
 
   readonly isAuthenticated = computed(() => this._currentUser() !== null);
   readonly isAdmin = computed(() => this._currentUser()?.role === UserRole.Admin);
-  readonly isManagerOrAdmin = computed(() => {
+  readonly isDirectionOrAdmin = computed(() => {
     const role = this._currentUser()?.role;
-    return role === UserRole.Admin || role === UserRole.Manager;
+    return role === UserRole.Admin || role === UserRole.Direction;
   });
 
   /** Route d'accueil. (Dans erp : '/quotes' pour EMPLOYEE — page absente ici, tous → dashboard.) */

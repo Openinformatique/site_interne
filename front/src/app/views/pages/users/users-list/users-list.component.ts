@@ -50,7 +50,7 @@ export class UsersListComponent {
   readonly isAdmin = this.authStore.isAdmin;
   readonly currentUserId = computed(() => this.authStore.currentUser()?.id);
   readonly roleLabels = USER_ROLE_LABELS;
-  readonly roles = [UserRole.Admin, UserRole.Manager, UserRole.Employee];
+  readonly roles = [UserRole.Admin, UserRole.Direction, UserRole.Employee];
   readonly Role = UserRole;
 
   // Icônes Lucide
@@ -150,7 +150,7 @@ export class UsersListComponent {
     return user.displayName.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
   }
   roleClass(role: UserRole): string {
-    return role === UserRole.Admin ? 'role-admin' : role === UserRole.Manager ? 'role-manager' : 'role-employee';
+    return role === UserRole.Admin ? 'role-admin' : role === UserRole.Direction ? 'role-direction' : 'role-employee';
   }
 
   configureUiAccess(user: User) {

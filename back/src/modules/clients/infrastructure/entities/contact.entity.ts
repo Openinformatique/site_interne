@@ -49,7 +49,10 @@ export class ContactEntity extends IdentityAuditableEntity {
   @Column({ name: 'actif', type: 'bit', default: true })
   actif!: boolean;
 
-  /** Clé de paramètre. */
-  @Column({ name: 'poste', type: 'nvarchar', length: 20, nullable: true })
+  /**
+   * Libellé du poste en clair (pas une clé de paramètre). Élargi à 50
+   * caractères : l'ancien champ (20) tronquait certains libellés.
+   */
+  @Column({ name: 'poste', type: 'nvarchar', length: 50, nullable: true })
   poste!: string | null;
 }

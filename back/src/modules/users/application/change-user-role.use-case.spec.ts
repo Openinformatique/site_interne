@@ -64,9 +64,9 @@ describe('ChangeUserRoleUseCase', () => {
   it('change le rôle et audite', async () => {
     users.set('cible', buildUser('cible', UserRole.Employee));
 
-    await useCase.execute('cible', UserRole.Manager, 'acteur');
+    await useCase.execute('cible', UserRole.Direction, 'acteur');
 
-    expect(roleUpdates).toEqual([{ id: 'cible', role: UserRole.Manager }]);
+    expect(roleUpdates).toEqual([{ id: 'cible', role: UserRole.Direction }]);
     expect(auditedActions).toContain('user.role.changed');
   });
 
@@ -91,15 +91,15 @@ describe('ChangeUserRoleUseCase', () => {
     users.set('cible', buildUser('cible', UserRole.Admin));
     activeAdminCount = 2;
 
-    await useCase.execute('cible', UserRole.Manager, 'acteur');
+    await useCase.execute('cible', UserRole.Direction, 'acteur');
 
-    expect(roleUpdates).toEqual([{ id: 'cible', role: UserRole.Manager }]);
+    expect(roleUpdates).toEqual([{ id: 'cible', role: UserRole.Direction }]);
   });
 
   it('est sans effet si le rôle demandé est déjà porté', async () => {
-    users.set('cible', buildUser('cible', UserRole.Manager));
+    users.set('cible', buildUser('cible', UserRole.Direction));
 
-    await useCase.execute('cible', UserRole.Manager, 'acteur');
+    await useCase.execute('cible', UserRole.Direction, 'acteur');
 
     expect(roleUpdates).toHaveLength(0);
     expect(auditedActions).toHaveLength(0);
@@ -107,7 +107,7 @@ describe('ChangeUserRoleUseCase', () => {
 
   it('lève RESOURCE_NOT_FOUND pour une cible inconnue', async () => {
     await expect(
-      useCase.execute('inconnu', UserRole.Manager, 'acteur'),
+      useCase.execute('inconnu', UserRole.Direction, 'acteur'),
     ).rejects.toBeInstanceOf(ResourceNotFoundException);
   });
 });

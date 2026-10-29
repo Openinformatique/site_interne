@@ -6,7 +6,7 @@ import { USERS_UI_KEYS } from '../../pages/users/access/users-access.keys';
 
 export const MENU: MenuItem[] = [
   { label: 'Général', isTitle: true },
-  // Dans erp le dashboard est réservé ADMIN/MANAGER (les employés atterrissent sur /quotes) ;
+  // Dans erp le dashboard est réservé ADMIN/DIRECTION (les employés atterrissent sur /quotes) ;
   // ici /quotes n'existe pas encore, on le laisse donc visible par tous.
   { label: 'Tableau de bord', icon: LayoutDashboardIcon, link: '/dashboard', uiAccessKey: DASHBOARD_UI_KEYS.PAGE_ACCESS },
 
@@ -14,7 +14,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Utilisateurs',
     icon: UsersIcon,
-    roles: [UserRole.Admin, UserRole.Manager],
+    roles: [UserRole.Admin, UserRole.Direction],
     subItems: [
       { label: 'Liste utilisateurs', link: '/users', uiAccessKey: USERS_UI_KEYS.PAGE_ACCESS },
       { label: 'Nouvel utilisateur', link: '/users/new', uiAccessKey: USERS_UI_KEYS.CREATE_BUTTON },

@@ -64,15 +64,23 @@ export class PointageEntity extends IdentityAuditableEntity {
   @Column({ name: 'type_action', type: 'nvarchar', length: 20, nullable: true })
   typeAction!: string | null;
 
-  @Column({ name: 'facturable', type: 'bit', default: false })
-  facturable!: boolean;
+  /**
+   * Code de facturation repris tel quel de l'application historique :
+   * 0 = non facturable, 1 = facturable ; 3 et 4 existent dans les données
+   * reprises (sémantique à documenter dans le paramétrage).
+   */
+  @Column({ name: 'facturable', type: 'smallint', default: 0 })
+  facturable!: number;
 
-  /** Unité à confirmer (heures, minutes ou jours). */
+  /**
+   * Temps facturable en heures (4 décimales : minutes non multiples de
+   * 15, ex. 0,3167 h = 19 min). Généralement égal à la durée du créneau.
+   */
   @Column({
     name: 'temps_facturable',
     type: 'decimal',
     precision: 9,
-    scale: 2,
+    scale: 4,
     nullable: true,
   })
   tempsFacturable!: string | null;

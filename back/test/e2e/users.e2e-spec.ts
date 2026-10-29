@@ -83,7 +83,7 @@ describe('Utilisateurs (e2e)', () => {
     });
   });
 
-  describe('GET /users (liste paginée, ADMIN/MANAGER)', () => {
+  describe('GET /users (liste paginée, ADMIN/DIRECTION)', () => {
     it('renvoie la liste avec meta.pagination complet pour un ADMIN', async () => {
       const response = await request(server)
         .get(
@@ -201,10 +201,10 @@ describe('Utilisateurs (e2e)', () => {
       const response = await request(server)
         .patch(`/api/v1/users/${employee.id}/role`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ role: UserRole.Manager })
+        .send({ role: UserRole.Direction })
         .expect(200);
 
-      expect(response.body.data.role).toBe(UserRole.Manager);
+      expect(response.body.data.role).toBe(UserRole.Direction);
 
       // Retour à l'état initial pour ne pas perturber les autres tests.
       await request(server)

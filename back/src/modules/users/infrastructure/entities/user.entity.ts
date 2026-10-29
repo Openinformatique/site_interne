@@ -25,6 +25,15 @@ export class UserEntity extends AuditableEntity {
   @Column({ name: 'display_name', type: 'nvarchar', length: 200 })
   displayName!: string;
 
+  /**
+   * Login court (initiales) repris de l'application historique ; sert de
+   * lien avec l'ancien IDUTILISATEUR lors de la reprise de données. Unique
+   * lorsqu'il est renseigné (index filtré : plusieurs comptes sans login).
+   */
+  @Index('UQ_users_login', { unique: true, where: '"login" IS NOT NULL' })
+  @Column({ name: 'login', type: 'nvarchar', length: 50, nullable: true })
+  login!: string | null;
+
   @Column({
     name: 'role',
     type: 'nvarchar',

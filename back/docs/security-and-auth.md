@@ -110,7 +110,7 @@ Une session révoquée ne peut plus JAMAIS rafraîchir de jeton.
 
 ## Autorisations par rôle
 
-Chaque utilisateur porte un **rôle applicatif** (`ADMIN` / `MANAGER` /
+Chaque utilisateur porte un **rôle applicatif** (`ADMIN` / `DIRECTION` /
 `EMPLOYEE`, colonne `users.role`, défaut `EMPLOYEE`), lisible par le front
 via `GET /users/me`.
 

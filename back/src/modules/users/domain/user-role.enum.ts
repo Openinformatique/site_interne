@@ -2,9 +2,9 @@
  * Rôle applicatif de l'utilisateur technique.
  *
  * Modèle minimal commun aux API bâties sur le socle :
- *   ADMIN    : administration complète (gestion des comptes) ;
- *   MANAGER  : consultation des utilisateurs ;
- *   EMPLOYEE : rôle par défaut, aucun accès d'administration.
+ *   ADMIN     : administration complète (gestion des comptes) ;
+ *   DIRECTION : consultation des utilisateurs (ex-MANAGER) ;
+ *   EMPLOYEE  : rôle par défaut, aucun accès d'administration.
  *
  * Le rôle est embarqué comme claim `role` de l'ACCESS token (courte durée) :
  * un changement de rôle est donc effectif au plus tard à l'expiration de
@@ -14,6 +14,6 @@
  */
 export enum UserRole {
   Admin = 'ADMIN',
-  Manager = 'MANAGER',
+  Direction = 'DIRECTION',
   Employee = 'EMPLOYEE',
 }

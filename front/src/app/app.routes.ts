@@ -25,7 +25,7 @@ export const routes: Routes = [
         path: 'users',
         loadChildren: () => import('./views/pages/users/users.routes'),
         canActivate: [roleGuard, uiAccessGuard],
-        data: { roles: [UserRole.Admin, UserRole.Manager], uiAccessKey: USERS_UI_KEYS.PAGE_ACCESS },
+        data: { roles: [UserRole.Admin, UserRole.Direction], uiAccessKey: USERS_UI_KEYS.PAGE_ACCESS },
       },
       {
         path: 'profile',

@@ -321,7 +321,7 @@ export class UserUiAccessComponent implements OnInit {
   }
 
   roleClass(role: UserRole): string {
-    return role === UserRole.Admin ? 'role-admin' : role === UserRole.Manager ? 'role-manager' : 'role-employee';
+    return role === UserRole.Admin ? 'role-admin' : role === UserRole.Direction ? 'role-direction' : 'role-employee';
   }
 
   back(): void {

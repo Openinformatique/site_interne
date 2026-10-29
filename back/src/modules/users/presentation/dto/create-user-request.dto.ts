@@ -39,7 +39,7 @@ export class CreateUserRequestDto {
   })
   @IsOptional()
   @IsEnum(UserRole, {
-    message: 'Le rôle doit valoir ADMIN, MANAGER ou EMPLOYEE.',
+    message: 'Le rôle doit valoir ADMIN, DIRECTION ou EMPLOYEE.',
   })
   role: UserRole = UserRole.Employee;
 }

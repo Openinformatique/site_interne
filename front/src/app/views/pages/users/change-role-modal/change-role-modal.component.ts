@@ -16,7 +16,7 @@ export class ChangeRoleModalComponent implements OnInit {
   user!: User; // renseigné par l'appelant via componentInstance
   selected: UserRole = UserRole.Employee;
 
-  readonly roles = [UserRole.Admin, UserRole.Manager, UserRole.Employee];
+  readonly roles = [UserRole.Admin, UserRole.Direction, UserRole.Employee];
   readonly labels = USER_ROLE_LABELS;
 
   ngOnInit(): void {

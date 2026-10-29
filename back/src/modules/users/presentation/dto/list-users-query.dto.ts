@@ -15,7 +15,7 @@ export class ListUsersQueryDto extends PaginationQueryDto {
   })
   @IsOptional()
   @IsEnum(UserRole, {
-    message: 'Le paramètre "role" doit valoir ADMIN, MANAGER ou EMPLOYEE.',
+    message: 'Le paramètre "role" doit valoir ADMIN, DIRECTION ou EMPLOYEE.',
   })
   role?: UserRole;
 

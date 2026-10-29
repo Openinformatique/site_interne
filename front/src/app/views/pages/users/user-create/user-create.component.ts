@@ -24,7 +24,7 @@ export class UserCreateComponent {
   private toast = inject(ToastService);
   private router = inject(Router);
 
-  readonly roles = [UserRole.Admin, UserRole.Manager, UserRole.Employee];
+  readonly roles = [UserRole.Admin, UserRole.Direction, UserRole.Employee];
   readonly labels = USER_ROLE_LABELS;
   readonly saving = signal(false);
 

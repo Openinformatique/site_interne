@@ -102,7 +102,7 @@ brancher un vrai IdP de développement (tenant Entra ID de dev, Keycloak...).
 ## Rôles et permissions
 
 Le socle fournit un contrôle **par rôle** opérationnel : `users.role`
-(`ADMIN`/`MANAGER`/`EMPLOYEE`, enum `UserRole`), claim `role` de l'access
+(`ADMIN`/`DIRECTION`/`EMPLOYEE`, enum `UserRole`), claim `role` de l'access
 token, décorateur `@Roles(...)` et `RolesGuard` global (refus → 403
 `ACCESS_DENIED`). Restreindre une route se résume à la décorer :
 `@Roles(UserRole.Admin)`. Voir [security-and-auth.md](security-and-auth.md).

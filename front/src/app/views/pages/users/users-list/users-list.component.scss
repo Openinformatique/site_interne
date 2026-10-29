@@ -36,7 +36,7 @@ h1 { margin: 0; color: var(--bs-emphasis-color); font-size: 1.6rem; font-weight:
 .avatar { position: relative; display: inline-flex; flex: 0 0 auto; width: 56px; height: 56px; align-items: center; justify-content: center; border-radius: 50%; font-size: 1.05rem; font-weight: 700; }
 .avatar.sm { width: 38px; height: 38px; font-size: .78rem; }
 .avatar.role-admin { background: color-mix(in srgb, #f0445a 16%, transparent); color: #e0384d; }
-.avatar.role-manager { background: color-mix(in srgb, #6571ff 16%, transparent); color: #5765f5; }
+.avatar.role-direction { background: color-mix(in srgb, #6571ff 16%, transparent); color: #5765f5; }
 .avatar.role-employee { background: color-mix(in srgb, #14b8b8 18%, transparent); color: #0f9c9c; }
 .presence { position: absolute; right: 2px; bottom: 2px; width: 12px; height: 12px; border-radius: 50%; background: #20bd7b; border: 2px solid var(--bs-body-bg); }
 .presence.off { background: var(--bs-secondary-color); }
@@ -48,7 +48,7 @@ h1 { margin: 0; color: var(--bs-emphasis-color); font-size: 1.6rem; font-weight:
 /* Badge de rôle */
 .role-badge { display: inline-flex; margin-top: .4rem; padding: .18rem .55rem; border-radius: 999px; font-size: .68rem; font-weight: 700; }
 .role-badge.role-admin { background: color-mix(in srgb, #f0445a 15%, transparent); color: #e0384d; }
-.role-badge.role-manager { background: color-mix(in srgb, #6571ff 15%, transparent); color: #5765f5; }
+.role-badge.role-direction { background: color-mix(in srgb, #6571ff 15%, transparent); color: #5765f5; }
 .role-badge.role-employee { background: color-mix(in srgb, #14b8b8 16%, transparent); color: #0f9c9c; }
 
 /* Corps de carte (2 colonnes) */

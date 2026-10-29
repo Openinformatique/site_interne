@@ -101,7 +101,7 @@ export class UsersController {
   }
 
   @Get()
-  @Roles(UserRole.Admin, UserRole.Manager)
+  @Roles(UserRole.Admin, UserRole.Direction)
   @ApiOperation({ summary: 'Liste paginée des utilisateurs' })
   @ApiOkResponse({ type: UserResponseDto, isArray: true })
   @ApiForbiddenResponse({ description: 'Rôle insuffisant (ACCESS_DENIED).' })
@@ -132,7 +132,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles(UserRole.Admin, UserRole.Manager)
+  @Roles(UserRole.Admin, UserRole.Direction)
   @ApiOperation({ summary: 'Détail d’un utilisateur' })
   @ApiOkResponse({ type: UserResponseDto })
   @ApiNotFoundResponse({

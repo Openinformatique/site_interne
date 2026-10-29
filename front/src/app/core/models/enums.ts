@@ -5,14 +5,14 @@
  */
 export enum UserRole {
   Admin = 'ADMIN',
-  Manager = 'MANAGER',
+  Direction = 'DIRECTION',
   Employee = 'EMPLOYEE',
 }
 
 /** Libellés d'affichage (français) — jamais la valeur brute à l'écran. */
 export const USER_ROLE_LABELS: Record<UserRole, string> = {
   [UserRole.Admin]: 'Administrateur',
-  [UserRole.Manager]: 'Manager',
+  [UserRole.Direction]: 'Direction',
   [UserRole.Employee]: 'Employé',
 };
 
