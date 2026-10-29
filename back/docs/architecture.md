@@ -36,7 +36,8 @@ src/
 │   │                        enrichi par le guard JWT (userId/sessionId).
 │   ├── decorators/          @Public(), @CurrentUser(), @RequiresPermission(),
 │   │                        @SkipResponseEnvelope().
-│   ├── entities/            Classes de base TypeORM (auditable, immuable).
+│   ├── entities/            Classes de base TypeORM (auditable UUID ou entier,
+│   │                        immuable).
 │   ├── exceptions/          AppException + codes d'erreur stables (error-code.enum).
 │   ├── filters/             GlobalExceptionFilter : toute erreur sort au format
 │   │                        d'enveloppe standard, sans fuite de détail interne.
@@ -50,7 +51,8 @@ src/
 │   └── security/            Rate limiting (@nestjs/throttler).
 │
 ├── database/                DataSource TypeORM, migrations (users, auth_sessions,
-│                            audit_logs), seeds idempotents, scripts d'init/reset
+│                            audit_logs, schéma métier : voir schema-metier.md),
+│                            seeds idempotents, scripts d'init/reset
 │                            des bases, TransactionService.
 │
 ├── documentation/           Génération Swagger/OpenAPI (servi sur /api/docs).

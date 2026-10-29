@@ -29,7 +29,9 @@ Règles non négociables :
 Points de branchement fournis par le socle :
 
 - **Entité** : hériter d'`AuditableEntity` (id UUID, dates, soft delete,
-  created_by/updated_by) ou `ImmutableEntity` ; le glob du DataSource CLI
+  created_by/updated_by), d'`IdentityAuditableEntity` (même chose avec un id
+  entier IDENTITY, pour le schéma métier repris de l'application historique,
+  voir [schema-metier.md](schema-metier.md)) ou `ImmutableEntity` ; le glob du DataSource CLI
   (`src/modules/**/infrastructure/**/*.entity.ts`) la détecte automatiquement ;
 - **Migration** : `npm run migration:generate -- src/database/migrations/CreateProjectsTable`,
   relire le SQL, puis `migration:run` + `migration:run:test` ;
