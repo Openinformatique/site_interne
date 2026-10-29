@@ -28,7 +28,7 @@ export class SendDemoMailUseCase {
   ): Promise<MailDeliveryResult> {
     const result = await this.mailProvider.send({
       to: recipient,
-      subject: 'E-mail de démonstration — nestjs-enterprise-starter',
+      subject: 'E-mail de démonstration — nestjs-openinfo',
       text:
         'Ceci est un e-mail de démonstration envoyé par le socle technique.\n' +
         'Il valide la configuration du module d’envoi d’e-mails.',

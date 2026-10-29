@@ -1,4 +1,4 @@
-# nestjs-enterprise-starter
+# nestjs-openinfo
 
 Socle back-end d'entreprise : **NestJS 11 · TypeScript strict · TypeORM · Microsoft SQL Server 2022 · Docker**.
 
@@ -174,7 +174,7 @@ src/
 
 **Le conteneur SQL Server ne démarre pas (port 1433 occupé)** — un autre service SQL Server occupe le port : `docker ps -a` et `Get-NetTCPConnection -LocalPort 1433` pour identifier l'occupant, puis l'arrêter ou changer `DB_PORT`.
 
-**`Login failed for user 'sa'`** — le mot de passe de `.env.local` ne correspond pas à celui utilisé à la PREMIÈRE création du volume. Soit remettre l'ancien mot de passe, soit repartir de zéro : `npm run docker:db:down`, `docker volume rm nestjs-starter-sqlserver-data`, `npm run docker:db:up`, `npm run db:init`, `npm run migration:run`, `npm run seed`.
+**`Login failed for user 'sa'`** — le mot de passe de `.env.local` ne correspond pas à celui utilisé à la PREMIÈRE création du volume. Soit remettre l'ancien mot de passe, soit repartir de zéro : `npm run docker:db:down`, `docker volume rm nestjs-openinfo-sqlserver-data`, `npm run docker:db:up`, `npm run db:init`, `npm run migration:run`, `npm run seed`.
 
 **Les tests d'intégration échouent immédiatement** — vérifier que `.env.test` existe, que `DB_DATABASE` s'y termine par `_test`, que le conteneur tourne (`npm run docker:db:status`) et que `npm run db:init` a créé la base de test.
 

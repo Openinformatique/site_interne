@@ -71,7 +71,7 @@ export class PdfKitPdfGenerator implements PdfGeneratorPort {
       .fontSize(9)
       .fillColor('#666666')
       .text(
-        'Document généré automatiquement par nestjs-enterprise-starter — ' +
+        'Document généré automatiquement par nestjs-openinfo — ' +
           'aucune valeur contractuelle.',
         { align: 'center' },
       );

@@ -13,7 +13,7 @@ import {
  */
 const buildValidEnvironment = (): Record<string, string> => ({
   NODE_ENV: 'local',
-  APP_NAME: 'nestjs-enterprise-starter',
+  APP_NAME: 'nestjs-openinfo',
   APP_HOST: '0.0.0.0',
   APP_PORT: '3000',
   APP_GLOBAL_PREFIX: 'api',

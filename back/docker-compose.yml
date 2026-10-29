@@ -1,5 +1,5 @@
 # =============================================================================
-# Docker Compose — nestjs-enterprise-starter
+# Docker Compose — nestjs-openinfo
 #
 # Ce fichier démarre UNIQUEMENT Microsoft SQL Server 2022.
 # L'application NestJS s'exécute localement sur la machine du développeur
@@ -9,12 +9,12 @@
 # npm (--env-file .env.local). Exemple : npm run docker:db:up
 # =============================================================================
 
-name: nestjs-enterprise-starter
+name: nestjs-openinfo
 
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: nestjs-starter-sqlserver
+    container_name: nestjs-openinfo-sqlserver
     environment:
       # Acceptation de la licence Microsoft SQL Server (obligatoire)
       ACCEPT_EULA: 'Y'
@@ -42,12 +42,12 @@ services:
       start_period: 20s
     restart: unless-stopped
     networks:
-      - nestjs-starter-network
+      - nestjs-openinfo-network
 
 volumes:
   sqlserver-data:
-    name: nestjs-starter-sqlserver-data
+    name: nestjs-openinfo-sqlserver-data
 
 networks:
-  nestjs-starter-network:
-    name: nestjs-starter-network
+  nestjs-openinfo-network:
+    name: nestjs-openinfo-network

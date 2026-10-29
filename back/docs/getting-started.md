@@ -45,7 +45,7 @@ npm run seed              # utilisateurs techniques (mots de passe affichés)
 
 ⚠️ Le mot de passe `sa` est fixé à la PREMIÈRE création du volume Docker.
 Changer `DB_PASSWORD` ensuite ne suffit pas : supprimer le volume
-(`docker volume rm nestjs-starter-sqlserver-data`) et réinitialiser.
+(`docker volume rm nestjs-openinfo-sqlserver-data`) et réinitialiser.
 
 ## 5. Lancement
 

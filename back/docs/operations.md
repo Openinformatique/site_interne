@@ -44,14 +44,14 @@ Ajouter une variable : voir [extending.md](extending.md).
 
 ## Base de données
 
-SQL Server 2022 dans un conteneur Docker dédié (`nestjs-starter-sqlserver`) ;
+SQL Server 2022 dans un conteneur Docker dédié (`nestjs-openinfo-sqlserver`) ;
 NestJS s'exécute localement. Une même instance héberge deux bases :
 `nestjs_starter_local` (développement) et `nestjs_starter_test` (tests
 UNIQUEMENT). `npm run db:init` crée les deux (idempotent) ;
 `npm run db:reset:test` détruit/recrée la base de test — garde-fou : refus de
 toute base dont le nom ne finit pas par `_test`.
 
-Docker : volume nommé `nestjs-starter-sqlserver-data` (les données survivent
+Docker : volume nommé `nestjs-openinfo-sqlserver-data` (les données survivent
 aux redémarrages) ; healthcheck sqlcmd via `127.0.0.1` (`localhost` se résout
 en IPv6 dans le conteneur et ferait échouer la sonde). `Dockerfile.dev` est
 fourni à titre de référence UNIQUEMENT.
