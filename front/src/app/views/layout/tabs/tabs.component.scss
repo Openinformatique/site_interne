@@ -23,31 +23,51 @@
   scrollbar-width: thin;
 }
 
-.workspace-tabs-close-all {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  height: 30px;
-  padding: 0 .75rem;
+// Menu contextuel (clic droit) d'un onglet : position fixe pour ne pas être
+// coupé par le défilement horizontal de la barre d'onglets.
+.workspace-tab-menu {
+  position: fixed;
+  z-index: 1060;
+  width: 280px;
+  padding: .25rem;
   border: 1px solid var(--bs-border-color);
-  border-radius: .35rem;
+  border-radius: .375rem;
   background: var(--bs-body-bg);
-  color: var(--bs-secondary-color);
-  font-size: .76rem;
-  font-weight: 600;
+  box-shadow: 0 .5rem 1.5rem rgba(33, 42, 58, .12);
+}
+
+[data-bs-theme='dark'] .workspace-tab-menu {
+  box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .5);
+}
+
+.workspace-tab-menu-item {
+  display: block;
+  width: 100%;
+  min-height: 34px;
+  padding: .375rem .875rem;
+  border: 0;
+  border-radius: .25rem;
+  background: transparent;
+  color: var(--bs-body-color);
+  font-size: .8125rem;
+  text-align: left;
   white-space: nowrap;
   cursor: pointer;
 }
 
-.workspace-tabs-close-all:hover {
-  color: var(--bs-emphasis-color);
-  border-color: color-mix(in srgb, var(--bs-primary) 45%, var(--bs-border-color));
+.workspace-tab-menu-item:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--bs-primary) 10%, transparent);
+  color: var(--bs-primary);
 }
 
-.workspace-tabs-close-all:focus-visible {
+.workspace-tab-menu-item:focus-visible {
   outline: 2px solid var(--bs-primary);
   outline-offset: -2px;
+}
+
+.workspace-tab-menu-item:disabled {
+  color: var(--bs-tertiary-color);
+  cursor: default;
 }
 
 .workspace-tab {

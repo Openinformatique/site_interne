@@ -17,20 +17,6 @@ export const DASHBOARD_PAGE_ACCESS = {
     defaultVisible: true,
   },
 
-  elements: [
-    {
-      key: DASHBOARD_UI_KEYS.RECENT_ORDERS_SECTION,
-      label: 'Section Commandes récentes',
-      type: 'section',
-      defaultVisible: true,
-      dependsOn: [DASHBOARD_UI_KEYS.PAGE_ACCESS],
-    },
-    {
-      key: DASHBOARD_UI_KEYS.RECENT_INVOICES_SECTION,
-      label: 'Section Factures récentes',
-      type: 'section',
-      defaultVisible: true,
-      dependsOn: [DASHBOARD_UI_KEYS.PAGE_ACCESS],
-    },
-  ],
+  // Aucun élément configurable tant que le tableau de bord n'est pas conçu.
+  elements: [],
 } satisfies PageUiAccessManifest;

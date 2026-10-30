@@ -142,25 +142,82 @@ export class TabsService {
     this.persistState();
   }
 
+  /** Ferme tous les onglets fermables ; le Tableau de bord devient l'onglet actif. */
   async closeAllTabs(): Promise<void> {
+    await this.closeTabs(this.tabsState(), DASHBOARD_TAB.id, true);
+  }
+
+  /** Ferme tous les onglets sauf `tabId` (et le Tableau de bord, jamais fermable). */
+  async closeOtherTabs(tabId: string): Promise<void> {
+    await this.closeTabs(this.tabsState().filter(tab => tab.id !== tabId), tabId);
+  }
+
+  /** Ferme les onglets situés à gauche de `tabId`. */
+  async closeTabsToLeft(tabId: string): Promise<void> {
     const tabs = this.tabsState();
-    const closableTabs = tabs.filter(tab => tab.closable);
-    if (closableTabs.length === 0) {
+    const index = tabs.findIndex(tab => tab.id === tabId);
+    if (index < 0) {
+      return;
+    }
+    await this.closeTabs(tabs.slice(0, index), tabId);
+  }
+
+  /** Ferme les onglets situés à droite de `tabId`. */
+  async closeTabsToRight(tabId: string): Promise<void> {
+    const tabs = this.tabsState();
+    const index = tabs.findIndex(tab => tab.id === tabId);
+    if (index < 0) {
+      return;
+    }
+    await this.closeTabs(tabs.slice(index + 1), tabId);
+  }
+
+  /** Nombre d'onglets fermables respectivement à gauche, à droite et autour de `tabId`. */
+  closableTabCounts(tabId: string): { left: number; right: number; others: number; all: number } {
+    const tabs = this.tabsState();
+    const index = tabs.findIndex(tab => tab.id === tabId);
+    const closable = (list: AppTab[]) => list.filter(tab => tab.closable).length;
+    return {
+      left: index < 0 ? 0 : closable(tabs.slice(0, index)),
+      right: index < 0 ? 0 : closable(tabs.slice(index + 1)),
+      others: closable(tabs.filter(tab => tab.id !== tabId)),
+      all: closable(tabs),
+    };
+  }
+
+  /**
+   * Ferme les onglets `candidates` (les onglets non fermables, dont le Tableau
+   * de bord, sont toujours ignorés), après une seule confirmation si l'un
+   * d'eux a des modifications non enregistrées. Si l'onglet actif est fermé,
+   * `focusTabId` devient l'onglet actif ; `alwaysFocus` l'active dans tous
+   * les cas.
+   */
+  private async closeTabs(candidates: AppTab[], focusTabId: string, alwaysFocus = false): Promise<void> {
+    const toClose = candidates.filter(tab => tab.closable);
+    if (toClose.length === 0) {
       return;
     }
 
-    if (closableTabs.some(tab => this.isTabDirty(tab)) && !(await this.confirmDiscardChanges())) {
+    if (toClose.some(tab => this.isTabDirty(tab)) && !(await this.confirmDiscardChanges())) {
       return;
     }
 
-    closableTabs.forEach(tab => {
+    const closedIds = new Set(toClose.map(tab => tab.id));
+    toClose.forEach(tab => {
       this.dirtyChecks.delete(tab.url);
       this.notifyTabClosed(tab.id);
     });
-    this.tabsState.set(tabs.filter(tab => !tab.closable));
-    this.setActiveTab(DASHBOARD_TAB.id);
+    this.tabsState.update(tabs => tabs.filter(tab => !closedIds.has(tab.id)));
+
+    if (alwaysFocus || closedIds.has(this.activeTabIdState())) {
+      const focusTab = this.findById(focusTabId) ?? DASHBOARD_TAB;
+      this.setActiveTab(focusTab.id);
+      this.persistState();
+      this.navigateToTab(focusTab);
+      return;
+    }
+
     this.persistState();
-    this.navigateToTab(DASHBOARD_TAB);
   }
 
   /**

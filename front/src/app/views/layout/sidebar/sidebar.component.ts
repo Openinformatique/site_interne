@@ -148,6 +148,49 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     this.tabsService.openTab(link, label);
   }
 
+  /** Entrée de premier niveau sans sous-option : ouvre sa page (et déplie le menu s'il est replié). */
+  onTopLevelLinkClick(event: Event, item: MenuItem): void {
+    this.unfoldSidebarIfFolded();
+    this.openMenuItem(event, item.link, item.label);
+  }
+
+  /**
+   * Entrée à sous-options. Menu déplié : MetisMenu ouvre/ferme le groupe.
+   * Menu replié (y compris survolé) : ouvre directement la première
+   * sous-option et déplie le menu. `stopImmediatePropagation` empêche
+   * MetisMenu, dont l'écouteur est posé après celui d'Angular, de basculer le
+   * groupe : c'est la navigation (_activateMenuDropdown) qui l'ouvre.
+   */
+  onGroupClick(event: Event, item: MenuItem): void {
+    if (!this.document.body.classList.contains('sidebar-folded')) {
+      return;
+    }
+
+    const target = this.firstLeaf(item);
+    if (!target?.link) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    this.unfoldSidebarIfFolded();
+    this.tabsService.openTab(target.link, target.label);
+  }
+
+  private firstLeaf(item: MenuItem): MenuItem | undefined {
+    const first = item.subItems?.[0];
+    return first && this.hasItems(first) ? this.firstLeaf(first) : first;
+  }
+
+  private unfoldSidebarIfFolded(): void {
+    const body = this.document.body;
+    if (!body.classList.contains('sidebar-folded')) {
+      return;
+    }
+    body.classList.remove('sidebar-folded', 'open-sidebar-folded');
+    this.sidebarToggler?.nativeElement.classList.remove('active');
+  }
+
 
   /**
    * Reset the menus, then highlight the currently active menu item

@@ -1,23 +1,36 @@
 import { MenuItem } from './menu.model';
-import { LayoutDashboardIcon, UsersIcon } from 'lucide-angular';
+import { Building2Icon, LayoutDashboardIcon, UsersIcon } from 'lucide-angular';
 import { UserRole } from '../../../core/models/enums';
 import { DASHBOARD_UI_KEYS } from '../../pages/dashboard/access/dashboard-access.keys';
 import { USERS_UI_KEYS } from '../../pages/users/access/users-access.keys';
 
+/**
+ * Menu latéral (voir views/layout/README.md).
+ *
+ * Une entrée à sous-options (groupe) ne porte pas de lien : en menu replié,
+ * un clic sur son icône ouvre sa première sous-option et déplie le menu.
+ */
 export const MENU: MenuItem[] = [
   { label: 'Général', isTitle: true },
-  // Dans erp le dashboard est réservé ADMIN/DIRECTION (les employés atterrissent sur /quotes) ;
-  // ici /quotes n'existe pas encore, on le laisse donc visible par tous.
   { label: 'Tableau de bord', icon: LayoutDashboardIcon, link: '/dashboard', uiAccessKey: DASHBOARD_UI_KEYS.PAGE_ACCESS },
 
+  { label: 'Gestion', isTitle: true },
+  {
+    label: 'Module clients',
+    icon: Building2Icon,
+    subItems: [
+      { label: 'Liste des clients', link: '/clients' },
+      { label: 'Commandes', link: '/commandes' },
+    ],
+  },
+
   { label: 'Administration', isTitle: true },
+  // La création d'un utilisateur se fait depuis la liste (bouton « Nouvel utilisateur »).
   {
     label: 'Utilisateurs',
     icon: UsersIcon,
+    link: '/users',
     roles: [UserRole.Admin, UserRole.Direction],
-    subItems: [
-      { label: 'Liste utilisateurs', link: '/users', uiAccessKey: USERS_UI_KEYS.PAGE_ACCESS },
-      { label: 'Nouvel utilisateur', link: '/users/new', uiAccessKey: USERS_UI_KEYS.CREATE_BUTTON },
-    ],
+    uiAccessKey: USERS_UI_KEYS.PAGE_ACCESS,
   },
 ];

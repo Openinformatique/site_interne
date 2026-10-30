@@ -4,11 +4,15 @@
       <div class="card">
         <div class="row">
           <div class="col-md-4 pe-md-0">
-            <div class="auth-side-wrapper" [style.background-image]="'url(https://placehold.co/250x650)'"></div>
+            <!-- Illustration extraite du site openinformatique.com (Fichier-2.png, groupe de gauche) -->
+            <div class="auth-side-wrapper" style="background-image: url('images/login-illustration.png')" role="img" aria-label="Illustration : une équipe travaillant sur tablettes et smartphones"></div>
           </div>
           <div class="col-md-8 ps-md-0">
             <div class="auth-form-wrapper px-4 py-5">
-              <a class="nobleui-logo d-block mb-2">ERP <span>OpenInfo</span></a>
+              <div class="auth-logo mb-3">
+                <img src="images/logo-openinformatique.png" class="auth-logo-light" alt="OpenInformatique">
+                <img src="images/logo-openinformatique-sombre.png" class="auth-logo-dark" alt="OpenInformatique">
+              </div>
               <h5 class="text-secondary fw-normal mb-4">Connectez-vous à votre espace.</h5>
 
               <form class="forms-sample" [formGroup]="form" (ngSubmit)="submit()">

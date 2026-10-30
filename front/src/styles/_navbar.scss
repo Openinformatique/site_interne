@@ -172,60 +172,79 @@
             }
           }
         }
+        // Interrupteur jour/nuit : soleil | glissière | lune ; l'icône du
+        // thème actif est colorée (soleil doré, lune couleur primaire).
         &.theme-switcher-wrapper {
-          $scale: 46px;
           margin: 0 14px;
-        
-          input {
-            &#theme-switcher {
-              display: none;
+
+          // Case visuellement masquée mais focalisable au clavier.
+          input#theme-switcher {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+
+            &:focus-visible + label .box {
+              outline: 2px solid $primary;
+              outline-offset: 2px;
             }
           }
-        
-          .box {
-            width: $scale;
-            height: calc($scale/2);
-            background-color: $gray-300;
-            border-radius: calc($scale/4);
-            cursor: pointer;
-            position: relative;
+
+          label {
             display: flex;
             align-items: center;
+            gap: 8px;
+            height: 44px;
+            margin: 0;
+            cursor: pointer;
+          }
+
+          .theme-icon {
+            display: inline-flex;
+            color: $secondary;
+            transition: color .2s ease;
+          }
+
+          .theme-icon-sun {
+            color: #f5a623;
+          }
+
+          .box {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            border-radius: 11px;
+            background-color: $gray-400;
+            transition: background-color .2s ease;
+
             .ball {
-              width: calc($scale/2);
-              height: calc($scale/2);
-              background-color: $secondary;
-              border-radius: 50%;
-              border: calc($scale/16) solid $gray-300;
               position: absolute;
-              transition: transform .1s ease;
+              top: 2px;
+              left: 2px;
+              width: 18px;
+              height: 18px;
+              border-radius: 50%;
+              background-color: $white;
+              box-shadow: 0 1px 3px rgba($black, .3);
+              transition: transform .2s ease;
             }
-            .icons {
-              display: flex;
-              align-items: center;
-              justify-content: space-around;
-              flex-grow: 1;
-              padding: 0 3px;
-              svg {
-                color: $dark;
-                width: calc($scale/2.6);
-                height: calc($scale/2.6);
-              }
-            }
-            &.light {
-              .ball {
-                transform: translate(0);
-              }
-            }
+
             &.dark {
-              background-color: $gray-800;
+              background-color: $primary;
+
               .ball {
-                border-color: $gray-800;
-                transform: translate(100%);
+                transform: translateX(18px);
               }
-              svg {
-                color: $warning;
-              }
+            }
+          }
+
+          [data-bs-theme='dark'] & {
+            .theme-icon-sun {
+              color: $secondary;
+            }
+            .theme-icon-moon {
+              color: $primary;
             }
           }
         }

@@ -6,7 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import {
   CalendarDays, ChevronDown, ChevronUp, ChevronsUpDown, Eye, LayoutGrid, List, LucideAngularModule, Mail,
-  MoreVertical, RotateCcw, Search, Shield, SlidersHorizontal, Trash2, UserRound, Users,
+  MoreVertical, RotateCcw, Search, Shield, SlidersHorizontal, Trash2, UserPlus, UserRound, Users,
 } from 'lucide-angular';
 
 import { UsersApi } from '../../../../core/api/users-api.service';
@@ -68,6 +68,7 @@ export class UsersListComponent {
   readonly Shield = Shield;
   readonly SlidersHorizontal = SlidersHorizontal;
   readonly Trash2 = Trash2;
+  readonly UserPlus = UserPlus;
   readonly UserRound = UserRound;
   readonly Users = Users;
 
@@ -151,6 +152,11 @@ export class UsersListComponent {
   }
   roleClass(role: UserRole): string {
     return role === UserRole.Admin ? 'role-admin' : role === UserRole.Direction ? 'role-direction' : 'role-employee';
+  }
+
+  /** La création d'un utilisateur se fait depuis la liste (plus d'entrée dédiée dans le menu). */
+  createUser() {
+    this.tabsService.openTab('/users/new', 'Nouvel utilisateur');
   }
 
   configureUiAccess(user: User) {

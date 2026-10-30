@@ -4,3 +4,32 @@
   align-items: center;
   justify-content: center;
 }
+
+// Illustration de gauche : découpe verticale de l'image du site, cadrée sur
+// les personnages quelle que soit la hauteur du formulaire.
+.auth-side-wrapper {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+// Logo OpenInformatique ; variante au slogan blanc en thème sombre.
+.auth-logo img {
+  display: block;
+  // 252 px de large ≈ 72 px de haut ; réduit proportionnellement si la colonne est plus étroite.
+  width: 252px;
+  max-width: 100%;
+  height: auto;
+}
+
+.auth-logo-dark {
+  display: none !important;
+}
+
+:host-context([data-bs-theme='dark']) {
+  .auth-logo-light {
+    display: none !important;
+  }
+  .auth-logo-dark {
+    display: block !important;
+  }
+}

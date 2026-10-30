@@ -9,7 +9,7 @@ export interface AppTab {
 
 export const DASHBOARD_TAB: AppTab = {
   id: '/dashboard',
-  title: 'Dashboard',
+  title: 'Tableau de bord',
   url: '/dashboard',
   closable: false
 };

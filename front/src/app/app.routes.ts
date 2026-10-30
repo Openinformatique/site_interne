@@ -27,42 +27,19 @@ export const routes: Routes = [
         canActivate: [roleGuard, uiAccessGuard],
         data: { roles: [UserRole.Admin, UserRole.Direction], uiAccessKey: USERS_UI_KEYS.PAGE_ACCESS },
       },
+      // Module clients (visible par tous les rôles).
+      {
+        path: 'clients',
+        loadChildren: () => import('./views/pages/clients/clients.routes'),
+      },
+      {
+        path: 'commandes',
+        loadChildren: () => import('./views/pages/commandes/commandes.routes'),
+      },
       {
         path: 'profile',
         loadChildren: () => import('./views/pages/profile/profile.routes'),
       },
-      {
-        path: 'apps',
-        loadChildren: () => import('./views/pages/apps/apps.routes')
-      },
-      {
-        path: 'ui-components',
-        loadChildren: () => import('./views/pages/ui-components/ui-components.routes')
-      },
-      {
-        path: 'advanced-ui',
-        loadChildren: () => import('./views/pages/advanced-ui/advanced-ui.routes')
-      },
-      {
-        path: 'forms',
-        loadChildren: () => import('./views/pages/forms/forms.routes')
-      },
-      {
-        path: 'charts',
-        loadChildren: () => import('./views/pages/charts/charts.routes')
-      },
-      {
-        path: 'tables',
-        loadChildren: () => import('./views/pages/tables/tables.routes')
-      },
-      {
-        path: 'icons',
-        loadChildren: () => import('./views/pages/icons/icons.routes')
-      },
-      {
-        path: 'general',
-        loadChildren: () => import('./views/pages/general/general.routes')
-      }
     ]
   },
   {

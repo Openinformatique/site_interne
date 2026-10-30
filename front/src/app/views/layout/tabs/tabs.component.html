@@ -1,14 +1,15 @@
 <div class="workspace-tabs-bar">
-  <div class="workspace-tabs" role="tablist" aria-label="Pages ouvertes">
+  <div class="workspace-tabs" role="tablist" aria-label="Pages ouvertes" (scroll)="closeContextMenu()">
     @for (tab of tabs(); track tab.id) {
-      <div class="workspace-tab" [class.is-active]="tab.id === activeTabId()">
+      <div class="workspace-tab" [class.is-active]="tab.id === activeTabId()" (contextmenu)="openContextMenu($event, tab.id)">
         <button
           type="button"
           class="workspace-tab-trigger"
           role="tab"
+          aria-haspopup="menu"
           [attr.aria-selected]="tab.id === activeTabId()"
           [attr.tabindex]="tab.id === activeTabId() ? 0 : -1"
-          [title]="tab.title"
+          [title]="tab.title + ' — clic droit : options de fermeture'"
           (click)="activateTab(tab.id)"
           (keydown)="handleTabKeydown($event, tab.id)">
           <span class="workspace-tab-label">{{ tab.title }}</span>
@@ -27,15 +28,25 @@
       </div>
     }
   </div>
-
-  @if (hasClosableTabs()) {
-    <button
-      type="button"
-      class="workspace-tabs-close-all"
-      aria-label="Fermer tous les onglets"
-      title="Fermer tous les onglets"
-      (click)="closeAllTabs()">
-      <!-- <lucide-icon [img]="closeIcon" [size]="14" /> -->Tout fermer
-    </button>
-  }
 </div>
+
+@if (contextMenu(); as menu) {
+  <div
+    class="workspace-tab-menu"
+    role="menu"
+    [attr.aria-label]="'Options de l\'onglet ' + menu.title"
+    [style.top.px]="menu.top"
+    [style.left.px]="menu.left"
+    (click)="$event.stopPropagation()">
+    @for (action of menu.actions; track action.label) {
+      <button
+        type="button"
+        role="menuitem"
+        class="workspace-tab-menu-item"
+        [disabled]="action.disabled"
+        (click)="runAction(action)">
+        {{ action.label }}
+      </button>
+    }
+  </div>
+}

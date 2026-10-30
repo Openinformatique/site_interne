@@ -1,1 +1,35 @@
 // Write your custom css/scss here
+
+// --- Menu latéral : logo OpenInformatique -----------------------------------
+// Logo agrandi (50 px de haut) dans l'encart de 240 × 60 px : marges réduites
+// par rapport au template (25 px). Replié, l'encart garde ses marges d'origine
+// pour que le bouton reste centré dans les 70 px.
+.sidebar .sidebar-header {
+  padding: 0 10px 0 14px;
+
+  .sidebar-brand .sidebar-logo {
+    display: block;
+    height: 50px;
+    width: auto;
+  }
+}
+
+.sidebar-folded:not(.open-sidebar-folded) .sidebar .sidebar-header {
+  padding: 0 25px;
+}
+
+// Variante au slogan blanc en thème sombre.
+.sidebar .sidebar-header .sidebar-brand {
+  .sidebar-logo-dark {
+    display: none;
+  }
+
+  [data-bs-theme='dark'] & {
+    .sidebar-logo-light {
+      display: none;
+    }
+    .sidebar-logo-dark {
+      display: block;
+    }
+  }
+}

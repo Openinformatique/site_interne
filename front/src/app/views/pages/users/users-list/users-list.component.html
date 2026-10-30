@@ -7,6 +7,11 @@
         <p class="subtitle">Gérez les comptes et les accès de votre application.</p>
       </div>
     </div>
+    @if (isAdmin()) {
+      <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" *appUiVisible="UsersUiKeys.CREATE_BUTTON" (click)="createUser()">
+        <lucide-icon [img]="UserPlus" [size]="16" /> Nouvel utilisateur
+      </button>
+    }
   </header>
 
   <section class="filters-bar" aria-label="Filtres des utilisateurs">

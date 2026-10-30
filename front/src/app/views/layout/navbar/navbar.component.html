@@ -33,15 +33,11 @@
     <ul class="navbar-nav">
       <!-- Bascule thème clair/sombre -->
       <li class="theme-switcher-wrapper nav-item">
-        <input type="checkbox" (change)="onThemeCheckboxChange($event)" id="theme-switcher">
-        <label for="theme-switcher">
-          <div class="box">
-            <div class="ball"></div>
-            <div class="icons">
-              <lucide-icon [img]="sunIcon" />
-              <lucide-icon [img]="moonIcon" />
-            </div>
-          </div>
+        <input type="checkbox" role="switch" aria-label="Thème sombre" (change)="onThemeCheckboxChange($event)" id="theme-switcher">
+        <label for="theme-switcher" title="Basculer entre le thème clair et le thème sombre">
+          <lucide-icon [img]="sunIcon" [size]="16" class="theme-icon theme-icon-sun" aria-hidden="true" />
+          <span class="box"><span class="ball"></span></span>
+          <lucide-icon [img]="moonIcon" [size]="16" class="theme-icon theme-icon-moon" aria-hidden="true" />
         </label>
       </li>
 
