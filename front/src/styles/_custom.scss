@@ -2,8 +2,7 @@
 
 // --- Menu latéral : logo OpenInformatique -----------------------------------
 // Logo agrandi (50 px de haut) dans l'encart de 240 × 60 px : marges réduites
-// par rapport au template (25 px). Replié, l'encart garde ses marges d'origine
-// pour que le bouton reste centré dans les 70 px.
+// par rapport au template (25 px).
 .sidebar .sidebar-header {
   padding: 0 10px 0 14px;
 
@@ -14,8 +13,9 @@
   }
 }
 
+// Bouton de 32 px centré dans les 70 px du menu replié.
 .sidebar-folded:not(.open-sidebar-folded) .sidebar .sidebar-header {
-  padding: 0 25px;
+  padding: 0 19px;
 }
 
 // Variante au slogan blanc en thème sombre.
@@ -32,4 +32,29 @@
       display: block;
     }
   }
+}
+
+// Modales de la fiche client (contrat, contact) : la carte est fournie par le
+// composant ; largeur et position selon la maquette validée.
+.fiche-modal {
+  margin-top: 80px;
+
+  &.fiche-modal-contrat { max-width: 960px; }
+  &.fiche-modal-contact { max-width: 560px; }
+
+  .modal-content { border: 0; border-radius: 12px; background: transparent; box-shadow: none; }
+}
+
+.fiche-modal-backdrop.show { --bs-backdrop-bg: #060c17; --bs-backdrop-opacity: .45; }
+
+// --- Éléments inactifs (clients, utilisateurs, contacts, commandes clôturées)
+// Fond grisé net par rapport au blanc des éléments actifs, contenu estompé et
+// désaturé ; les boutons d'action restent nets. Appliqué par chaque écran.
+:root {
+  --app-inactive-bg: #e9ecf1;
+  --app-inactive-opacity: .5;
+}
+
+[data-bs-theme='dark'] {
+  --app-inactive-bg: #070d19;
 }

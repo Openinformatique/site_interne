@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, ViewChild, DOCUMENT } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, Renderer2, signal, ViewChild, DOCUMENT } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 
 import { NgScrollbar } from 'ngx-scrollbar';
@@ -7,7 +7,7 @@ import MetisMenu from 'metismenujs';
 import { MENU } from './menu';
 import { MenuItem } from './menu.model';
 
-import { ChevronDownIcon, HashIcon, LucideAngularModule } from 'lucide-angular';
+import { ChevronDownIcon, HashIcon, LucideAngularModule, MenuIcon, PanelLeftCloseIcon } from 'lucide-angular';
 import { TabsService } from '../../../core/services/tabs.service';
 import { AuthStore } from '../../../core/auth/auth.store';
 import { UiAccessService } from '../../../core/ui-access/ui-access.service';
@@ -27,6 +27,11 @@ export class SidebarComponent implements OnInit, AfterViewInit {
 
   readonly hashIcon = HashIcon;
   readonly chevronDownIcon = ChevronDownIcon;
+  readonly menuIcon = MenuIcon;
+  readonly collapseIcon = PanelLeftCloseIcon;
+
+  /** Menu replié (classe `sidebar-folded` du body, posée ici ou par la largeur d'écran). */
+  readonly folded = signal(false);
 
   @ViewChild('sidebarToggler') sidebarToggler: ElementRef;
 
@@ -39,6 +44,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   private tabsService = inject(TabsService);
   private authStore = inject(AuthStore);
   private uiAccessService = inject(UiAccessService);
+  private destroyRef = inject(DestroyRef);
 
   constructor() { 
     this.router.events.forEach((event) => {
@@ -62,6 +68,15 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    // Icône du bouton du menu : suit la classe du body, quel que soit qui la change.
+    const syncFolded = () => this.folded.set(this.document.body.classList.contains('sidebar-folded'));
+    syncFolded();
+    if (typeof MutationObserver !== 'undefined') {
+      const observer = new MutationObserver(syncFolded);
+      observer.observe(this.document.body, { attributes: true, attributeFilter: ['class'] });
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    }
+
     this.menuItems = this.filterByRole(MENU, this.authStore.currentUser()?.role);
 
     /**

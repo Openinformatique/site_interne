@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import Swal, { SweetAlertResult } from 'sweetalert2';
 import { vi } from 'vitest';
 import { TabsService } from './tabs.service';
 import { DASHBOARD_TAB } from '../models/tab.model';
@@ -78,5 +79,78 @@ describe('TabsService — fermeture multiple', () => {
   it('Le Tableau de bord ne peut pas être fermé individuellement', async () => {
     await service.closeTab(DASHBOARD_TAB.id);
     expect(ids()[0]).toBe(DASHBOARD_TAB.id);
+  });
+});
+
+describe('TabsService — modifications non enregistrées', () => {
+  let service: TabsService;
+  const ids = () => service.tabs().map((tab) => tab.id);
+
+  beforeEach(() => {
+    stubLocalStorage();
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    service = TestBed.inject(TabsService);
+    ['/a', '/b', '/c'].forEach((url) => service.openTab(url));
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  function answer(confirmed: boolean) {
+    return vi.spyOn(Swal, 'fire').mockResolvedValue({ isConfirmed: confirmed } as SweetAlertResult);
+  }
+
+  it('signale les onglets modifiés (pastille)', () => {
+    service.setDirty('/b', true);
+    expect(service.dirtyUrls().has('/b')).toBe(true);
+    service.setDirty('/b', false);
+    expect(service.dirtyUrls().size).toBe(0);
+  });
+
+  it('demande confirmation avant de fermer un onglet modifié, et le garde si on annule', async () => {
+    service.setDirty('/b', true);
+    const fire = answer(false);
+    await service.closeTab('/b');
+    expect(fire).toHaveBeenCalledOnce();
+    expect(ids()).toContain('/b');
+  });
+
+  it('une seule confirmation, au pluriel, pour plusieurs onglets modifiés', async () => {
+    service.setDirty('/a', true);
+    service.setDirty('/c', true);
+    const fire = answer(true);
+    await service.closeAllTabs();
+    expect(fire).toHaveBeenCalledOnce();
+    expect(fire.mock.calls[0]?.[0]).toMatchObject({ text: expect.stringContaining('de 2 fiches') });
+    expect(ids()).toEqual([DASHBOARD_TAB.id]);
+    expect(service.dirtyUrls().size).toBe(0);
+  });
+
+  it("change l'URL d'un onglet sans le fermer (fiche créée)", () => {
+    service.setDirty('/b', true);
+    service.replaceTabUrl('/b', '/b2', 'B2');
+    expect(ids()).toEqual([DASHBOARD_TAB.id, '/a', '/b2', '/c']);
+    expect(service.tabs()[2]?.title).toBe('B2');
+    expect(service.dirtyUrls().size).toBe(0);
+  });
+});
+
+describe('TabsService — pages hors du layout', () => {
+  beforeEach(() => stubLocalStorage());
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("n'ouvre pas d'onglet pour la connexion, et oublie ceux mémorisés", () => {
+    localStorage.setItem('nobleui.dynamic-tabs', JSON.stringify({
+      tabs: [{ title: 'Login', url: '/auth/login', closable: true }, { title: 'A', url: '/a', closable: true }],
+      activeTabId: '/a',
+    }));
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const service = TestBed.inject(TabsService);
+    service.initialize('/auth/login');
+    expect(service.tabs().map((tab) => tab.url)).toEqual([DASHBOARD_TAB.url, '/a']);
   });
 });

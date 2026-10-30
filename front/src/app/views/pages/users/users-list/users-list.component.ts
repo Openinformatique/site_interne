@@ -95,6 +95,8 @@ export class UsersListComponent {
 
     this.roleControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetToFirstPage());
     this.statusControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetToFirstPage());
+    // La liste est conservée dans son onglet : un utilisateur créé ailleurs la rafraîchit.
+    this.usersApi.created$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.reload$.next());
 
     this.reload$
       .pipe(

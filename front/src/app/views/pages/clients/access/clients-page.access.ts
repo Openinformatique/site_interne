@@ -25,5 +25,12 @@ export const CLIENTS_PAGE_ACCESS = {
       defaultVisible: true,
       dependsOn: [CLIENTS_UI_KEYS.PAGE_ACCESS],
     },
+    {
+      key: CLIENTS_UI_KEYS.FICHE_SAVE_BUTTON,
+      label: 'Bouton Enregistrer / Créer le client (fiche client)',
+      type: 'button',
+      defaultVisible: true,
+      dependsOn: [CLIENTS_UI_KEYS.PAGE_ACCESS],
+    },
   ],
 } satisfies PageUiAccessManifest;

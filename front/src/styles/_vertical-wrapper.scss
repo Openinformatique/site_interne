@@ -11,7 +11,11 @@
     flex-direction: column;
     -webkit-transition: margin .1s ease, width .1s ease;
     transition: margin .1s ease, width .1s ease;
+    // Barre d'onglets fixe sous la navbar (seule la page défile).
     .workspace-tabs-row {
+      position: sticky;
+      top: $navbar-height;
+      z-index: $zindex-navbar - 1;
       width: 100%;
       margin-top: $navbar-height;
       flex: 0 0 auto;

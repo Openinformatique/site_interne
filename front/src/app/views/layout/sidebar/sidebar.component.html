@@ -8,11 +8,10 @@
     </a>
 
     <!--- Toggler -->
-    <div class="sidebar-toggler" #sidebarToggler (click)="toggleSidebar($event)">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+    <button type="button" class="sidebar-toggler" #sidebarToggler (click)="toggleSidebar($event)"
+      [attr.aria-label]="folded() ? 'Déplier le menu' : 'Rabattre le menu'" [title]="folded() ? 'Déplier le menu' : 'Rabattre le menu'">
+      <lucide-icon [img]="folded() ? menuIcon : collapseIcon" />
+    </button>
 
   </div>
   <div class="sidebar-body" (mouseenter)="operSidebarFolded()" (mouseleave)="closeSidebarFolded()">

@@ -70,3 +70,16 @@ body.swal2-toast-shown .swal2-container.swal2-rtl {
   left: 0 !important;
   */
 }
+// Fiche client : réussite d'un enregistrement (sans bouton) et petit message
+// en bas à droite après l'enregistrement d'un contrat / contact (maquette).
+.swal2-container .swal2-popup .swal2-title.fiche-success-title { font-size: 21px; font-weight: 600; color: var(--#{$prefix}emphasis-color); }
+
+.swal2-container .swal2-popup.swal2-toast.fiche-toast {
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #20bd7b;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+
+  .swal2-title { margin: 0; color: #fff; font-size: 13px; font-weight: 500; line-height: 1.4; }
+}

@@ -1,0 +1,79 @@
+// Styles communs à la fiche client et à ses modales (contrat, contact).
+// Couleurs propres à l'écran = valeurs exactes de la maquette validée ;
+// fonds / bordures = variables du thème (identiques à la maquette).
+
+@mixin fiche-tokens {
+  :host {
+    display: block;
+    --fiche-text: #212a3a;
+    --fiche-emph: #060c17;
+    --fiche-muted: #7987a1;
+    --fiche-pill-off-bg: #e9ecef;
+    --fiche-pill-off-color: #41516c;
+    --fiche-track-off: #cbd1db;
+    --fiche-danger: #ff3366;
+    color: var(--fiche-text);
+    font-size: 14px;
+  }
+
+  :host-context([data-bs-theme='dark']) {
+    --fiche-text: #d0d6e1;
+    --fiche-emph: #ffffff;
+    --fiche-pill-off-bg: #293552;
+    --fiche-pill-off-color: #aeb7c5;
+    --fiche-track-off: #41516c;
+  }
+}
+
+@mixin fiche-components {
+  .fiche-card { background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: 12px; box-shadow: 0 5px 18px rgba(36, 54, 93, .06); }
+  .card-title { margin: 0; padding: 14px 20px; border-bottom: 1px solid var(--bs-border-color); font-size: 15px; font-weight: 600; color: var(--fiche-emph); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px 10px 20px; border-bottom: 1px solid var(--bs-border-color); }
+  .card-head h2, .card-head h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--fiche-emph); }
+  .count { display: inline-flex; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: rgba(101, 113, 255, .14); color: #5765f5; font-size: 11.5px; font-weight: 700; vertical-align: 1px; }
+
+  .add-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid rgba(101, 113, 255, .45); border-radius: 8px; background: transparent; color: #5765f5; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .icon-btn { display: inline-flex; flex: none; width: 32px; height: 32px; align-items: center; justify-content: center; border: 1px solid var(--bs-border-color); border-radius: 8px; background: transparent; color: var(--fiche-muted); cursor: pointer; }
+  .icon-btn.borderless { border-color: transparent; }
+
+  // Champs : libellé sur une ligne de hauteur fixe (étoile collée), pour
+  // aligner tous les champs d'une même rangée.
+  .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+  .full { grid-column: 1 / -1; }
+  .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; margin: 0; font-size: 13px; font-weight: 500; color: var(--fiche-text); }
+  .cap { display: flex; align-items: center; gap: 2px; height: 18px; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .req { color: var(--fiche-danger); }
+  .input { width: 100%; height: 38px; padding: 0 12px; box-sizing: border-box; border: 1px solid var(--bs-border-color); border-radius: 6px; outline: none; background: var(--bs-body-bg); color: var(--fiche-text); font-size: 14px; font-weight: 400; }
+  .input:focus { border-color: #6571ff; box-shadow: 0 0 0 3px rgba(101, 113, 255, .12); }
+  .input.invalid { border-color: var(--fiche-danger); }
+  .err { color: var(--fiche-danger); font-size: 12px; font-weight: 400; }
+
+  // Interrupteur (statut, commandes clôturées).
+  .switch { display: inline-flex; align-items: center; gap: 10px; height: 38px; padding: 0; border: 0; background: transparent; cursor: pointer; color: var(--fiche-text); font-size: 14px; }
+  .switch:focus-visible { outline: 2px solid #6571ff; outline-offset: 2px; border-radius: 6px; }
+  .track { position: relative; display: block; flex: none; width: 40px; height: 22px; border-radius: 11px; background: var(--fiche-track-off); transition: background .2s; }
+  .track.on { background: #6571ff; }
+  .knob { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: left .2s; }
+  .track.on .knob { left: 20px; }
+
+  .pill { display: inline-flex; padding: 3px 8px; border-radius: 6px; background: #20bd7b; color: #fff; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .pill.off { background: var(--fiche-pill-off-bg); color: var(--fiche-pill-off-color); }
+
+  // Tableaux.
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; color: var(--fiche-text); }
+  th { height: 34px; padding: 0 12px; border-bottom: 1px solid var(--bs-border-color); background: var(--bs-tertiary-bg); color: var(--fiche-muted); font-size: 10px; font-weight: 700; letter-spacing: .02em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+  td { height: 38px; padding: 4px 12px; border-bottom: 1px solid var(--bs-border-color); vertical-align: middle; }
+  .num { text-align: right; }
+  .center { text-align: center; }
+  .nowrap { white-space: nowrap; }
+  .emph { color: var(--fiche-emph); }
+  .clickable { cursor: pointer; }
+  .empty { margin: 0; padding: 22px 20px; text-align: center; color: var(--fiche-muted); font-size: 13px; }
+
+  // Pied des modales.
+  .modal-foot { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--bs-border-color); }
+  .btn-outline { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border: 1px solid var(--bs-border-color); border-radius: 6px; background: transparent; color: var(--fiche-text); font-size: 14px; cursor: pointer; }
+  .btn-save { height: 38px; padding: 0 18px; border: 0; border-radius: 6px; background: #6571ff; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .btn-save:disabled { opacity: .55; cursor: default; }
+}

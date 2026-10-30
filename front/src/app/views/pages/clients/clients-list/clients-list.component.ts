@@ -133,6 +133,9 @@ export class ClientsListComponent {
       untracked(() => this.loadGroupCounts(includeInactive, groups));
     });
 
+    // Client créé ou modifié depuis une fiche : la liste (conservée dans son onglet) est rafraîchie.
+    this.clientsApi.changed$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.reload$.next());
+
     // Premier chargement : déclenché par l'effet ci-dessus à l'initialisation.
     this.reload$
       .pipe(

@@ -40,6 +40,9 @@ export class TabsService {
   private readonly closedTabListeners = new Set<(tabId: string) => void>();
   /** Onglets (par URL) qui ont signalé des modifications non enregistrées, via `registerDirtyCheck`. */
   private readonly dirtyChecks = new Map<string, () => boolean>();
+  /** URL des onglets signalés « modifiés » via `setDirty` (pastille orange sur l'onglet). */
+  private readonly dirtyUrlsState = signal<ReadonlySet<string>>(new Set());
+  readonly dirtyUrls = this.dirtyUrlsState.asReadonly();
 
   private get router(): Router {
     return this.injector.get(Router);
@@ -122,14 +125,14 @@ export class TabsService {
       return;
     }
 
-    if (this.isTabDirty(tab) && !(await this.confirmDiscardChanges())) {
+    if (this.isTabDirty(tab) && !(await this.confirmDiscardChanges(1))) {
       return;
     }
 
     const wasActive = this.activeTabIdState() === tab.id;
     const fallbackTab = tabs[tabIndex - 1] ?? tabs[tabIndex + 1] ?? DASHBOARD_TAB;
     this.tabsState.set(tabs.filter(currentTab => currentTab.id !== tab.id));
-    this.dirtyChecks.delete(tab.url);
+    this.forgetDirty(tab.url);
     this.notifyTabClosed(tab.id);
 
     if (wasActive) {
@@ -198,13 +201,14 @@ export class TabsService {
       return;
     }
 
-    if (toClose.some(tab => this.isTabDirty(tab)) && !(await this.confirmDiscardChanges())) {
+    const dirtyCount = toClose.filter(tab => this.isTabDirty(tab)).length;
+    if (dirtyCount > 0 && !(await this.confirmDiscardChanges(dirtyCount))) {
       return;
     }
 
     const closedIds = new Set(toClose.map(tab => tab.id));
     toClose.forEach(tab => {
-      this.dirtyChecks.delete(tab.url);
+      this.forgetDirty(tab.url);
       this.notifyTabClosed(tab.id);
     });
     this.tabsState.update(tabs => tabs.filter(tab => !closedIds.has(tab.id)));
@@ -235,15 +239,66 @@ export class TabsService {
     };
   }
 
-  private isTabDirty(tab: AppTab): boolean {
-    return this.dirtyChecks.get(tab.url)?.() ?? false;
+  /**
+   * Signale (ou non) des modifications non enregistrées pour l'onglet `url` :
+   * pastille orange sur l'onglet et confirmation avant sa fermeture.
+   */
+  setDirty(url: string, dirty: boolean): void {
+    const normalizedUrl = normalizeTabUrl(url);
+    const current = this.dirtyUrlsState();
+    if (current.has(normalizedUrl) === dirty) {
+      return;
+    }
+    const next = new Set(current);
+    if (dirty) {
+      next.add(normalizedUrl);
+    } else {
+      next.delete(normalizedUrl);
+    }
+    this.dirtyUrlsState.set(next);
   }
 
-  private async confirmDiscardChanges(): Promise<boolean> {
+  /**
+   * Change l'URL (et le titre) d'un onglet sans le fermer ni demander de
+   * confirmation, puis y navigue : ex. « /clients/nouveau » devient
+   * « /clients/42 » après la création du client.
+   */
+  replaceTabUrl(oldUrl: string, newUrl: string, title?: string): void {
+    const from = normalizeTabUrl(oldUrl);
+    const to = normalizeTabUrl(newUrl);
+    const tab = this.findByUrl(from);
+    if (!tab) {
+      this.openTab(to, title);
+      return;
+    }
+    this.forgetDirty(from);
+    const replacement = { ...tab, id: to, url: to, title: title?.trim() || tab.title };
+    this.tabsState.update(tabs =>
+      tabs.filter(candidate => candidate.url !== to).map(candidate => candidate.id === tab.id ? replacement : candidate),
+    );
+    if (this.activeTabIdState() === tab.id) {
+      this.setActiveTab(replacement.id);
+    }
+    this.persistState();
+    void this.router.navigateByUrl(to, { replaceUrl: true });
+  }
+
+  private forgetDirty(url: string): void {
+    this.dirtyChecks.delete(url);
+    this.setDirty(url, false);
+  }
+
+  private isTabDirty(tab: AppTab): boolean {
+    return this.dirtyUrlsState().has(tab.url) || (this.dirtyChecks.get(tab.url)?.() ?? false);
+  }
+
+  private async confirmDiscardChanges(dirtyCount: number): Promise<boolean> {
     const result = await Swal.fire({
       icon: 'warning',
       title: 'Modifications non enregistrées',
-      text: 'Vous allez perdre vos modifications non enregistrées. Voulez-vous continuer ?',
+      text: dirtyCount > 1
+        ? `Vous allez perdre les modifications non enregistrées de ${dirtyCount} fiches. Voulez-vous continuer ?`
+        : 'Vous allez perdre vos modifications non enregistrées. Voulez-vous continuer ?',
       showCancelButton: true,
       confirmButtonText: 'Continuer sans enregistrer',
       cancelButtonText: 'Annuler',
@@ -290,6 +345,12 @@ export class TabsService {
 
   private handleInitialRoute(currentUrl: string): void {
     const normalizedUrl = normalizeTabUrl(currentUrl);
+    // Layout créé pendant la navigation qui suit la connexion : l'URL est encore
+    // celle de la connexion ; l'onglet viendra avec la fin de la navigation.
+    if (!isTabUrl(normalizedUrl)) {
+      this.restoredActiveTabId = null;
+      return;
+    }
     const currentTab = this.findByUrl(normalizedUrl);
 
     if (!currentTab && normalizedUrl !== DASHBOARD_TAB.url) {
@@ -313,6 +374,9 @@ export class TabsService {
 
   private handleNavigation(url: string): void {
     const normalizedUrl = normalizeTabUrl(url);
+    if (!isTabUrl(normalizedUrl)) {
+      return;
+    }
     const existingTab = this.findByUrl(normalizedUrl);
 
     if (existingTab) {
@@ -335,7 +399,7 @@ export class TabsService {
 
   private replaceTab(tabId: string, replacement: AppTab): void {
     this.tabsState.update(tabs => tabs.map(tab => tab.id === tabId ? replacement : tab));
-    this.dirtyChecks.delete(tabId);
+    this.forgetDirty(tabId);
     this.notifyTabClosed(tabId);
     this.setActiveTab(replacement.id);
     this.persistState();
@@ -398,7 +462,7 @@ export class TabsService {
       }
 
       const restoredTabs = parsedState.tabs
-        .filter(tab => this.isStoredTab(tab))
+        .filter(tab => this.isStoredTab(tab) && isTabUrl(normalizeTabUrl(tab.url)))
         .map(tab => this.createTab(tab.url, tab.title, tab.closable))
         .filter(tab => tab.id !== DASHBOARD_TAB.id);
 
@@ -446,4 +510,9 @@ export class TabsService {
   private notifyTabClosed(tabId: string): void {
     this.closedTabListeners.forEach(listener => listener(tabId));
   }
+}
+
+/** Pages hors du layout (connexion, erreurs) : jamais d'onglet. */
+function isTabUrl(url: string): boolean {
+  return !/^\/(auth|error)(?=[/?#]|$)/.test(url);
 }

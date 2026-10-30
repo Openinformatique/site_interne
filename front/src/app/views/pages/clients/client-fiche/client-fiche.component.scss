@@ -1,0 +1,87 @@
+@use 'fiche-shared' as fiche;
+
+// Fiche client — valeurs exactes de la maquette validée.
+@include fiche.fiche-tokens;
+@include fiche.fiche-components;
+
+// Bandeau collé sous la navbar (60px) et la barre d'onglets (47px) ; le fond
+// de page masque le contenu qui défile dessous. La marge négative annule
+// l'espacement haut de .page-content (25px).
+.bandeau-sticky { position: sticky; top: 107px; z-index: 30; margin-top: -25px; padding: 24px 0 20px; background: var(--bs-app-bg); }
+.bandeau { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 18px 20px; box-shadow: 0 6px 18px rgba(36, 54, 93, .10); }
+.bandeau-id { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.bandeau-initials { display: inline-flex; flex: none; width: 52px; height: 52px; align-items: center; justify-content: center; border-radius: 12px; background: rgba(101, 113, 255, .12); color: #6571ff; font-size: 17px; font-weight: 700; }
+.bandeau-text { min-width: 0; }
+.bandeau h1 { margin: 0; font-size: 22px; font-weight: 700; color: var(--fiche-emph); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bandeau-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; font-size: 12.5px; color: var(--fiche-muted); }
+.code { font-weight: 600; }
+.groupe-badge { display: inline-flex; padding: 2px 8px; border-radius: 999px; background: rgba(20, 184, 184, .16); color: #0f9c9c; font-size: 11px; font-weight: 700; }
+.pays { display: inline-flex; align-items: center; gap: 6px; }
+.flag { width: 20px; height: 14px; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0, 0, 0, .12); background-size: cover; }
+.bandeau-actions { display: flex; align-items: center; gap: 12px; }
+.dirty-status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #e08a00; }
+.dirty-dot { width: 8px; height: 8px; border-radius: 50%; background: #f5a623; }
+.save-btn { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border: 0; border-radius: 6px; background: #6571ff; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; }
+.save-btn:disabled { cursor: default; opacity: .55; }
+
+.columns { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px; align-items: start; margin-bottom: 20px; }
+.column { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.card-body-grid { padding: 18px 20px 20px; }
+.cp-ville { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 16px; }
+
+.unsaved-info { padding: 40px 28px; border-style: dashed; text-align: center; color: var(--fiche-muted); }
+.unsaved-icon { display: inline-block; margin-bottom: 10px; color: #6571ff; }
+.unsaved-title { margin: 0 0 4px; font-weight: 600; color: var(--fiche-emph); }
+.unsaved-text { margin: 0; font-size: 13px; line-height: 1.6; }
+
+.icon-col { width: 56px; }
+.medium { font-weight: 500; }
+.semibold { font-weight: 600; }
+
+.head-actions { display: flex; align-items: center; gap: 12px; }
+.link-muted { padding: 6px 0; border: 0; background: transparent; color: var(--fiche-muted); font-size: 12.5px; cursor: pointer; }
+
+.contacts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; padding: 16px 20px 20px; }
+.contact-card { padding: 14px; border: 1px solid var(--bs-border-color); border-radius: 10px; background: var(--bs-tertiary-bg); cursor: pointer; }
+.contact-card.inactive { background: var(--app-inactive-bg); }
+.contact-card.inactive > * { opacity: var(--app-inactive-opacity); filter: grayscale(1); }
+.contact-top { display: flex; align-items: flex-start; gap: 10px; }
+.contact-initials { display: inline-flex; flex: none; width: 38px; height: 38px; align-items: center; justify-content: center; border-radius: 50%; background: rgba(20, 184, 184, .16); color: #0f9c9c; font-size: 12.5px; font-weight: 700; }
+.contact-id { flex: 1; min-width: 0; }
+.contact-id h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--fiche-emph); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contact-poste { display: flex; align-items: center; gap: 6px; margin-top: 3px; font-size: 12px; color: var(--fiche-muted); }
+.contact-coords { display: grid; gap: 6px; margin-top: 12px; font-size: 12.5px; }
+.contact-coords a { display: inline-flex; align-items: center; gap: 8px; color: #6571ff; text-decoration: none; }
+.contact-coords a:hover { color: #4b58f5; }
+.contact-coords a.mail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.flex-none { flex: none; }
+.no-coord { color: var(--fiche-muted); }
+
+.commandes { margin-bottom: 16px; }
+.commandes-filters { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 12px 20px; border-bottom: 1px solid var(--bs-border-color); }
+.closed-switch { height: 40px; font-size: 13.5px; }
+.period-btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-body-bg); color: var(--fiche-text); font-size: 13px; cursor: pointer; }
+.muted-icon { color: var(--fiche-muted); }
+.primary-icon { color: #6571ff; }
+.period { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 4px 6px 4px 12px; border: 1px solid #6571ff; border-radius: 8px; background: rgba(101, 113, 255, .05); font-size: 13px; color: var(--fiche-text); }
+.period label { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
+.date-input { height: 30px; padding: 0 8px; border: 1px solid var(--bs-border-color); border-radius: 6px; background: var(--bs-body-bg); color: var(--fiche-text); font-size: 13px; }
+.period-close { display: inline-flex; width: 30px; height: 30px; align-items: center; justify-content: center; border: 0; border-radius: 6px; background: transparent; color: var(--fiche-muted); cursor: pointer; }
+.commandes-empty { padding: 26px 20px; }
+.commandes-table tr.closed { background: var(--app-inactive-bg); }
+.commandes-table tr.closed > td:not(:last-child) { opacity: var(--app-inactive-opacity); filter: grayscale(1); }
+// Le tableau tient dans la carte : marges réduites, en-têtes longs sur deux
+// lignes, contrat et libellé gardent une largeur lisible ; statut clôturé sur
+// deux lignes (pastille, puis date).
+.commandes-table th { height: auto; padding: 8px; line-height: 1.25; white-space: normal; }
+.commandes-table td { padding: 4px 8px; }
+.commandes-table th:first-child, .commandes-table td:first-child { padding-left: 14px; }
+.commandes-table th:last-child, .commandes-table td:last-child { padding-right: 14px; }
+.commandes-table .col-contrat { min-width: 120px; }
+.commandes-table .col-libelle { min-width: 130px; }
+.cloture-date { display: block; margin-top: 3px; color: var(--fiche-muted); font-size: 11.5px; white-space: nowrap; }
+.late { color: var(--fiche-danger); font-weight: 700; }
+.pill.en-cours { background: rgba(101, 113, 255, .14); color: #5765f5; }
+
+.tracabilite { margin: 0; font-size: 12px; color: var(--fiche-muted); }
+.not-found { padding: 1.5rem; }

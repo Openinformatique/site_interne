@@ -1,0 +1,287 @@
+@if (loading()) {
+  <app-page-loader />
+} @else if (notFound()) {
+  <div class="fiche-card not-found"><app-empty-state title="Client introuvable" message="Ce client n'existe pas ou a été supprimé." /></div>
+} @else {
+  <!-- Bandeau ancré en haut de la zone qui défile (fond de page pour masquer le contenu) -->
+  <div class="bandeau-sticky">
+    <header class="fiche-card bandeau">
+      <div class="bandeau-id">
+        <span class="bandeau-initials" aria-hidden="true">{{ initials() }}</span>
+        <div class="bandeau-text">
+          <h1>{{ title() }}</h1>
+          <div class="bandeau-meta">
+            @if (form().codeClient) { <span class="code">{{ form().codeClient }}</span> }
+            <span class="pill" [class.off]="!form().actif">{{ form().actif ? 'Actif' : 'Inactif' }}</span>
+            @if (form().groupe) { <span class="groupe-badge">{{ groupeLabel() }}</span> }
+            @if (form().codePays) {
+              <span class="pays">
+                @if (flagClass(); as flag) { <span [class]="flag + ' flag'" aria-hidden="true"></span> }
+                {{ paysLabel() }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="bandeau-actions">
+        @if (dirty()) {
+          <span class="dirty-status" role="status"><span class="dirty-dot" aria-hidden="true"></span>Modifications non enregistrées</span>
+        }
+        <button type="button" class="save-btn" *appUiVisible="UiKeys.FICHE_SAVE_BUTTON" [disabled]="saveDisabled()" (click)="save()">
+          <lucide-icon [img]="icons.Save" [size]="16" />
+          {{ isNew() ? 'Créer le client' : 'Enregistrer' }}
+        </button>
+      </div>
+    </header>
+  </div>
+
+  <div class="columns">
+    <!-- Colonne gauche -->
+    <div class="column">
+      <section class="fiche-card" aria-labelledby="t-ident">
+        <h2 id="t-ident" class="card-title">Identification</h2>
+        <div class="form-grid card-body-grid">
+          <label class="field"><span class="cap">Code client<span class="req" aria-hidden="true">*</span></span>
+            <input type="text" maxlength="15" class="input" [class.invalid]="errors().codeClient" [value]="form().codeClient" (input)="setCode($event)">
+            @if (errors().codeClient; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <div class="field"><span class="cap">Statut</span>
+            <button type="button" class="switch" role="switch" [attr.aria-checked]="form().actif" (click)="toggleActif()">
+              <span class="track" [class.on]="form().actif" aria-hidden="true"><span class="knob"></span></span>{{ form().actif ? 'Actif' : 'Inactif' }}
+            </button>
+          </div>
+          <label class="field full"><span class="cap">Raison sociale<span class="req" aria-hidden="true">*</span></span>
+            <input type="text" maxlength="50" class="input" [class.invalid]="errors().raisonSociale" [value]="form().raisonSociale" (input)="set('raisonSociale', $event)">
+            @if (errors().raisonSociale; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field full"><span class="cap">Adresse 1</span>
+            <input type="text" maxlength="35" class="input" [class.invalid]="errors().adresse1" [value]="form().adresse1" (input)="set('adresse1', $event)">
+            @if (errors().adresse1; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field full"><span class="cap">Adresse 2</span>
+            <input type="text" maxlength="35" class="input" [class.invalid]="errors().adresse2" [value]="form().adresse2" (input)="set('adresse2', $event)">
+            @if (errors().adresse2; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field full"><span class="cap">Adresse 3</span>
+            <input type="text" maxlength="35" class="input" [class.invalid]="errors().adresse3" [value]="form().adresse3" (input)="set('adresse3', $event)">
+            @if (errors().adresse3; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <div class="full cp-ville">
+            <label class="field"><span class="cap">Code postal<span class="req" aria-hidden="true">*</span></span>
+              <input type="text" maxlength="6" class="input" [class.invalid]="errors().codePostal" [value]="form().codePostal" (input)="set('codePostal', $event)">
+              @if (errors().codePostal; as message) { <span class="err">{{ message }}</span> }
+            </label>
+            <label class="field"><span class="cap">Ville<span class="req" aria-hidden="true">*</span></span>
+              <input type="text" maxlength="30" class="input" [class.invalid]="errors().ville" [value]="form().ville" (input)="set('ville', $event)">
+              @if (errors().ville; as message) { <span class="err">{{ message }}</span> }
+            </label>
+          </div>
+          <label class="field"><span class="cap">Pays<span class="req" aria-hidden="true">*</span></span>
+            <select class="input" [class.invalid]="errors().codePays" (change)="set('codePays', $event)">
+              <option value="" [selected]="!form().codePays">—</option>
+              @for (option of paysOptions(); track option.cle) {
+                <option [value]="option.cle" [selected]="option.cle === form().codePays">{{ option.libelle }}</option>
+              }
+            </select>
+            @if (errors().codePays; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field"><span class="cap">Groupe / Société</span>
+            <select class="input" (change)="set('groupe', $event)">
+              <option value="" [selected]="!form().groupe">Aucun groupe</option>
+              @for (option of groupeOptions(); track option.cle) {
+                <option [value]="option.cle" [selected]="option.cle === form().groupe">{{ option.libelle }}</option>
+              }
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="fiche-card" aria-labelledby="t-fisc">
+        <h2 id="t-fisc" class="card-title">Informations fiscales</h2>
+        <div class="form-grid card-body-grid">
+          <label class="field"><span class="cap">N° TVA intracommunautaire</span>
+            <input type="text" maxlength="16" class="input" [class.invalid]="errors().numeroTva" [value]="form().numeroTva" (input)="set('numeroTva', $event)">
+            @if (errors().numeroTva; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field"><span class="cap">Mode de règlement</span>
+            <select class="input" (change)="set('modeReglement', $event)">
+              <option value="" [selected]="!form().modeReglement">—</option>
+              @for (option of reglementOptions(); track option.cle) {
+                <option [value]="option.cle" [selected]="option.cle === form().modeReglement">
+                  {{ option.libelle && option.libelle !== option.cle ? option.cle + ' — ' + option.libelle : option.cle }}
+                </option>
+              }
+            </select>
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <!-- Colonne droite -->
+    <div class="column">
+      @if (isNew()) {
+        <section class="fiche-card unsaved-info">
+          <lucide-icon [img]="icons.Info" [size]="32" [strokeWidth]="1.8" class="unsaved-icon" />
+          <p class="unsaved-title">Contrats, contacts et commandes</p>
+          <p class="unsaved-text">Enregistrez le client pour pouvoir lui ajouter des contrats, des contacts et des commandes.</p>
+        </section>
+      } @else {
+        <!-- Contrats -->
+        <section class="fiche-card" aria-labelledby="t-ctr">
+          <div class="card-head">
+            <h2 id="t-ctr">Contrats <span class="count">{{ contrats().length }}</span></h2>
+            <button type="button" class="add-btn" (click)="openContrat(null)"><lucide-icon [img]="icons.Plus" [size]="15" [strokeWidth]="2.2" />Nouveau contrat</button>
+          </div>
+          @if (contrats().length === 0) {
+            <p class="empty">Aucun contrat pour ce client.</p>
+          } @else {
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th scope="col">Libellé</th>
+                  <th scope="col" class="num">Temps restant</th>
+                  <th scope="col">Mise en place</th>
+                  <th scope="col">Échéance</th>
+                  <th scope="col">État</th>
+                  <th scope="col" class="center icon-col">Fiche</th>
+                </tr></thead>
+                <tbody>
+                  @for (contrat of contrats(); track contrat.id) {
+                    <tr class="clickable" (click)="openContrat(contrat)">
+                      <td class="emph medium">{{ contrat.libelleContrat }}</td>
+                      <td class="num nowrap semibold">{{ formatHeures(contrat.restant) }}</td>
+                      <td class="nowrap">{{ frDate(contrat.dateMiseEnPlace) }}</td>
+                      <td class="nowrap">{{ frDate(contrat.dateEcheance) }}</td>
+                      <td><span class="pill" [class.off]="contratEchu(contrat)">{{ contratEchu(contrat) ? 'Échu' : 'En cours' }}</span></td>
+                      <td class="center">
+                        <button type="button" class="icon-btn" [attr.aria-label]="'Ouvrir le contrat ' + contrat.libelleContrat" [title]="'Ouvrir le contrat ' + contrat.libelleContrat" (click)="openContrat(contrat, $event)"><lucide-icon [img]="icons.Eye" [size]="16" /></button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+
+        <!-- Contacts -->
+        <section class="fiche-card" aria-labelledby="t-ctc">
+          <div class="card-head">
+            <h2 id="t-ctc">Contacts <span class="count">{{ activeContactCount() }}</span></h2>
+            <div class="head-actions">
+              @if (inactiveContactCount() > 0) {
+                <button type="button" class="link-muted" (click)="showInactiveContacts.set(!showInactiveContacts())">
+                  {{ showInactiveContacts() ? 'Masquer les inactifs' : 'Afficher les inactifs (' + inactiveContactCount() + ')' }}
+                </button>
+              }
+              <button type="button" class="add-btn" (click)="openContact(null)"><lucide-icon [img]="icons.Plus" [size]="15" [strokeWidth]="2.2" />Nouveau contact</button>
+            </div>
+          </div>
+          @if (visibleContacts().length === 0) {
+            <p class="empty">Aucun contact pour ce client.</p>
+          }
+          <div class="contacts-grid">
+            @for (contact of visibleContacts(); track contact.id) {
+              <article class="contact-card" [class.inactive]="!contact.actif" (click)="openContact(contact)">
+                <div class="contact-top">
+                  <span class="contact-initials" aria-hidden="true">{{ contactInitials(contact) }}</span>
+                  <div class="contact-id">
+                    <h3>{{ contactName(contact) }}</h3>
+                    <div class="contact-poste">{{ contact.poste }}
+                      @if (!contact.actif) { <span class="pill off">Inactif</span> }
+                    </div>
+                  </div>
+                  <button type="button" class="icon-btn" [attr.aria-label]="'Ouvrir le contact ' + contact.nom" [title]="'Ouvrir le contact ' + contact.nom" (click)="openContact(contact, $event)"><lucide-icon [img]="icons.Eye" [size]="16" /></button>
+                </div>
+                <div class="contact-coords">
+                  @if (contact.telephone) {
+                    <a [href]="telHref(contact.telephone)" (click)="$event.stopPropagation()"><lucide-icon [img]="icons.Phone" [size]="14" />{{ contact.telephone }}</a>
+                  }
+                  @if (contact.adresseEmail) {
+                    <a class="mail" [href]="'mailto:' + contact.adresseEmail" (click)="$event.stopPropagation()"><lucide-icon [img]="icons.Mail" [size]="14" class="flex-none" />{{ contact.adresseEmail }}</a>
+                  }
+                  @if (!contact.telephone && !contact.adresseEmail) { <span class="no-coord">Aucune coordonnée</span> }
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  </div>
+
+  @if (!isNew()) {
+    <!-- Commandes -->
+    <section class="fiche-card commandes" aria-labelledby="t-cde">
+      <div class="card-head">
+        <h2 id="t-cde">Commandes <span class="count">{{ commandes().length }}</span></h2>
+        <button type="button" class="add-btn" (click)="newCommande()"><lucide-icon [img]="icons.Plus" [size]="15" [strokeWidth]="2.2" />Nouvelle commande</button>
+      </div>
+      <div class="commandes-filters">
+        <button type="button" class="switch closed-switch" role="switch" [attr.aria-checked]="showClosed()" (click)="showClosed.set(!showClosed())">
+          <span class="track" [class.on]="showClosed()" aria-hidden="true"><span class="knob"></span></span>Afficher les commandes clôturées
+        </button>
+        @if (!periodOpen()) {
+          <button type="button" class="period-btn" (click)="periodOpen.set(true)"><lucide-icon [img]="icons.CalendarDays" [size]="15" class="muted-icon" />Filtrer par période</button>
+        } @else {
+          <div class="period" role="group" aria-label="Période (date du devis ou date de commande)" title="Commandes dont la date du devis ou la date de commande est dans la période">
+            <lucide-icon [img]="icons.CalendarDays" [size]="15" class="primary-icon" />
+            <label>Du <input type="date" class="date-input" [value]="du()" (input)="setPeriod('du', $event)"></label>
+            <label>au <input type="date" class="date-input" [value]="au()" (input)="setPeriod('au', $event)"></label>
+            <button type="button" class="period-close" aria-label="Retirer le filtre de période" title="Retirer le filtre de période" (click)="closePeriod()"><lucide-icon [img]="icons.X" [size]="14" [strokeWidth]="2.2" /></button>
+          </div>
+        }
+      </div>
+      @if (commandes().length === 0) {
+        <p class="empty commandes-empty">Aucune commande ne correspond aux filtres.</p>
+      } @else {
+        <div class="table-wrap">
+          <table class="commandes-table">
+            <thead><tr>
+              <th scope="col">N° commande</th>
+              <th scope="col">N° devis</th>
+              <th scope="col">Date devis</th>
+              <th scope="col">Date commande</th>
+              <th scope="col">Type</th>
+              <th scope="col">Contrat</th>
+              <th scope="col">Délai</th>
+              <th scope="col" class="num">Jours prévus</th>
+              <th scope="col" class="num">Jours passés</th>
+              <th scope="col">Libellé</th>
+              <th scope="col">Statut</th>
+              <th scope="col" class="center icon-col">Fiche</th>
+            </tr></thead>
+            <tbody>
+              @for (commande of commandes(); track commande.id) {
+                <tr class="clickable" [class.closed]="commande.dateCloture" (click)="openCommande(commande)">
+                  <td class="nowrap semibold emph">{{ commande.numeroCommande || '—' }}</td>
+                  <td class="nowrap">{{ commande.numeroDevis || '—' }}</td>
+                  <td class="nowrap">{{ frDate(commande.dateDevis) }}</td>
+                  <td class="nowrap">{{ frDate(commande.dateCommande) }}</td>
+                  <td class="nowrap">{{ typeLabel(commande.typeCommande) }}</td>
+                  <td class="col-contrat">{{ commande.contrat || '—' }}</td>
+                  <td class="nowrap"><span [class.late]="commandeEnRetard(commande)">{{ frDate(commande.delai) }}</span></td>
+                  <td class="num">{{ formatJours(commande.joursPrevus) }}</td>
+                  <td class="num">{{ formatJours(commande.joursPasses) }}</td>
+                  <td class="emph col-libelle">{{ commande.libelle }}</td>
+                  <td>
+                    @if (commande.dateCloture) {
+                      <span class="pill off">Clôturée</span><span class="cloture-date">le {{ frDate(commande.dateCloture) }}</span>
+                    } @else {
+                      <span class="pill en-cours">En cours</span>
+                    }
+                  </td>
+                  <td class="center">
+                    <button type="button" class="icon-btn" [attr.aria-label]="'Ouvrir la commande ' + commandeNumero(commande)" [title]="'Ouvrir la commande ' + commandeNumero(commande)" (click)="openCommande(commande, $event)"><lucide-icon [img]="icons.Eye" [size]="16" /></button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <p class="tracabilite">{{ tracabilite() }}</p>
+  }
+}

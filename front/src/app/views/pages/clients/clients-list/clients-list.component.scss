@@ -87,7 +87,9 @@ h1 { margin: 0; color: var(--bs-emphasis-color); font-size: 1.6rem; font-weight:
 .clients-table tbody tr { cursor: pointer; transition: background-color .1s; }
 .clients-table tbody tr:hover { background: color-mix(in srgb, #6571ff 4%, transparent); }
 .clients-table tbody tr:last-child td { border-bottom: 0; }
-.clients-table tr.is-inactive { opacity: .62; }
+.clients-table tbody tr.is-inactive { background: var(--app-inactive-bg); }
+.clients-table tbody tr.is-inactive:hover { background: color-mix(in srgb, #6571ff 6%, var(--app-inactive-bg)); }
+.clients-table tr.is-inactive > td:not(.actions-cell) { opacity: var(--app-inactive-opacity); filter: grayscale(1); }
 .strong { color: var(--bs-emphasis-color); font-weight: 600; }
 .nowrap { white-space: nowrap; }
 .actions-column { width: 64px; text-align: center !important; }
@@ -99,7 +101,8 @@ h1 { margin: 0; color: var(--bs-emphasis-color); font-size: 1.6rem; font-weight:
 .clients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
 .client-card { display: flex; flex-direction: column; padding: 1.125rem; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: 12px; box-shadow: 0 5px 18px rgba(36, 54, 93, .06); transition: box-shadow .15s, border-color .15s; }
 .client-card:hover { border-color: color-mix(in srgb, #6571ff 40%, var(--bs-border-color)); box-shadow: 0 10px 26px rgba(36, 54, 93, .1); }
-.client-card.is-inactive { opacity: .7; }
+.client-card.is-inactive { background: var(--app-inactive-bg); box-shadow: none; }
+.client-card.is-inactive > :not(.card-action) { opacity: var(--app-inactive-opacity); filter: grayscale(1); }
 .card-head { display: flex; align-items: flex-start; gap: .75rem; }
 .avatar { display: inline-flex; flex: 0 0 auto; width: 46px; height: 46px; align-items: center; justify-content: center; border-radius: 50%; background: color-mix(in srgb, #6571ff 14%, transparent); color: #5765f5; font-size: .875rem; font-weight: 700; }
 .card-id { flex: 1; min-width: 0; }

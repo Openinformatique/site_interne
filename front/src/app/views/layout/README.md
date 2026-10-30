@@ -11,7 +11,8 @@ Défini dans [`sidebar/menu.ts`](sidebar/menu.ts), affiché par `SidebarComponen
 | Section        | Entrée          | Sous-options                        | URL                       | Visible par         |
 | -------------- | --------------- | ----------------------------------- | ------------------------- | ------------------- |
 | GÉNÉRAL        | Tableau de bord | —                                   | `/dashboard`              | tous                |
-| GESTION        | Module clients  | Liste des clients, Commandes        | `/clients`, `/commandes`  | tous                |
+| GESTION        | Clients         | —                                   | `/clients`                | tous                |
+| GESTION        | Commandes       | —                                   | `/commandes`              | tous                |
 | ADMINISTRATION | Utilisateurs    | — (création depuis la liste)        | `/users`                  | ADMIN, DIRECTION    |
 
 - Une entrée peut être restreinte par rôle (`roles`) et par clé d'accès UI
@@ -22,7 +23,10 @@ Défini dans [`sidebar/menu.ts`](sidebar/menu.ts), affiché par `SidebarComponen
 
 ### Menu replié
 
-Le bouton aux trois traits replie le menu à 70 px (icônes seules) ; il est
+Le bouton à côté du logo affiche « Rabattre le menu » (`PanelLeftClose`) quand
+le menu est déplié et le burger « Déplier le menu » (`Menu`) quand il est
+replié ; son icône suit la classe `sidebar-folded` du body. Replié, le menu
+fait 70 px (icônes seules) ; il est
 aussi replié automatiquement entre 992 et 1199 px de large. Au survol, le
 template le fait apparaître temporairement en entier.
 
@@ -60,12 +64,33 @@ mémorisés dans `localStorage` :
 
 - chaque page ouverte depuis le menu ajoute son onglet ; une page déjà ouverte
   réactive son onglet existant ;
+- devant son titre, l'onglet affiche l'icône de l'entrée du menu d'où provient
+  la page (`menuIconForUrl` dans `sidebar/menu.ts` : le lien le plus long qui
+  préfixe l'URL, ex. `/clients/196` → icône de Clients) ;
+- le bouton flèche ▾ à gauche du premier onglet ouvre la liste de tous les
+  onglets ouverts (pastille orange, icône, titre ; onglet actif en gras) :
+  un clic bascule vers l'onglet et ferme la liste, la croix ferme l'onglet et
+  laisse la liste ouverte (fermée par clic ailleurs, Échap, défilement) ;
 - un onglet reste ouvert jusqu'à sa fermeture (croix ✕ ou menu contextuel) ;
 - fermer l'onglet affiché réactive son voisin de gauche ;
 - **le Tableau de bord ne peut jamais être fermé** (onglet non fermable,
   ignoré par toutes les actions de fermeture) ;
 - une page peut signaler des modifications non enregistrées
-  (`registerDirtyCheck`) : une confirmation est alors demandée avant fermeture.
+  (`setDirty(url, true)`, ou `registerDirtyCheck`) : son onglet porte une
+  pastille orange et une confirmation est demandée avant fermeture (une seule
+  pour plusieurs onglets : « … de N fiches ») ;
+- la page d'un onglet est **conservée** quand on passe à un autre onglet
+  (`TabRouteReuseStrategy`) et détruite à la fermeture de l'onglet. La route
+  conservée est la première route **à composant** sous le layout (la page :
+  `/clients/:id`, pas la route de module `clients` en `loadChildren`, que le
+  routeur ne sait pas détacher) ; une page conservée qui doit refléter des
+  créations faites ailleurs s'abonne à l'API (`ClientsApi.changed$`,
+  `UsersApi.created$`). Le
+  router-outlet n'est jamais retiré pendant un chargement différé (le
+  spinner le masque seulement) ;
+- `replaceTabUrl` change l'URL d'un onglet sans le fermer (ex. fiche créée :
+  `/clients/nouveau` → `/clients/42`) ;
+- la navbar et la barre d'onglets restent fixes ; seule la page défile.
 
 ### Menu contextuel (clic droit sur un onglet)
 
@@ -81,3 +106,7 @@ cliqué devient l'onglet affiché. Le menu se ferme au clic ailleurs, avec
 Échap, au défilement ou au redimensionnement. Il est positionné en `fixed`
 pour ne pas être coupé par le défilement horizontal de la barre d'onglets.
 Tests : `core/services/tabs.service.spec.ts`.
+
+## Éléments inactifs
+
+Les éléments inactifs (clients, utilisateurs, contacts, commandes clôturées) ont un rendu commun défini dans `styles/_custom.scss` : fond `--app-inactive-bg` (#e9ecf1 en clair, #070d19 en sombre) et contenu estompé (`--app-inactive-opacity`, .5) et désaturé. Les boutons d'action restent nets. Chaque écran applique ces variables à ses lignes et cartes inactives.

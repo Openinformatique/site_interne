@@ -16,16 +16,16 @@
 
     <div class="page-content container-xxl workspace-page-content">
 
-      <!-- Spinner for lazyload modules -->
-       @if (isLoading) {
-         <div class="spinner-wrapper">
-           <div class="spinner">Loading...</div>
-         </div>
-       } @else {
-         <div>
-           <router-outlet></router-outlet>
-         </div>
-       }
+      <!-- Spinner du chargement différé (lazy load) : superposé à la page, sans
+           retirer le router-outlet (la page d'un onglet conservé serait détruite). -->
+      @if (isLoading) {
+        <div class="spinner-wrapper lazy-load-spinner">
+          <div class="spinner">Loading...</div>
+        </div>
+      }
+      <div [class.d-none]="isLoading">
+        <router-outlet></router-outlet>
+      </div>
 
 
     </div>

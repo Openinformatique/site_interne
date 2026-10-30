@@ -1,0 +1,52 @@
+<div class="fiche-card modal-card" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+  <div class="card-head">
+    <h2 id="contact-modal-title" class="modal-title-text">{{ title() }}</h2>
+    <button type="button" class="icon-btn borderless" aria-label="Fermer" (click)="close()"><lucide-icon [img]="X" [size]="16" /></button>
+  </div>
+
+  <div class="form-grid contact-form">
+    <label class="field"><span class="cap">Civilité<span class="req" aria-hidden="true">*</span></span>
+      <select class="input" [class.invalid]="errors()['civilite']" [value]="draft().civilite" (change)="set('civilite', $event)">
+        <option value="">—</option>
+        <option value="1">M.</option>
+        <option value="2">Mme</option>
+      </select>
+      @if (errors()['civilite']; as message) { <span class="err">{{ message }}</span> }
+    </label>
+    <div class="field"><span class="cap">Statut</span>
+      <button type="button" class="switch" role="switch" [attr.aria-checked]="draft().actif" (click)="toggleActif()">
+        <span class="track" [class.on]="draft().actif" aria-hidden="true"><span class="knob"></span></span>{{ draft().actif ? 'Actif' : 'Inactif' }}
+      </button>
+    </div>
+    <label class="field"><span class="cap">Nom<span class="req" aria-hidden="true">*</span></span>
+      <input type="text" maxlength="60" class="input" [class.invalid]="errors()['nom']" [value]="draft().nom" (input)="set('nom', $event)">
+      @if (errors()['nom']; as message) { <span class="err">{{ message }}</span> }
+    </label>
+    <label class="field"><span class="cap">Prénom</span>
+      <input type="text" maxlength="39" class="input" [class.invalid]="errors()['prenom']" [value]="draft().prenom" (input)="set('prenom', $event)">
+      @if (errors()['prenom']; as message) { <span class="err">{{ message }}</span> }
+    </label>
+    <label class="field full"><span class="cap">Poste<span class="req" aria-hidden="true">*</span></span>
+      <select class="input" [class.invalid]="errors()['poste']" [value]="draft().poste" (change)="set('poste', $event)">
+        <option value="">—</option>
+        @for (poste of postes(); track poste) {
+          <option [value]="poste" [selected]="poste === draft().poste">{{ poste }}</option>
+        }
+      </select>
+      @if (errors()['poste']; as message) { <span class="err">{{ message }}</span> }
+    </label>
+    <label class="field"><span class="cap">Téléphone</span>
+      <input type="tel" maxlength="50" class="input" [class.invalid]="errors()['telephone']" [value]="draft().telephone" (input)="set('telephone', $event)">
+      @if (errors()['telephone']; as message) { <span class="err">{{ message }}</span> }
+    </label>
+    <label class="field"><span class="cap">E-mail</span>
+      <input type="email" maxlength="255" class="input" [class.invalid]="errors()['adresseEmail']" [value]="draft().adresseEmail" (input)="set('adresseEmail', $event)">
+      @if (errors()['adresseEmail']; as message) { <span class="err">{{ message }}</span> }
+    </label>
+  </div>
+
+  <div class="modal-foot">
+    <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+    <button type="button" class="btn-save" [disabled]="saving()" (click)="save()">Enregistrer</button>
+  </div>
+</div>

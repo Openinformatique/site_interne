@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 
 import { ApiClient, QueryParams } from './api-client.service';
 import { Page } from '../models/api.model';
@@ -26,6 +26,10 @@ export interface CreateUserDto {
 @Injectable({ providedIn: 'root' })
 export class UsersApi {
   private api = inject(ApiClient);
+  private readonly createdSubject = new Subject<void>();
+
+  /** Émet après chaque création d'utilisateur (ex. rafraîchir la liste, conservée dans son onglet). */
+  readonly created$ = this.createdSubject.asObservable();
 
   list(query: ListUsersQuery): Observable<Page<User>> {
     return this.api.getPage<User>('/users', query as QueryParams);
@@ -34,7 +38,7 @@ export class UsersApi {
     return this.api.get<User>(`/users/${id}`);
   }
   create(dto: CreateUserDto): Observable<User> {
-    return this.api.post<User>('/users', dto);
+    return this.api.post<User>('/users', dto).pipe(tap(() => this.createdSubject.next()));
   }
   changeRole(id: string, role: UserRole): Observable<User> {
     return this.api.patch<User>(`/users/${id}/role`, { role });

@@ -34,10 +34,15 @@
       <!-- Bascule thème clair/sombre -->
       <li class="theme-switcher-wrapper nav-item">
         <input type="checkbox" role="switch" aria-label="Thème sombre" (change)="onThemeCheckboxChange($event)" id="theme-switcher">
+        <!-- Slider NobleUI : la boule glisse sur un fond portant le soleil et la lune. -->
         <label for="theme-switcher" title="Basculer entre le thème clair et le thème sombre">
-          <lucide-icon [img]="sunIcon" [size]="16" class="theme-icon theme-icon-sun" aria-hidden="true" />
-          <span class="box"><span class="ball"></span></span>
-          <lucide-icon [img]="moonIcon" [size]="16" class="theme-icon theme-icon-moon" aria-hidden="true" />
+          <span class="box">
+            <span class="ball"></span>
+            <span class="icons" aria-hidden="true">
+              <lucide-icon [img]="sunIcon" />
+              <lucide-icon [img]="moonIcon" />
+            </span>
+          </span>
         </label>
       </li>
 

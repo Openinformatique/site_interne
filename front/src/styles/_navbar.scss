@@ -175,6 +175,8 @@
         // Interrupteur jour/nuit : soleil | glissière | lune ; l'icône du
         // thème actif est colorée (soleil doré, lune couleur primaire).
         &.theme-switcher-wrapper {
+          // Slider de NobleUI (boule + icônes soleil / lune sur le fond).
+          $scale: 46px;
           margin: 0 14px;
 
           // Case visuellement masquée mais focalisable au clavier.
@@ -194,57 +196,61 @@
           label {
             display: flex;
             align-items: center;
-            gap: 8px;
             height: 44px;
             margin: 0;
             cursor: pointer;
           }
 
-          .theme-icon {
-            display: inline-flex;
-            color: $secondary;
-            transition: color .2s ease;
-          }
-
-          .theme-icon-sun {
-            color: #f5a623;
-          }
-
           .box {
+            width: $scale;
+            height: calc($scale / 2);
+            background-color: $gray-300;
+            border-radius: calc($scale / 4);
             position: relative;
-            width: 40px;
-            height: 22px;
-            border-radius: 11px;
-            background-color: $gray-400;
+            display: flex;
+            align-items: center;
             transition: background-color .2s ease;
 
             .ball {
-              position: absolute;
-              top: 2px;
-              left: 2px;
-              width: 18px;
-              height: 18px;
+              width: calc($scale / 2);
+              height: calc($scale / 2);
+              background-color: $secondary;
               border-radius: 50%;
-              background-color: $white;
-              box-shadow: 0 1px 3px rgba($black, .3);
-              transition: transform .2s ease;
+              border: calc($scale / 16) solid $gray-300;
+              position: absolute;
+              z-index: 1;
+              transition: transform .1s ease, border-color .2s ease;
+            }
+
+            .icons {
+              display: flex;
+              align-items: center;
+              justify-content: space-around;
+              flex-grow: 1;
+              padding: 0 3px;
+
+              svg {
+                color: $dark;
+                width: calc($scale / 2.6);
+                height: calc($scale / 2.6);
+              }
+            }
+
+            &.light .ball {
+              transform: translate(0);
             }
 
             &.dark {
-              background-color: $primary;
+              background-color: $gray-800;
 
               .ball {
-                transform: translateX(18px);
+                border-color: $gray-800;
+                transform: translate(100%);
               }
-            }
-          }
 
-          [data-bs-theme='dark'] & {
-            .theme-icon-sun {
-              color: $secondary;
-            }
-            .theme-icon-moon {
-              color: $primary;
+              svg {
+                color: $warning;
+              }
             }
           }
         }

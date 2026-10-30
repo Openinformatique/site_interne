@@ -1,4 +1,16 @@
 <div class="workspace-tabs-bar">
+  <button
+    type="button"
+    class="workspace-tabs-list-btn"
+    aria-haspopup="menu"
+    [attr.aria-expanded]="tabsList() !== null"
+    aria-label="Liste des onglets ouverts"
+    title="Liste des onglets ouverts"
+    [class.is-open]="tabsList() !== null"
+    (click)="toggleTabsList($event)">
+    <lucide-icon [img]="listIcon" [size]="16" />
+  </button>
+
   <div class="workspace-tabs" role="tablist" aria-label="Pages ouvertes" (scroll)="closeContextMenu()">
     @for (tab of tabs(); track tab.id) {
       <div class="workspace-tab" [class.is-active]="tab.id === activeTabId()" (contextmenu)="openContextMenu($event, tab.id)">
@@ -12,6 +24,12 @@
           [title]="tab.title + ' — clic droit : options de fermeture'"
           (click)="activateTab(tab.id)"
           (keydown)="handleTabKeydown($event, tab.id)">
+          @if (dirtyUrls().has(tab.url)) {
+            <span class="workspace-tab-dirty" role="img" aria-label="Modifications non enregistrées" title="Modifications non enregistrées"></span>
+          }
+          @if (tabIcons().get(tab.id); as icon) {
+            <lucide-icon [img]="icon" [size]="15" class="workspace-tab-icon" aria-hidden="true" />
+          }
           <span class="workspace-tab-label">{{ tab.title }}</span>
         </button>
 
@@ -29,6 +47,35 @@
     }
   </div>
 </div>
+
+@if (tabsList(); as list) {
+  <div
+    class="workspace-tabs-list"
+    role="menu"
+    aria-label="Onglets ouverts"
+    [style.top.px]="list.top"
+    [style.left.px]="list.left"
+    (click)="$event.stopPropagation()">
+    @for (tab of tabs(); track tab.id) {
+      <div class="workspace-tabs-list-row" [class.is-active]="tab.id === activeTabId()">
+        <button type="button" role="menuitem" class="workspace-tabs-list-item" [title]="tab.title" (click)="selectFromList(tab.id)">
+          @if (dirtyUrls().has(tab.url)) {
+            <span class="workspace-tab-dirty" role="img" aria-label="Modifications non enregistrées" title="Modifications non enregistrées"></span>
+          }
+          @if (tabIcons().get(tab.id); as icon) {
+            <lucide-icon [img]="icon" [size]="15" class="workspace-tab-icon" aria-hidden="true" />
+          }
+          <span class="workspace-tab-label">{{ tab.title }}</span>
+        </button>
+        @if (tab.closable) {
+          <button type="button" class="workspace-tabs-list-close" [attr.aria-label]="'Fermer ' + tab.title" [title]="'Fermer ' + tab.title" (click)="closeFromList($event, tab.id)">
+            <lucide-icon [img]="closeIcon" [size]="14" />
+          </button>
+        }
+      </div>
+    }
+  </div>
+}
 
 @if (contextMenu(); as menu) {
   <div
