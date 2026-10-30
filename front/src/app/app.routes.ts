@@ -5,6 +5,7 @@ import { roleGuard } from './core/auth/role.guard';
 import { uiAccessGuard } from './core/ui-access/ui-access.guard';
 import { UserRole } from './core/models/enums';
 import { CLIENTS_UI_KEYS } from './views/pages/clients/access/clients-access.keys';
+import { COMMANDES_UI_KEYS } from './views/pages/commandes/access/commandes-access.keys';
 import { DASHBOARD_UI_KEYS } from './views/pages/dashboard/access/dashboard-access.keys';
 import { USERS_UI_KEYS } from './views/pages/users/access/users-access.keys';
 
@@ -38,6 +39,8 @@ export const routes: Routes = [
       {
         path: 'commandes',
         loadChildren: () => import('./views/pages/commandes/commandes.routes'),
+        canActivate: [uiAccessGuard],
+        data: { uiAccessKey: COMMANDES_UI_KEYS.PAGE_ACCESS },
       },
       {
         path: 'profile',

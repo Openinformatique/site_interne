@@ -21,6 +21,7 @@ import { joinNomContact, splitNomContact } from '../domain/contact-name';
 import { ClientContratEntity } from './entities/client-contrat.entity';
 import { ClientEntity } from './entities/client.entity';
 import { ContactEntity } from './entities/contact.entity';
+import { sqlDateToIso } from '../../../common/utils/sql-date.util';
 
 /** Heures par jour si le paramètre TDIV/HJOUR est absent ou invalide. */
 const DEFAULT_HEURES_PAR_JOUR = 8;
@@ -222,7 +223,7 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
       })),
       ...pointages.map((pointage) => ({
         type: 'POINTAGE' as const,
-        date: pointage.debut ? toIsoDate(pointage.debut) : null,
+        date: pointage.debut ? sqlDateToIso(pointage.debut) : null,
         libelle: pointage.description ?? '',
         utilisateur: pointage.login,
         credit: 0,
@@ -380,15 +381,15 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
       id: row.id,
       numeroCommande: row.numeroCommande,
       numeroDevis: row.numeroDevis,
-      dateDevis: toIsoDate(row.dateDevis),
-      dateCommande: toIsoDate(row.dateCommande),
+      dateDevis: sqlDateToIso(row.dateDevis),
+      dateCommande: sqlDateToIso(row.dateCommande),
       typeCommande: row.typeCommande || null,
       contrat: row.contrat,
-      delai: toIsoDate(row.delai),
+      delai: sqlDateToIso(row.delai),
       joursPrevus: row.joursPrevus === null ? null : Number(row.joursPrevus),
       joursPasses: round4(Number(row.heures ?? 0) / heuresParJour),
       libelle: row.libelle,
-      dateCloture: toIsoDate(row.dateCloture),
+      dateCloture: sqlDateToIso(row.dateCloture),
     }));
   }
 
@@ -445,15 +446,6 @@ function toContactColumns(input: ContactInput): Partial<ContactEntity> {
 }
 
 /** Date SQL (Date ou chaîne) → YYYY-MM-DD. */
-function toIsoDate(value: Date | string | null): string | null {
-  if (value === null) {
-    return null;
-  }
-  if (typeof value === 'string') {
-    return value.slice(0, 10);
-  }
-  return value.toISOString().slice(0, 10);
-}
 
 function round4(value: number): number {
   return Math.round(value * 10000) / 10000;

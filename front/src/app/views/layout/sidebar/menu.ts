@@ -2,6 +2,7 @@ import { MenuItem } from './menu.model';
 import { Building2Icon, ClipboardListIcon, LayoutDashboardIcon, LucideIconData, UsersIcon } from 'lucide-angular';
 import { UserRole } from '../../../core/models/enums';
 import { CLIENTS_UI_KEYS } from '../../pages/clients/access/clients-access.keys';
+import { COMMANDES_UI_KEYS } from '../../pages/commandes/access/commandes-access.keys';
 import { DASHBOARD_UI_KEYS } from '../../pages/dashboard/access/dashboard-access.keys';
 import { USERS_UI_KEYS } from '../../pages/users/access/users-access.keys';
 
@@ -17,7 +18,7 @@ export const MENU: MenuItem[] = [
 
   { label: 'Gestion', isTitle: true },
   { label: 'Clients', icon: Building2Icon, link: '/clients', uiAccessKey: CLIENTS_UI_KEYS.PAGE_ACCESS },
-  { label: 'Commandes', icon: ClipboardListIcon, link: '/commandes' },
+  { label: 'Commandes', icon: ClipboardListIcon, link: '/commandes', uiAccessKey: COMMANDES_UI_KEYS.PAGE_ACCESS },
 
   { label: 'Administration', isTitle: true },
   // La création d'un utilisateur se fait depuis la liste (bouton « Nouvel utilisateur »).

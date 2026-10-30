@@ -9,6 +9,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuthenticationModule } from './modules/authentication/authentication.module';
 import { ClientsModule } from './modules/clients/clients.module';
+import { CommandesModule } from './modules/commandes/commandes.module';
 import { HealthModule } from './modules/health/health.module';
 import { MailModule } from './modules/mail/mail.module';
 import { ObservabilityModule } from './modules/observability/observability.module';
@@ -46,6 +47,7 @@ import { UsersModule } from './modules/users/users.module';
     // Modules métier (reprise de l'application historique).
     ParametresModule,
     ClientsModule,
+    CommandesModule,
     // Endpoints de démonstration : routes inexistantes lorsque désactivés.
     ...(isTechnicalDemoEnabled() ? [TechnicalDemoModule] : []),
   ],

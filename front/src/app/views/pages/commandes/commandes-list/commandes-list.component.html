@@ -1,0 +1,233 @@
+<section class="commandes-page">
+  <header class="page-heading">
+    <div class="heading-title">
+      <span class="heading-icon" aria-hidden="true"><lucide-icon [img]="icons.ClipboardList" [size]="24" /></span>
+      <div>
+        <div class="title-line">
+          <h1>Commandes</h1>
+          <span class="count-badge">{{ countLabel() }}</span>
+        </div>
+        <p class="subtitle">Consultez les commandes clients, ouvrez-en une ou créez-en une nouvelle.</p>
+      </div>
+    </div>
+    <div class="heading-actions">
+      <button type="button" class="export-button" *appUiVisible="UiKeys.EXPORT_BUTTON" [disabled]="exporting()"
+              title="Exporter le tableau tel qu'il est affiché (filtres et tri appliqués)" (click)="exportExcel()">
+        <lucide-icon [img]="icons.FileSpreadsheet" [size]="16" /> {{ exporting() ? 'Export en cours…' : 'Export Excel' }}
+      </button>
+      <button type="button" class="btn btn-primary create-button" *appUiVisible="UiKeys.CREATE_BUTTON" (click)="createCommande()">
+        <lucide-icon [img]="icons.Plus" [size]="16" /> Nouvelle commande
+      </button>
+    </div>
+  </header>
+
+  <section class="filters-bar" aria-label="Filtres des commandes">
+    <div class="filters-row">
+      <span class="search-input">
+        <lucide-icon [img]="icons.Search" [size]="18" aria-hidden="true" />
+        <input type="search" [formControl]="searchControl" aria-label="Rechercher une commande"
+               placeholder="Rechercher (n° commande, n° devis, libellé, client, montant)…" />
+      </span>
+
+      <!-- Client : sélection unique, avec recherche dans la liste -->
+      <div ngbDropdown class="filter-dropdown" (openChange)="clientSearch.set('')">
+        <button type="button" class="filter-toggle" ngbDropdownToggle aria-label="Filtrer par client">
+          <lucide-icon [img]="icons.Building2" [size]="16" aria-hidden="true" />
+          @if (selectedClientLabel(); as label) {
+            <span class="chip chip-client">{{ label }}</span>
+          } @else {
+            <span class="placeholder-text">Tous les clients</span>
+          }
+          <lucide-icon [img]="icons.ChevronDown" [size]="15" class="toggle-caret" aria-hidden="true" />
+        </button>
+        <div ngbDropdownMenu class="filter-menu client-menu">
+          <span class="client-search">
+            <lucide-icon [img]="icons.Search" [size]="15" aria-hidden="true" />
+            <input type="search" [value]="clientSearch()" (input)="onClientSearch($event)" aria-label="Rechercher un client"
+                   placeholder="Rechercher un client…" />
+          </span>
+          <div class="client-options" role="listbox" aria-label="Clients">
+            @if (!clientSearch()) {
+              <button type="button" ngbDropdownItem class="client-option" role="option"
+                      [class.selected]="state().clientId === null" [attr.aria-selected]="state().clientId === null"
+                      (click)="selectClient(null)">
+                <span class="option-label">Tous les clients</span>
+                @if (state().clientId === null) { <lucide-icon [img]="icons.Check" [size]="14" /> }
+              </button>
+            }
+            @for (client of clientOptions(); track client.id) {
+              <button type="button" ngbDropdownItem class="client-option" role="option"
+                      [class.selected]="state().clientId === client.id" [attr.aria-selected]="state().clientId === client.id"
+                      (click)="selectClient(client.id)">
+                <span class="option-label">{{ clientLabel(client) }}</span>
+                @if (state().clientId === client.id) { <lucide-icon [img]="icons.Check" [size]="14" /> }
+              </button>
+            } @empty {
+              <p class="no-option">Aucun client</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Groupe : sélection multiple, comme la liste des clients -->
+      <div ngbDropdown autoClose="outside" class="filter-dropdown">
+        <button type="button" class="filter-toggle" ngbDropdownToggle aria-label="Filtrer par groupe">
+          <lucide-icon [img]="icons.Users" [size]="16" aria-hidden="true" />
+          @if (selectedGroupLabels().length === 0) {
+            <span class="placeholder-text">Tous les groupes</span>
+          } @else {
+            @for (label of selectedGroupLabels(); track label) {
+              <span class="chip">{{ label }}</span>
+            }
+          }
+          <lucide-icon [img]="icons.ChevronDown" [size]="15" class="toggle-caret" aria-hidden="true" />
+        </button>
+        <div ngbDropdownMenu class="filter-menu group-menu" role="listbox" aria-multiselectable="true" aria-label="Groupes">
+          <div class="group-menu-title">Groupes sociétaux</div>
+          @for (option of groupOptions(); track option.key) {
+            <button type="button" class="group-option" role="option"
+                    [class.selected]="isGroupSelected(option.key)"
+                    [attr.aria-selected]="isGroupSelected(option.key)"
+                    (click)="toggleGroup(option.key)">
+              <span class="check-box" aria-hidden="true">
+                @if (isGroupSelected(option.key)) { <lucide-icon [img]="icons.Check" [size]="12" /> }
+              </span>
+              <span class="option-label">{{ option.label }}</span>
+            </button>
+          }
+          <div class="group-menu-footer">
+            <button type="button" class="link-button muted" (click)="clearGroups()">Effacer</button>
+            <button type="button" class="link-button" ngbDropdownToggle>Fermer</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="view-toggle" role="group" aria-label="Affichage">
+        <button type="button" [class.active]="view() === 'list'" [attr.aria-pressed]="view() === 'list'" (click)="view.set('list')" aria-label="Vue liste"><lucide-icon [img]="icons.List" [size]="17" /></button>
+        <button type="button" [class.active]="view() === 'grid'" [attr.aria-pressed]="view() === 'grid'" (click)="view.set('grid')" aria-label="Vue tuiles"><lucide-icon [img]="icons.LayoutGrid" [size]="17" /></button>
+      </div>
+    </div>
+
+    <div class="filters-row secondary">
+      <button type="button" class="closed-switch" role="switch" [attr.aria-checked]="state().includeClosed" (click)="toggleClosed()">
+        <span class="switch-track" [class.on]="state().includeClosed" aria-hidden="true"><span class="switch-knob"></span></span>
+        Afficher les commandes clôturées
+      </button>
+      @if (!periodOpen()) {
+        <button type="button" class="period-btn" (click)="periodOpen.set(true)">
+          <lucide-icon [img]="icons.CalendarDays" [size]="15" class="muted-icon" /> Filtrer par période
+        </button>
+      } @else {
+        <div class="period" role="group" aria-label="Période (date du devis ou date de commande)"
+             title="Commandes dont la date du devis ou la date de commande est dans la période">
+          <lucide-icon [img]="icons.CalendarDays" [size]="15" class="period-icon" />
+          <label>Du <input type="date" class="date-input" [value]="state().du" (input)="setPeriod('du', $event)"></label>
+          <label>au <input type="date" class="date-input" [value]="state().au" (input)="setPeriod('au', $event)"></label>
+          <button type="button" class="period-close" aria-label="Retirer le filtre de période" title="Retirer le filtre de période" (click)="closePeriod()">
+            <lucide-icon [img]="icons.X" [size]="14" [strokeWidth]="2.2" />
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (loading() && commandes().length === 0) {
+    <app-page-loader />
+  } @else if (commandes().length === 0) {
+    <div class="panel empty-panel"><app-empty-state title="Aucune commande" message="Ajustez votre recherche ou vos filtres." /></div>
+  } @else {
+    @if (view() === 'list') {
+      <div class="panel table-panel" [class.is-loading]="loading()">
+        <div class="table-responsive">
+          <table class="commandes-table">
+            <thead>
+              <tr>
+                @for (column of columns; track column.field) {
+                  <th scope="col" [class.num]="column.numeric" [attr.aria-sort]="ariaSort(column.field)">
+                    <button type="button" class="sort-th" [class.active]="state().sortBy === column.field" (click)="sortBy(column.field)">
+                      {{ column.label }} <lucide-icon [img]="sortIcon(column.field)" [size]="12" />
+                    </button>
+                  </th>
+                }
+                <th scope="col" class="actions-column">Fiche</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (commande of commandes(); track commande.id) {
+                <tr [class.is-inactive]="commande.dateCloture" (click)="openCommande(commande)">
+                  <td class="strong col-client">{{ commande.client }}</td>
+                  <td>@if (commande.groupe) { <span class="group-badge">{{ commande.groupeLibelle }}</span> }</td>
+                  <td class="nowrap">{{ frDate(commande.dateCommande) }}</td>
+                  <td class="strong nowrap">{{ commande.numeroCommande }}</td>
+                  <td class="nowrap">{{ commande.numeroDevis }}</td>
+                  <td class="nowrap">{{ frDate(commande.dateDevis) }}</td>
+                  <td class="nowrap"><span [class.late]="enRetard(commande)">{{ frDate(commande.delai) }}</span></td>
+                  <td class="emph col-libelle">{{ commande.libelle }}</td>
+                  <td class="num">{{ jours(commande.joursPrevus) }}</td>
+                  <td class="num">{{ jours(commande.joursPasses) }}</td>
+                  <td class="num">{{ jours(commande.joursCommandes) }}</td>
+                  <td class="num emph">{{ montant(commande.montant) }}</td>
+                  <td>
+                    @if (commande.dateCloture) {
+                      <span class="status-pill off">Clôturée</span><span class="cloture-date">le {{ frDate(commande.dateCloture) }}</span>
+                    } @else {
+                      <span class="status-pill">En cours</span>
+                    }
+                  </td>
+                  <td class="actions-cell">
+                    <button type="button" class="icon-button" [attr.aria-label]="'Ouvrir la commande ' + commandeNumero(commande)"
+                            [title]="'Ouvrir la commande ' + commandeNumero(commande)" (click)="openCommande(commande, $event)">
+                      <lucide-icon [img]="icons.Eye" [size]="16" />
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <div class="commandes-grid" [class.is-loading]="loading()">
+        @for (commande of commandes(); track commande.id) {
+          <article class="commande-card" [class.is-inactive]="commande.dateCloture">
+            <div class="card-content">
+              <div class="card-head">
+                <div class="card-id">
+                  <h3>N° {{ commandeNumero(commande) }}</h3>
+                  <div class="card-tags">
+                    <span class="card-client">{{ commande.client }}</span>
+                    @if (commande.groupe) { <span class="group-badge">{{ commande.groupeLibelle }}</span> }
+                  </div>
+                </div>
+                <div class="card-status">
+                  @if (commande.dateCloture) {
+                    <span class="status-pill off">Clôturée</span><span class="cloture-date">le {{ frDate(commande.dateCloture) }}</span>
+                  } @else {
+                    <span class="status-pill">En cours</span>
+                  }
+                </div>
+              </div>
+              <p class="card-libelle">{{ commande.libelle }}</p>
+              <div class="card-dates">
+                <div><div class="label">Commande</div><div class="value">{{ frDate(commande.dateCommande) }}</div></div>
+                <div><div class="label">Devis {{ commande.numeroDevis }}</div><div class="value">{{ frDate(commande.dateDevis) }}</div></div>
+                <div><div class="label">Délai</div><div class="value"><span [class.late]="enRetard(commande)">{{ frDate(commande.delai) }}</span></div></div>
+              </div>
+              <div class="card-figures">
+                <div><div class="label">J. prévus</div><div class="value">{{ jours(commande.joursPrevus) }}</div></div>
+                <div><div class="label">J. passés</div><div class="value">{{ jours(commande.joursPasses) }}</div></div>
+                <div><div class="label">J. commandés</div><div class="value">{{ jours(commande.joursCommandes) }}</div></div>
+                <div class="end"><div class="label">Montant</div><div class="value amount">{{ montant(commande.montant) }}</div></div>
+              </div>
+            </div>
+            <button type="button" class="card-action" (click)="openCommande(commande)">
+              <lucide-icon [img]="icons.Eye" [size]="16" /> Voir la commande
+            </button>
+          </article>
+        }
+      </div>
+    }
+
+    <app-pagination [meta]="meta()" (pageChange)="onPage($event)" (pageSizeChange)="onPageSize($event)" />
+  }
+</section>
