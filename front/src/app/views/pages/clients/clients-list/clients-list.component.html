@@ -1,0 +1,157 @@
+<section class="clients-page">
+  <header class="page-heading">
+    <div class="heading-title">
+      <span class="heading-icon" aria-hidden="true"><lucide-icon [img]="Building2" [size]="24" /></span>
+      <div>
+        <div class="title-line">
+          <h1>Clients</h1>
+          <span class="count-badge">{{ countLabel() }}</span>
+        </div>
+        <p class="subtitle">Consultez et gérez les clients de l'entreprise.</p>
+      </div>
+    </div>
+    <button type="button" class="btn btn-primary create-button" *appUiVisible="UiKeys.CREATE_BUTTON" (click)="createClient()">
+      <lucide-icon [img]="Plus" [size]="16" /> Nouveau client
+    </button>
+  </header>
+
+  <section class="filters-bar" aria-label="Filtres des clients">
+    <span class="search-input">
+      <lucide-icon [img]="Search" [size]="18" aria-hidden="true" />
+      <input type="search" [formControl]="searchControl" aria-label="Rechercher un client"
+             placeholder="Rechercher (code, raison sociale, adresse, CP, ville, pays, n° TVA)…" />
+    </span>
+
+    <div ngbDropdown autoClose="outside" class="group-filter">
+      <button type="button" class="group-toggle" ngbDropdownToggle aria-label="Filtrer par groupe">
+        <lucide-icon [img]="Users" [size]="16" aria-hidden="true" />
+        @if (selectedGroupLabels().length === 0) {
+          <span class="placeholder-text">Tous les groupes</span>
+        } @else {
+          @for (label of selectedGroupLabels(); track label) {
+            <span class="chip">{{ label }}</span>
+          }
+        }
+        <lucide-icon [img]="ChevronDown" [size]="15" class="toggle-caret" aria-hidden="true" />
+      </button>
+      <div ngbDropdownMenu class="group-menu" role="listbox" aria-multiselectable="true" aria-label="Groupes">
+        <div class="group-menu-title">Groupes sociétaux</div>
+        @for (option of groupOptions(); track option.key) {
+          <button type="button" class="group-option" role="option"
+                  [class.selected]="isGroupSelected(option.key)"
+                  [attr.aria-selected]="isGroupSelected(option.key)"
+                  (click)="toggleGroup(option.key)">
+            <span class="check-box" aria-hidden="true">
+              @if (isGroupSelected(option.key)) { <lucide-icon [img]="Check" [size]="12" /> }
+            </span>
+            <span class="option-label">{{ option.label }}</span>
+            @if (option.count !== null) { <span class="option-count">{{ option.count }}</span> }
+          </button>
+        }
+        <div class="group-menu-footer">
+          <button type="button" class="link-button muted" (click)="clearGroups()">Effacer</button>
+          <button type="button" class="link-button" ngbDropdownToggle>Fermer</button>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="inactive-switch" role="switch"
+            [attr.aria-checked]="state().includeInactive" (click)="toggleInactive()">
+      <span class="switch-track" [class.on]="state().includeInactive" aria-hidden="true"><span class="switch-knob"></span></span>
+      Afficher les inactifs
+    </button>
+
+    <div class="view-toggle" role="group" aria-label="Affichage">
+      <button type="button" [class.active]="view() === 'list'" [attr.aria-pressed]="view() === 'list'" (click)="setView('list')" aria-label="Vue liste"><lucide-icon [img]="List" [size]="17" /></button>
+      <button type="button" [class.active]="view() === 'grid'" [attr.aria-pressed]="view() === 'grid'" (click)="setView('grid')" aria-label="Vue tuiles"><lucide-icon [img]="LayoutGrid" [size]="17" /></button>
+    </div>
+  </section>
+
+  @if (loading() && clients().length === 0) {
+    <app-page-loader />
+  } @else if (clients().length === 0) {
+    <div class="panel empty-panel"><app-empty-state title="Aucun client" message="Ajustez votre recherche ou vos filtres." /></div>
+  } @else {
+    @if (view() === 'list') {
+      <div class="panel table-panel" [class.is-loading]="loading()">
+        <div class="table-responsive">
+          <table class="clients-table">
+            <thead>
+              <tr>
+                @for (column of columns; track column.field) {
+                  <th scope="col" [attr.aria-sort]="ariaSort(column.field)">
+                    <button type="button" class="sort-th" [class.active]="state().sortBy === column.field" (click)="sortBy(column.field)">
+                      {{ column.label }} <lucide-icon [img]="sortIcon(column.field)" [size]="13" />
+                    </button>
+                  </th>
+                }
+                <th scope="col" class="actions-column">Fiche</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (client of clients(); track client.id) {
+                <tr [class.is-inactive]="!client.actif" (click)="openClient(client)">
+                  <td class="strong nowrap">{{ client.codeClient }}</td>
+                  <td class="strong">{{ client.raisonSociale }}</td>
+                  <td>@if (client.groupe) { <span class="group-badge">{{ groupLabel(client.groupe) }}</span> }</td>
+                  <td><span class="status-pill" [class.off]="!client.actif">{{ client.actif ? 'Actif' : 'Inactif' }}</span></td>
+                  <td>{{ client.adresse1 }}</td>
+                  <td>{{ client.adresse2 }}</td>
+                  <td>{{ client.adresse3 }}</td>
+                  <td class="nowrap">{{ client.codePostal }}</td>
+                  <td>{{ client.ville }}</td>
+                  <td [title]="paysLabel(client.codePays)">
+                    @if (flagClass(client.codePays); as flag) {
+                      <span [class]="flag + ' flag'" role="img" [attr.aria-label]="paysLabel(client.codePays)"></span>
+                    } @else {
+                      {{ client.codePays }}
+                    }
+                  </td>
+                  <td class="actions-cell" (click)="$event.stopPropagation()">
+                    <button type="button" class="icon-button" [attr.aria-label]="'Ouvrir la fiche ' + (client.raisonSociale || client.codeClient)"
+                            [title]="'Ouvrir la fiche ' + (client.raisonSociale || client.codeClient)" (click)="openClient(client)">
+                      <lucide-icon [img]="Eye" [size]="16" />
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <div class="clients-grid" [class.is-loading]="loading()">
+        @for (client of clients(); track client.id) {
+          <article class="client-card" [class.is-inactive]="!client.actif">
+            <div class="card-head">
+              <span class="avatar" aria-hidden="true">{{ initials(client) }}</span>
+              <div class="card-id">
+                <h3>{{ client.raisonSociale }}</h3>
+                <div class="card-tags">
+                  <span class="code">{{ client.codeClient }}</span>
+                  @if (client.groupe) { <span class="group-badge">{{ groupLabel(client.groupe) }}</span> }
+                  <span class="status-pill" [class.off]="!client.actif">{{ client.actif ? 'Actif' : 'Inactif' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              @for (line of addressLines(client); track $index) { <div>{{ line }}</div> }
+              <div class="cp-ville">{{ cpVille(client) }}</div>
+              @if (client.codePays) {
+                <div class="pays">
+                  @if (flagClass(client.codePays); as flag) { <span [class]="flag + ' flag'" aria-hidden="true"></span> }
+                  {{ paysLabel(client.codePays) }}
+                </div>
+              }
+            </div>
+            <button type="button" class="card-action" (click)="openClient(client)">
+              <lucide-icon [img]="Eye" [size]="16" /> Voir la fiche
+            </button>
+          </article>
+        }
+      </div>
+    }
+
+    <app-pagination [meta]="meta()" (pageChange)="onPage($event)" (pageSizeChange)="onPageSize($event)" />
+  }
+</section>

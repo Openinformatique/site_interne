@@ -175,13 +175,15 @@ $prefix:                      bs- !default;
 $body-bg:                      #fff !default;
 $body-color:                   $black !default;
 
-$body-secondary-color:      rgba($body-color, .75) !default;
+// Alignés sur les maquettes validées : textes secondaires #7987a1, champs et
+// en-têtes de tableau #f8f9fa.
+$body-secondary-color:      $gray-600 !default;
 $body-secondary-bg:         $gray-200 !default;
 
 $body-tertiary-color:       rgba($body-color, .5) !default;
-$body-tertiary-bg:          $gray-200 !default;
+$body-tertiary-bg:          $gray-100 !default;
 
-$body-emphasis-color:       $black !default;
+$body-emphasis-color:       $gray-900 !default; // #060c17, titres des maquettes
 
 
 // Links
@@ -467,14 +469,14 @@ $btn-close-color:            $black !default;
 
 // App
 $app-bg: #f9fafb;
-$app-bg-dark: #09090b;
+$app-bg-dark: #070d19; // fond de page sombre des maquettes validées
 
 // Sidebar
 $sidebar-width-lg:      240px;
 $sidebar-folded-width:  70px;
 
 $sidebar-color:         $body-color;
-$sidebar-color-dark:    $secondary;
+$sidebar-color-dark:    #9aa6bd; // texte du menu sombre des maquettes validées
 
 $sidebar-box-shadow-color:          rgba(183,192,206,.2);
 $sidebar-box-shadow-color-dark:     #08101e;

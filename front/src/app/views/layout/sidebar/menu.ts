@@ -1,6 +1,7 @@
 import { MenuItem } from './menu.model';
 import { Building2Icon, LayoutDashboardIcon, UsersIcon } from 'lucide-angular';
 import { UserRole } from '../../../core/models/enums';
+import { CLIENTS_UI_KEYS } from '../../pages/clients/access/clients-access.keys';
 import { DASHBOARD_UI_KEYS } from '../../pages/dashboard/access/dashboard-access.keys';
 import { USERS_UI_KEYS } from '../../pages/users/access/users-access.keys';
 
@@ -19,7 +20,7 @@ export const MENU: MenuItem[] = [
     label: 'Module clients',
     icon: Building2Icon,
     subItems: [
-      { label: 'Liste des clients', link: '/clients' },
+      { label: 'Liste des clients', link: '/clients', uiAccessKey: CLIENTS_UI_KEYS.PAGE_ACCESS },
       { label: 'Commandes', link: '/commandes' },
     ],
   },

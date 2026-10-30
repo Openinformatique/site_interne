@@ -38,6 +38,7 @@
     "apexcharts": "^5.3.6",
     "bootstrap": "^5.3.8",
     "chart.js": "^4.5.1",
+    "flag-icons": "7.5.0",
     "lucide-angular": "^0.563.0",
     "metismenujs": "^1.4.0",
     "ng-apexcharts": "^2.0.4",

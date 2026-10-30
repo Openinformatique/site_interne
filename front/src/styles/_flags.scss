@@ -1,0 +1,10 @@
+// Drapeaux des pays (classe "fi fi-<code>") : bibliothèque flag-icons.
+//
+// Format 4:3 uniquement. Les variantes carrées portent les mêmes noms de
+// fichiers ; quand les ressources ne sont pas renommées (ng serve, build de
+// test), les deux versions entrent en collision dans media/. La bibliothèque
+// utilisant les modules Sass, l'option se passe par @use … with (une variable
+// globale avant un @import n'a aucun effet).
+@use "flag-icons/sass/flag-icons" with (
+  $flag-icons-use-square: false
+);

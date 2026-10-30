@@ -1,7 +1,11 @@
+// Palette sombre alignée sur les maquettes validées (voir
+// views/layout/README.md) : fond de page #070d19 ($app-bg-dark), cartes /
+// menu / barre du haut #0c1427, champs et en-têtes de tableau #111c33.
 $body-color-dark: #d0d6e1 !default;
-$body-bg-dark: $gray-900 !default;
+$body-bg-dark: #0c1427 !default;
 
-$body-tertiary-bg-dark: mix($gray-700, $gray-900, 50%) !default;
+$body-secondary-color-dark: $gray-600 !default; // #7987a1
+$body-tertiary-bg-dark: #111c33 !default;
 
 $link-color-dark: $primary !default;
 

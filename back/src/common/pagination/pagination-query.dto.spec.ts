@@ -37,8 +37,9 @@ describe('PaginationQueryDto', () => {
     expect(buildAndValidate({ page: '-2' }).errors).toContain('page');
   });
 
-  it('rejette une limite au-delà du maximum (100)', () => {
-    expect(buildAndValidate({ limit: '101' }).errors).toContain('limit');
+  it('rejette une limite au-delà du maximum (1000)', () => {
+    expect(buildAndValidate({ limit: '1000' }).errors).toHaveLength(0);
+    expect(buildAndValidate({ limit: '1001' }).errors).toContain('limit');
   });
 
   it('rejette une valeur non entière', () => {
