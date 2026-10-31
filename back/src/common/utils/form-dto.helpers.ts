@@ -1,4 +1,4 @@
-/** Transformations communes aux DTO d'écriture de la fiche client. */
+/** Transformations et messages communs aux DTO de saisie des fiches. */
 
 /** Chaîne : espaces de bord retirés ; chaîne vide → null. */
 export const trimToNull = ({ value }: { value: unknown }): unknown => {

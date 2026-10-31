@@ -32,5 +32,26 @@ export const COMMANDES_PAGE_ACCESS = {
       defaultVisible: true,
       dependsOn: [COMMANDES_UI_KEYS.PAGE_ACCESS],
     },
+    {
+      key: COMMANDES_UI_KEYS.FICHE_SAVE_BUTTON,
+      label: 'Bouton Enregistrer / Créer la commande (fiche commande)',
+      type: 'button',
+      defaultVisible: true,
+      dependsOn: [COMMANDES_UI_KEYS.PAGE_ACCESS],
+    },
+    {
+      key: COMMANDES_UI_KEYS.DOCUMENT_ADD,
+      label: 'Ajout de documents (fiche commande)',
+      type: 'button',
+      defaultVisible: true,
+      dependsOn: [COMMANDES_UI_KEYS.PAGE_ACCESS],
+    },
+    {
+      key: COMMANDES_UI_KEYS.DOCUMENT_DELETE,
+      label: 'Bouton Supprimer un document (fiche commande)',
+      type: 'button',
+      defaultVisible: true,
+      dependsOn: [COMMANDES_UI_KEYS.PAGE_ACCESS],
+    },
   ],
 } satisfies PageUiAccessManifest;

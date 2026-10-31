@@ -83,3 +83,6 @@ body.swal2-toast-shown .swal2-container.swal2-rtl {
 
   .swal2-title { margin: 0; color: #fff; font-size: 13px; font-weight: 500; line-height: 1.4; }
 }
+
+// Confirmation d'une suppression (ex. document d'une commande) : bouton rouge.
+.swal2-container .swal2-popup .swal2-actions .swal2-confirm.swal-confirm-danger { background-color: #ff3366; }

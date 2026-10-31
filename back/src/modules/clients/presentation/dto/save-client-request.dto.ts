@@ -8,7 +8,12 @@ import {
   MaxLength,
 } from 'class-validator';
 import type { ClientInput } from '../../domain/client-fiche.port';
-import { REQUIRED, tooLong, trim, trimToNull } from './fiche-dto.helpers';
+import {
+  REQUIRED,
+  tooLong,
+  trim,
+  trimToNull,
+} from '../../../../common/utils/form-dto.helpers';
 
 /** Corps de POST /clients et PUT /clients/:id. */
 export class SaveClientRequestDto implements ClientInput {

@@ -1,9 +1,17 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 
 import { ApiClient, QueryParams } from './api-client.service';
 import { Page } from '../models/api.model';
-import { CommandeClientOption, CommandeListItem, CommandeSortField } from '../models/commande.model';
+import {
+  CommandeClientOption,
+  CommandeDetail,
+  CommandeDocument,
+  CommandeInput,
+  CommandeListItem,
+  CommandeSortField,
+  CommandeTemps,
+} from '../models/commande.model';
 
 /** Filtres et tri communs à la liste et à l'export Excel. */
 export interface CommandesFilterQuery {
@@ -31,7 +39,7 @@ export class CommandesApi {
 
   /**
    * Émet après chaque création / modification d'une commande (ex. rafraîchir
-   * la liste, conservée dans son onglet). Alimenté par l'écran Commande.
+   * la liste, conservée dans son onglet, ou les commandes d'une fiche client).
    */
   readonly changed$ = this.changedSubject.asObservable();
 
@@ -48,8 +56,43 @@ export class CommandesApi {
     return this.api.download('/commandes/export', toParams(filter));
   }
 
-  notifyChanged(): void {
-    this.changedSubject.next();
+  get(id: number): Observable<CommandeDetail> {
+    return this.api.get<CommandeDetail>(`/commandes/${id}`);
+  }
+
+  create(input: CommandeInput): Observable<CommandeDetail> {
+    return this.api.post<CommandeDetail>('/commandes', input).pipe(tap(() => this.changedSubject.next()));
+  }
+
+  update(id: number, input: CommandeInput): Observable<CommandeDetail> {
+    return this.api.put<CommandeDetail>(`/commandes/${id}`, input).pipe(tap(() => this.changedSubject.next()));
+  }
+
+  temps(id: number): Observable<CommandeTemps> {
+    return this.api.get<CommandeTemps>(`/commandes/${id}/temps`);
+  }
+
+  documents(id: number): Observable<CommandeDocument[]> {
+    return this.api.get<CommandeDocument[]>(`/commandes/${id}/documents`);
+  }
+
+  addDocument(id: number, file: File, typeDocument: string, commentaire: string | null): Observable<CommandeDocument> {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    form.append('typeDocument', typeDocument);
+    if (commentaire) {
+      form.append('commentaire', commentaire);
+    }
+    return this.api.postForm<CommandeDocument>(`/commandes/${id}/documents`, form);
+  }
+
+  /** Contenu d'un document (téléchargement ou ouverture dans un onglet). */
+  documentFile(id: number, documentId: number): Observable<{ blob: Blob; filename: string }> {
+    return this.api.download(`/commandes/${id}/documents/${documentId}/fichier`);
+  }
+
+  deleteDocument(id: number, documentId: number): Observable<void> {
+    return this.api.delete<void>(`/commandes/${id}/documents/${documentId}`);
   }
 }
 

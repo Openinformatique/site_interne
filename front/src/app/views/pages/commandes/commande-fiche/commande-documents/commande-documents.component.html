@@ -1,0 +1,84 @@
+<section class="fiche-card" aria-labelledby="t-docs">
+  <div class="card-head">
+    <h2 id="t-docs">Documents <span class="count">{{ documents().length }}</span></h2>
+  </div>
+  <div class="docs-body">
+    <ng-container *appUiVisible="UiKeys.DOCUMENT_ADD">
+      @if (pending(); as file) {
+        <!-- Fichier choisi : type et commentaire avant l'ajout -->
+        <div class="pending">
+          <div class="pending-file">
+            <span class="pending-badge" [class]="'fmt-' + pendingFormat()?.famille" aria-hidden="true">{{ pendingFormat()?.extension }}</span>
+            <div class="pending-name">
+              <div class="name">{{ file.name }}</div>
+              <div class="meta">{{ formatTaille(file.size) }}</div>
+            </div>
+          </div>
+          <div class="pending-grid">
+            <label class="field"><span class="cap">Type de document<span class="req" aria-hidden="true">*</span></span>
+              <select class="input" [value]="pendingType()" (change)="setPendingType($event)">
+                <option value="">— Choisir —</option>
+                @for (type of types(); track type.cle) { <option [value]="type.cle">{{ type.libelle }}</option> }
+              </select>
+            </label>
+            <label class="field"><span class="cap">Commentaire</span>
+              <input type="text" class="input" maxlength="100" [value]="pendingComment()" (input)="setPendingComment($event)">
+            </label>
+          </div>
+          @if (pendingError(); as message) { <p class="err pending-err" role="alert">{{ message }}</p> }
+          <div class="pending-actions">
+            <button type="button" class="btn-outline small" (click)="cancelPending()">Annuler</button>
+            <button type="button" class="btn-save small" [disabled]="uploading()" (click)="addPending()">
+              {{ uploading() ? 'Ajout en cours…' : 'Ajouter le document' }}
+            </button>
+          </div>
+        </div>
+      } @else {
+        <label class="dropzone" [class.over]="dragOver()" (dragover)="onDragOver($event)" (dragleave)="dragOver.set(false)" (drop)="onDrop($event)">
+          <input type="file" class="file-input" (change)="onFileInput($event)">
+          <lucide-icon [img]="icons.Upload" [size]="24" class="drop-icon" />
+          <span><strong>Déposez un fichier ici</strong> ou cliquez pour parcourir</span>
+          <span class="drop-hint">PDF, Word, Excel, images… — 20 Mo maximum</span>
+        </label>
+      }
+    </ng-container>
+
+    @if (loaded() && documents().length === 0 && !pending()) {
+      <p class="empty no-doc">Aucun document pour cette commande.</p>
+    }
+
+    <!-- Vignettes -->
+    <div class="docs-grid">
+      @for (document of documents(); track document.id) {
+        <article class="doc-card">
+          <button type="button" class="doc-preview" [class]="'fmt-' + format(document).famille"
+                  [attr.aria-label]="'Ouvrir ' + document.nomFichier" [title]="'Ouvrir ' + document.nomFichier" (click)="open(document)">
+            @if (apercus()[document.id]; as url) {
+              <img [src]="url" alt="">
+            } @else {
+              <lucide-icon [img]="format(document).famille === 'image' ? icons.Image : icons.FileIcon" [size]="34" [strokeWidth]="1.6" />
+              <span class="doc-ext">{{ format(document).extension }}</span>
+            }
+          </button>
+          <div class="doc-info">
+            <h3 [title]="document.nomFichier">{{ document.nomFichier }}</h3>
+            @if (document.typeDocumentLibelle) { <span class="doc-type">{{ document.typeDocumentLibelle }}</span> }
+            @if (document.commentaire) { <p class="doc-comment">{{ document.commentaire }}</p> }
+            <div class="doc-foot">
+              <span class="doc-meta">{{ dateAjout(document) }} · {{ formatTaille(document.tailleOctets) }}</span>
+              <span class="doc-actions">
+                <button type="button" class="doc-btn" title="Télécharger" [attr.aria-label]="'Télécharger ' + document.nomFichier" (click)="download(document)">
+                  <lucide-icon [img]="icons.Download" [size]="14" />
+                </button>
+                <button type="button" class="doc-btn danger" *appUiVisible="UiKeys.DOCUMENT_DELETE" title="Supprimer"
+                        [attr.aria-label]="'Supprimer ' + document.nomFichier" (click)="remove(document)">
+                  <lucide-icon [img]="icons.Trash2" [size]="14" />
+                </button>
+              </span>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,108 @@
+<section class="fiche-card" aria-labelledby="t-temps">
+  <div class="card-head">
+    <h2 id="t-temps">Temps passé</h2>
+    <div class="segmented" role="group" aria-label="Présentation du temps passé">
+      <button type="button" [class.active]="vue() === 'synth'" [attr.aria-pressed]="vue() === 'synth'" (click)="vue.set('synth')">Synthétique</button>
+      <button type="button" [class.active]="vue() === 'detail'" [attr.aria-pressed]="vue() === 'detail'" (click)="vue.set('detail')">Détaillé</button>
+    </div>
+  </div>
+
+  <!-- Avancement global -->
+  <div class="avancement" [class]="'niveau-' + avancement().niveau">
+    <div class="avancement-head">
+      <div>
+        <div class="kpi-label">Jours passés</div>
+        <div class="kpi-main"><span class="kpi-big">{{ jours(total()) }} j</span> sur {{ jours(joursPrevus()) }} j prévus</div>
+      </div>
+      <div class="kpis">
+        <div>Jours commandés<div class="kpi-value">{{ jours(joursCommandes()) }} j</div></div>
+        @if (avancement().niveau !== 'aucun') {
+          <div>{{ avancement().niveau === 'depassement' ? 'Dépassement' : 'Reste à passer' }}<div class="kpi-value" [class.danger]="avancement().niveau === 'depassement'">{{ jours(reste()) }} j</div></div>
+          <div>Avancement<div class="kpi-value kpi-pct">{{ pourcentageArrondi() }} %</div></div>
+        }
+      </div>
+    </div>
+    @if (avancement().niveau === 'aucun') {
+      <p class="no-prevus">Jours prévus non renseignés : pas d'avancement calculé.</p>
+    } @else {
+      <div class="bar" role="progressbar" aria-label="Avancement par rapport aux jours prévus"
+           aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="round(largeurBarre())">
+        <span class="bar-fill" [style.width.%]="largeurBarre()"></span>
+      </div>
+      @if (avancement().niveau === 'depassement') {
+        <p class="over" role="status">
+          <lucide-icon [img]="TriangleAlert" [size]="15" [strokeWidth]="2.2" />
+          Dépassement de {{ jours(avancement().depassement) }} j par rapport aux jours prévus
+        </p>
+      }
+    }
+  </div>
+
+  @if (loaded() && temps().pointages.length === 0) {
+    <p class="empty">Aucun pointage sur cette commande pour l'instant.</p>
+  } @else if (vue() === 'synth') {
+    <!-- Synthétique : cumul par personne -->
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th scope="col">Personne</th>
+          <th scope="col" class="num">Jours pointés</th>
+          <th scope="col" class="col-part">Part des jours prévus</th>
+          <th scope="col">Dernier pointage</th>
+        </tr></thead>
+        <tbody>
+          @for (personne of temps().personnes; track personne.utilisateurId) {
+            <tr>
+              <td>
+                <span class="personne">
+                  <span class="avatar" aria-hidden="true">{{ initiales(personne.personne) }}</span>
+                  <span class="emph medium">{{ personne.personne || 'Utilisateur inconnu' }}</span>
+                </span>
+              </td>
+              <td class="num nowrap semibold emph">{{ jours(personne.jours) }} j</td>
+              <td>
+                <span class="part">
+                  <span class="part-track"><span class="part-fill" [style.width.%]="min100(part(personne.jours))"></span></span>
+                  <span class="part-pct">{{ round(part(personne.jours)) }} %</span>
+                </span>
+              </td>
+              <td class="nowrap muted">{{ frDate(personne.dernierPointage) }}</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot><tr>
+          <td class="bold emph">Total</td>
+          <td class="num nowrap bold emph">{{ jours(total()) }} j</td>
+          <td class="muted small">
+            @if (avancement().niveau !== 'aucun') { {{ pourcentageArrondi() }} % des {{ jours(joursPrevus()) }} j prévus }
+          </td>
+          <td></td>
+        </tr></tfoot>
+      </table>
+    </div>
+  } @else {
+    <!-- Détaillé : chaque pointage, du plus récent au plus ancien -->
+    <div class="detail-scroll">
+      <table>
+        <thead><tr>
+          <th scope="col">Date</th>
+          <th scope="col">Personne</th>
+          <th scope="col">Action</th>
+          <th scope="col">Description</th>
+          <th scope="col" class="num">Temps</th>
+        </tr></thead>
+        <tbody>
+          @for (pointage of temps().pointages; track pointage.id) {
+            <tr>
+              <td class="nowrap">{{ frDate(pointage.date) }}</td>
+              <td class="nowrap emph">{{ pointage.personne || '—' }}</td>
+              <td>@if (pointage.typeActionLibelle) { <span class="action">{{ pointage.typeActionLibelle }}</span> }</td>
+              <td class="emph">{{ pointage.description }}</td>
+              <td class="num nowrap semibold">{{ jours(pointage.jours) }} j</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

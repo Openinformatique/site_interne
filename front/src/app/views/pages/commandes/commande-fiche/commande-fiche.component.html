@@ -1,0 +1,143 @@
+@if (loading()) {
+  <app-page-loader />
+} @else if (notFound()) {
+  <div class="fiche-card not-found"><app-empty-state title="Commande introuvable" message="Cette commande n'existe pas ou a été supprimée." /></div>
+} @else {
+  <!-- Bandeau ancré en haut de la zone qui défile (fond de page pour masquer le contenu) -->
+  <div class="bandeau-sticky">
+    <header class="fiche-card bandeau">
+      <div class="bandeau-id">
+        <span class="bandeau-icon" aria-hidden="true"><lucide-icon [img]="icons.ClipboardList" [size]="24" /></span>
+        <div class="bandeau-text">
+          <h1>{{ title() }}</h1>
+          <div class="bandeau-meta">
+            @if (clientLabel()) {
+              <button type="button" class="client-link" title="Ouvrir la fiche du client" (click)="openClient()">
+                <lucide-icon [img]="icons.Building2" [size]="14" />{{ clientLabel() }}
+              </button>
+            }
+            @if (typeLabel()) { <span>{{ typeLabel() }}</span> }
+            @if (isNew()) {
+              <span class="pill off">Nouvelle</span>
+            } @else if (closed()) {
+              <span class="pill off">Clôturée le {{ clotureLabel() }}</span>
+            } @else {
+              <span class="pill">En cours</span>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="bandeau-actions">
+        @if (dirty()) {
+          <span class="dirty-status" role="status"><span class="dirty-dot" aria-hidden="true"></span>Modifications non enregistrées</span>
+        }
+        <button type="button" class="save-btn" *appUiVisible="UiKeys.FICHE_SAVE_BUTTON" [disabled]="saveDisabled()" (click)="save()">
+          <lucide-icon [img]="icons.Save" [size]="16" />
+          {{ isNew() ? 'Créer la commande' : 'Enregistrer' }}
+        </button>
+      </div>
+    </header>
+  </div>
+
+  <div class="columns">
+    <!-- Colonne gauche : informations générales -->
+    <div class="column">
+      <section class="fiche-card" aria-labelledby="t-info">
+        <h2 id="t-info" class="card-title">Informations générales</h2>
+        <div class="form-grid card-body-grid">
+          <label class="field full"><span class="cap">Client<span class="req" aria-hidden="true">*</span></span>
+            <select class="input" [class.invalid]="errors().clientId" [value]="form().clientId" [disabled]="clientLocked()"
+                    [title]="clientLocked() ? 'Des pointages sont rattachés à cette commande : le client ne peut plus être changé.' : ''"
+                    (change)="set('clientId', $event)">
+              <option value="">— Choisir un client —</option>
+              @for (client of clientOptions(); track client.id) {
+                <option [value]="client.id" [selected]="form().clientId === '' + client.id">{{ client.label }}</option>
+              }
+            </select>
+            @if (errors().clientId; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field full"><span class="cap">Contrat</span>
+            <select class="input" [class.invalid]="errors().clientContratId" [value]="form().clientContratId" (change)="set('clientContratId', $event)">
+              <option value="">{{ contrats().length ? '— Aucun contrat —' : 'Aucun contrat pour ce client' }}</option>
+              @for (contrat of contrats(); track contrat.id) {
+                <option [value]="contrat.id" [selected]="form().clientContratId === '' + contrat.id">{{ contrat.libelleContrat }}</option>
+              }
+            </select>
+            @if (errors().clientContratId; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field"><span class="cap">Type de commande<span class="req" aria-hidden="true">*</span></span>
+            <select class="input" [class.invalid]="errors().typeCommande" [value]="form().typeCommande" (change)="set('typeCommande', $event)">
+              <option value="">—</option>
+              @for (type of typeOptions(); track type.cle) {
+                <option [value]="type.cle" [selected]="form().typeCommande === type.cle">{{ type.libelle }}</option>
+              }
+            </select>
+            @if (errors().typeCommande; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <div aria-hidden="true"></div>
+          <label class="field"><span class="cap">N° du devis</span>
+            <input type="text" maxlength="10" class="input" [class.invalid]="errors().numeroDevis" [value]="form().numeroDevis" (input)="set('numeroDevis', $event)">
+            @if (errors().numeroDevis; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field"><span class="cap">Date du devis<span class="req" aria-hidden="true">*</span></span>
+            <input type="date" class="input" [class.invalid]="errors().dateDevis" [value]="form().dateDevis" (input)="set('dateDevis', $event)">
+            @if (errors().dateDevis; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field"><span class="cap">N° de commande</span>
+            <input type="text" maxlength="20" class="input" [class.invalid]="errors().numeroCommandeClient" [value]="form().numeroCommandeClient" (input)="set('numeroCommandeClient', $event)">
+            @if (errors().numeroCommandeClient; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field"><span class="cap">Date de commande<span class="req" aria-hidden="true">*</span></span>
+            <input type="date" class="input" [class.invalid]="errors().dateCommande" [value]="form().dateCommande" (input)="set('dateCommande', $event)">
+            @if (errors().dateCommande; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field full"><span class="cap">Libellé<span class="req" aria-hidden="true">*</span></span>
+            <textarea rows="4" maxlength="4000" class="input textarea" [class.invalid]="errors().libelleCommande" [value]="form().libelleCommande" (input)="set('libelleCommande', $event)"></textarea>
+            @if (errors().libelleCommande; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field"><span class="cap">Jours commandés<span class="req" aria-hidden="true">*</span></span>
+            <input type="text" inputmode="decimal" class="input num-input" [class.invalid]="errors().nbJoursCommande" [value]="form().nbJoursCommande" (input)="set('nbJoursCommande', $event)">
+            @if (errors().nbJoursCommande; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field"><span class="cap">Jours prévus<span class="req" aria-hidden="true">*</span></span>
+            <input type="text" inputmode="decimal" class="input num-input" [class.invalid]="errors().nbJoursPrevus" [value]="form().nbJoursPrevus" (input)="set('nbJoursPrevus', $event)">
+            @if (errors().nbJoursPrevus; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field"><span class="cap">Délai</span>
+            <input type="date" class="input" [class.invalid]="errors().delai" [value]="form().delai" (input)="set('delai', $event)">
+            @if (errors().delai; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <label class="field"><span class="cap">Montant</span>
+            <span class="euro">
+              <input type="text" inputmode="decimal" class="input num-input" [class.invalid]="errors().montant" [value]="form().montant" (input)="set('montant', $event)">
+              <span class="euro-sign" aria-hidden="true">€</span>
+            </span>
+            @if (errors().montant; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <div class="separator full" aria-hidden="true"></div>
+          <label class="field"><span class="cap">Date de clôture</span>
+            <input type="date" class="input" [class.invalid]="errors().dateCloture" [value]="form().dateCloture" (input)="set('dateCloture', $event)">
+            @if (errors().dateCloture; as message) { <span class="err">{{ message }}</span> }
+          </label>
+          <p class="cloture-hint">Renseignée, la commande passe à l'état « Clôturée ».</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Colonne droite : temps passé et documents -->
+    <div class="column">
+      @if (commandeId(); as id) {
+        <app-commande-temps [commandeId]="id" [joursPrevus]="joursPrevus()" [joursCommandes]="joursCommandes()" />
+        <app-commande-documents [commandeId]="id" />
+      } @else {
+        <section class="fiche-card unsaved-info">
+          <lucide-icon [img]="icons.Info" [size]="32" [strokeWidth]="1.8" class="unsaved-icon" />
+          <p class="unsaved-title">Temps passé et documents</p>
+          <p class="unsaved-text">Enregistrez la commande pour suivre le temps passé et y ajouter des documents.</p>
+        </section>
+      }
+    </div>
+  </div>
+
+  @if (tracabilite()) { <p class="tracabilite">{{ tracabilite() }}</p> }
+}

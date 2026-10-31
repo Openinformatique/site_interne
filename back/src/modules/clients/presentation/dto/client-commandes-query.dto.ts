@@ -1,7 +1,10 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsISO8601, IsOptional } from 'class-validator';
-import { INVALID_DATE, toBoolean } from './fiche-dto.helpers';
+import {
+  INVALID_DATE,
+  toBoolean,
+} from '../../../../common/utils/form-dto.helpers';
 
 /** Paramètres de GET /clients/:id/commandes. */
 export class ClientCommandesQueryDto {

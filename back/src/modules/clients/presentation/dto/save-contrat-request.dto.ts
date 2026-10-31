@@ -14,7 +14,7 @@ import {
   tooLong,
   trim,
   trimToNull,
-} from './fiche-dto.helpers';
+} from '../../../../common/utils/form-dto.helpers';
 
 /** Corps de POST /clients/:id/contrats et PUT /clients/:id/contrats/:contratId. */
 export class SaveContratRequestDto implements ContratInput {

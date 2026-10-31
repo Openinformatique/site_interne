@@ -9,6 +9,7 @@ import { catchError, switchMap } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 import { ClientsApi } from '../../../../core/api/clients-api.service';
+import { CommandesApi } from '../../../../core/api/commandes-api.service';
 import { ParametresApi } from '../../../../core/api/parametres-api.service';
 import { ApiError } from '../../../../core/models/api.model';
 import {
@@ -74,6 +75,7 @@ export class ClientFicheComponent implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly clientsApi = inject(ClientsApi);
+  private readonly commandesApi = inject(CommandesApi);
   private readonly parametresApi = inject(ParametresApi);
   private readonly tabsService = inject(TabsService);
   private readonly modal = inject(NgbModal);
@@ -177,6 +179,9 @@ export class ClientFicheComponent implements OnDestroy {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((commandes) => this.commandes.set(commandes));
+
+    // Commande créée ou modifiée dans son onglet : la liste des commandes du client est rafraîchie.
+    this.commandesApi.changed$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.reloadCommandes$.next());
 
     // Filtres des commandes : rechargement à chaque changement.
     effect(() => {

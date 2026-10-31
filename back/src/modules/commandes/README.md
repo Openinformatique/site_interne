@@ -3,9 +3,10 @@
 Commandes clients, reprises de l'application historique (table `commandes` :
 voir [docs/schema-metier.md](../../../docs/schema-metier.md)).
 
-Écran servi : **liste des commandes** (menu GESTION › Commandes). Toutes les
-routes sont accessibles à tout utilisateur authentifié (tous les rôles).
-L'écran Commande (consultation / modification / création) viendra ensuite.
+Écrans servis : **liste des commandes** (menu GESTION › Commandes) et **fiche
+commande** (consultation, création, modification ; temps passé ; documents).
+Toutes les routes sont accessibles à tout utilisateur authentifié (tous les
+rôles). Pas de suppression de commande.
 
 ## API
 
@@ -13,17 +14,17 @@ L'écran Commande (consultation / modification / création) viendra ensuite.
 
 Liste paginée.
 
-| Paramètre       | Défaut           | Rôle                                                                                                                                                         |
-| --------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `page`, `limit` | 1, 20 (max 1000) | pagination standard du socle                                                                                                                                 |
+| Paramètre       | Défaut           | Rôle                                                                                                                                                                      |
+| --------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `page`, `limit` | 1, 20 (max 1000) | pagination standard du socle                                                                                                                                              |
 | `sortBy`        | `client`         | `client`, `groupe`, `dateCommande`, `numeroCommande`, `numeroDevis`, `dateDevis`, `delai`, `libelle`, `joursPrevus`, `joursPasses`, `joursCommandes`, `montant`, `statut` |
-| `sortDirection` | `ASC`            | `ASC` / `DESC` ; puis date de commande décroissante et identifiant                                                                                          |
-| `includeClosed` | `false`          | `true` : en cours et clôturées                                                                                                                               |
-| `du`, `au`      | —                | période (AAAA-MM-JJ) : date du devis **ou** date de commande comprise                                                                                         |
-| `clientId`      | —                | un seul client                                                                                                                                               |
-| `groupes`       | —                | clés GSOC du client, séparées par des virgules ; combinées en OU avec `sansGroupe`                                                                           |
-| `sansGroupe`    | `false`          | inclut les commandes des clients sans groupe                                                                                                                 |
-| `search`        | —                | recherche multi-mots (ci-dessous)                                                                                                                            |
+| `sortDirection` | `ASC`            | `ASC` / `DESC` ; puis date de commande décroissante et identifiant                                                                                                        |
+| `includeClosed` | `false`          | `true` : en cours et clôturées                                                                                                                                            |
+| `du`, `au`      | —                | période (AAAA-MM-JJ) : date du devis **ou** date de commande comprise                                                                                                     |
+| `clientId`      | —                | un seul client                                                                                                                                                            |
+| `groupes`       | —                | clés GSOC du client, séparées par des virgules ; combinées en OU avec `sansGroupe`                                                                                        |
+| `sansGroupe`    | `false`          | inclut les commandes des clients sans groupe                                                                                                                              |
+| `search`        | —                | recherche multi-mots (ci-dessous)                                                                                                                                         |
 
 - **Recherche** : chaque mot (8 au plus) doit figurer, sans tenir compte de la
   casse ni des accents, dans : n° de commande, n° de devis, libellé, code et
@@ -56,12 +57,41 @@ Date devis, Délai, Libellé, Jours prévus, Jours passés, Jours commandés,
 Montant, Statut, Date de clôture. Dates et nombres sont de vraies valeurs
 Excel (sommes possibles) ; ligne d'en-tête figée avec filtres automatiques.
 
+### Fiche commande
+
+| Route | Rôle |
+| --- | --- |
+| `POST /commandes`, `GET/PUT /commandes/:id` | création, consultation, modification |
+| `GET /commandes/:id/temps` | temps passé : `personnes` (cumul, décroissant) et `pointages` (plus récents d'abord) |
+| `GET/POST /commandes/:id/documents` | documents (plus récents d'abord) ; ajout en multipart : `file`, `typeDocument` (TDOC), `commentaire` |
+| `GET /commandes/:id/documents/:documentId/fichier` | contenu (`inline=true` : affichage, PDF et images seulement) |
+| `DELETE /commandes/:id/documents/:documentId` | suppression définitive (référence et fichier) |
+
+- **Obligatoires** : client, type (TYPC), dates du devis et de commande,
+  libellé, jours commandés et prévus (positifs, 4 décimales au plus). N° de
+  devis et de commande facultatifs, non uniques. Montant ≥ 0, 2 décimales.
+- **Client** : existant et actif à la création ou lors d'un changement ; un
+  client devenu inactif reste sur ses commandes. Changement refusé dès qu'un
+  pointage est rattaché (`hasPointages`). Contrat facultatif, du client.
+- **Clôture** : simple date ; une commande clôturée reste modifiable.
+- **Temps passé** : heures facturables des pointages ÷ heures par jour
+  (TDIV/HJOUR), cumul par personne calculé en heures puis converti.
+- **Documents** : fichier confié au module storage (`FileStoragePort`), types
+  MIME et taille limités par `STORAGE_ALLOWED_MIME_TYPES` /
+  `STORAGE_MAX_FILE_SIZE` (20 Mo, formats bureautiques, images, PDF, zip,
+  e-mails) ; la table `documents_commande` garde la référence et les
+  métadonnées. Si l'enregistrement en base échoue, le fichier stocké est
+  supprimé. Nom de fichier multipart redécodé en UTF-8.
+
 ## Architecture
 
 - `domain/commande-list.port.ts` : modèle de ligne, filtres, ports
   `CommandeListPort` (lecture) et `CommandesSpreadsheetPort` (classeur).
 - `application/list-commandes.use-case.ts` : liste paginée, clients du filtre,
   export (nom de fichier daté du jour).
+- `application/commande-fiche.use-case.ts` : fiche (contrôles des références,
+  verrou du client) et temps passé ; `commande-documents.use-case.ts` : documents.
+- `domain/commande-fiche.port.ts`, `infrastructure/typeorm-commande-fiche.repository.ts`.
 - `infrastructure/typeorm-commande-list.repository.ts` : requêtes (jointures
   client, contrat, GSOC ; sous-requête des heures pointées).
 - `infrastructure/exceljs-commandes.spreadsheet.ts` : génération du classeur
@@ -71,4 +101,5 @@ Excel (sommes possibles) ; ligne d'en-tête figée avec filtres automatiques.
 Les dates des requêtes brutes passent par `common/utils/sql-date.util.ts` (le
 driver renvoie un minuit local : `toISOString()` décalerait d'un jour).
 
-Tests : `list-commandes.use-case.spec.ts`, `exceljs-commandes.spreadsheet.spec.ts`.
+Tests : `list-commandes.use-case.spec.ts`, `exceljs-commandes.spreadsheet.spec.ts`,
+`commande-fiche.use-case.spec.ts`, `commande-documents.use-case.spec.ts`.

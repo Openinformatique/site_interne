@@ -13,14 +13,12 @@ import {
   Min,
 } from 'class-validator';
 import { PaginationQueryDto } from '../../../../common/pagination/pagination-query.dto';
+import {
+  INVALID_DATE,
+  toBoolean,
+} from '../../../../common/utils/form-dto.helpers';
 import { COMMANDE_SORT_FIELDS } from '../../domain/commande-list.port';
 import type { CommandeSortField } from '../../domain/commande-list.port';
-
-/** Query string : "true" / "false" convertis en booléens. */
-const toBoolean = ({ value }: { value: unknown }) =>
-  value === 'true' ? true : value === 'false' ? false : value;
-
-const INVALID_DATE = 'Date invalide (AAAA-MM-JJ).';
 
 /**
  * Paramètres de GET /commandes et de GET /commandes/export (qui ignore la
