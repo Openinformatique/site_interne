@@ -15,6 +15,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { ObservabilityModule } from './modules/observability/observability.module';
 import { ParametresModule } from './modules/parametres/parametres.module';
 import { PdfModule } from './modules/pdf/pdf.module';
+import { PointagesModule } from './modules/pointages/pointages.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { TechnicalDemoModule } from './modules/technical-demo/technical-demo.module';
@@ -48,6 +49,7 @@ import { UsersModule } from './modules/users/users.module';
     ParametresModule,
     ClientsModule,
     CommandesModule,
+    PointagesModule,
     // Endpoints de démonstration : routes inexistantes lorsque désactivés.
     ...(isTechnicalDemoEnabled() ? [TechnicalDemoModule] : []),
   ],

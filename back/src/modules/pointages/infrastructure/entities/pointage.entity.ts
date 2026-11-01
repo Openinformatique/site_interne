@@ -66,8 +66,9 @@ export class PointageEntity extends IdentityAuditableEntity {
 
   /**
    * Code de facturation repris tel quel de l'application historique :
-   * 0 = non facturable, 1 = facturable ; 3 et 4 existent dans les données
-   * reprises (sémantique à documenter dans le paramétrage).
+   * 0 = non facturable, 1 = facturable, 2 = en attente (nouvelle
+   * application) ; 3 et 4 existent dans les données reprises (affichés
+   * « en attente »).
    */
   @Column({ name: 'facturable', type: 'smallint', default: 0 })
   facturable!: number;

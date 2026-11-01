@@ -42,6 +42,7 @@
   &.fiche-modal-contrat { max-width: 960px; }
   &.fiche-modal-contact { max-width: 560px; }
   &.fiche-modal-table { max-width: 820px; }
+  &.fiche-modal-pointage { max-width: 720px; }
 
   .modal-content { border: 0; border-radius: 12px; background: transparent; box-shadow: none; }
 }
@@ -58,4 +59,14 @@
 
 [data-bs-theme='dark'] {
   --app-inactive-bg: #070d19;
+}
+
+// Pointages : planning sur toute la largeur de la zone de contenu (pas de
+// limite container-xxl) et marges latérales réduites, pour la lisibilité.
+// Sélecteur complet : plus spécifique que `.main-wrapper .page-wrapper .page-content`.
+.main-wrapper .page-wrapper .page-content.workspace-page-content:has(app-pointages-page) {
+  max-width: none;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 16px;
 }

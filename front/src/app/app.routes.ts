@@ -8,6 +8,7 @@ import { CLIENTS_UI_KEYS } from './views/pages/clients/access/clients-access.key
 import { COMMANDES_UI_KEYS } from './views/pages/commandes/access/commandes-access.keys';
 import { DASHBOARD_UI_KEYS } from './views/pages/dashboard/access/dashboard-access.keys';
 import { PARAMETRES_UI_KEYS } from './views/pages/parametres/access/parametres-access.keys';
+import { POINTAGES_UI_KEYS } from './views/pages/pointages/access/pointages-access.keys';
 import { USERS_UI_KEYS } from './views/pages/users/access/users-access.keys';
 
 export const routes: Routes = [
@@ -29,6 +30,12 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/users/users.routes'),
         canActivate: [roleGuard, uiAccessGuard],
         data: { roles: [UserRole.Admin, UserRole.Direction], uiAccessKey: USERS_UI_KEYS.PAGE_ACCESS },
+      },
+      {
+        path: 'pointages',
+        loadChildren: () => import('./views/pages/pointages/pointages.routes'),
+        canActivate: [uiAccessGuard],
+        data: { uiAccessKey: POINTAGES_UI_KEYS.PAGE_ACCESS },
       },
       // Module clients (visible par tous les rôles).
       {

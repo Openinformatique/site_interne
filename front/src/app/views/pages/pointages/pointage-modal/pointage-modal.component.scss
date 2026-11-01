@@ -1,0 +1,53 @@
+@use '../../clients/client-fiche/fiche-shared' as fiche;
+
+@include fiche.fiche-tokens;
+@include fiche.fiche-components;
+
+.modal-card { box-shadow: 0 18px 48px rgba(0, 0, 0, .25); }
+.modal-title-text { margin: 0; font-size: 16px; font-weight: 600; color: var(--fiche-emph); }
+
+// Libellés à gauche (112 px), champs à droite.
+.rows { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px 14px; align-items: center; padding: 18px 20px; }
+.row-label { display: flex; align-items: center; gap: 2px; margin: 0; font-size: 13px; font-weight: 500; color: var(--fiche-text); }
+.row-label.top { align-self: start; padding-top: 9px; }
+.stack { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.hint { color: var(--fiche-muted); font-size: 11.5px; }
+.full-line { flex-basis: 100%; }
+.input:disabled { background: var(--bs-tertiary-bg); color: var(--fiche-muted); }
+:host-context([data-bs-theme='dark']) .input { color-scheme: dark; }
+
+.horaire { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.input.date { width: 160px; }
+.input.time { width: 104px; }
+.inline { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 13px; color: var(--fiche-text); }
+.duree { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 13px; color: var(--fiche-muted); }
+.duree strong { font-size: 15px; color: var(--fiche-emph); }
+
+.type-line { display: flex; align-items: center; gap: 8px; }
+.type-dot { flex: none; width: 14px; height: 14px; border-radius: 4px; }
+
+.textarea { height: auto; padding: 8px 12px; line-height: 1.5; resize: vertical; }
+
+// Tags : pastilles (paramétrées en bleu, libres en pointillés) + saisie assistée.
+.tags-field { position: relative; }
+.tag-box { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; min-height: 38px; padding: 4px 8px; box-sizing: border-box; border: 1px solid var(--bs-border-color); border-radius: 6px; background: var(--bs-body-bg); cursor: text; }
+.tag-box.focus { border-color: #6571ff; }
+.tag-chip { display: inline-flex; align-items: center; height: 24px; padding: 0 4px 0 9px; border: 1px solid transparent; border-radius: 999px; background: rgba(101, 113, 255, .14); color: #5765f5; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.tag-chip.free { border: 1px dashed var(--fiche-muted); background: transparent; color: var(--fiche-text); }
+.tag-remove { display: inline-flex; width: 16px; height: 16px; align-items: center; justify-content: center; margin-left: 2px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.tag-input { flex: 1 1 140px; min-width: 120px; height: 28px; border: 0; outline: none; background: transparent; color: var(--fiche-text); font-size: 13.5px; }
+.tag-menu { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 5; max-height: 220px; overflow-y: auto; padding: 4px; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-body-bg); box-shadow: 0 10px 28px rgba(36, 54, 93, .14); }
+:host-context([data-bs-theme='dark']) .tag-menu { box-shadow: 0 10px 28px rgba(0, 0, 0, .5); }
+.tag-option { display: block; width: 100%; padding: 7px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--fiche-text); font-size: 13px; text-align: left; cursor: pointer; }
+.tag-option:hover { background: rgba(101, 113, 255, .08); }
+.tag-free-hint { padding: 6px 10px; border-top: 1px solid var(--bs-border-color); color: var(--fiche-muted); font-size: 12px; }
+
+// Facturable : trois états + durée contrat.
+.facturation { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.segmented { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-tertiary-bg); }
+.segment { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: var(--fiche-muted); font-size: 13px; font-weight: 400; cursor: pointer; }
+.segment.on { background: var(--bs-body-bg); color: var(--fiche-emph); font-weight: 600; box-shadow: 0 1px 3px rgba(36, 54, 93, .12); }
+.segment-dot { width: 8px; height: 8px; border-radius: 50%; }
+.input.tf { width: 90px; text-align: right; }
+
+.btn-delete { display: inline-flex; align-items: center; gap: 8px; height: 38px; margin-right: auto; padding: 0 14px; border: 1px solid rgba(255, 51, 102, .5); border-radius: 6px; background: transparent; color: #ff3366; font-size: 14px; cursor: pointer; }

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { PageUiAccessManifest } from '../models/ui-access.model';
 import { CLIENTS_PAGE_ACCESS } from '../../views/pages/clients/access/clients-page.access';
 import { COMMANDES_PAGE_ACCESS } from '../../views/pages/commandes/access/commandes-page.access';
+import { POINTAGES_PAGE_ACCESS } from '../../views/pages/pointages/access/pointages-page.access';
 import { PARAMETRES_PAGE_ACCESS } from '../../views/pages/parametres/access/parametres-page.access';
 import { DASHBOARD_PAGE_ACCESS } from '../../views/pages/dashboard/access/dashboard-page.access';
 import { USERS_PAGE_ACCESS } from '../../views/pages/users/access/users-page.access';
@@ -14,6 +15,7 @@ import { USERS_PAGE_ACCESS } from '../../views/pages/users/access/users-page.acc
  */
 export const UI_ACCESS_MANIFESTS: PageUiAccessManifest[] = [
   DASHBOARD_PAGE_ACCESS,
+  POINTAGES_PAGE_ACCESS,
   CLIENTS_PAGE_ACCESS,
   COMMANDES_PAGE_ACCESS,
   USERS_PAGE_ACCESS,

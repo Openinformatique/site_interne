@@ -1,10 +1,11 @@
 import { MenuItem } from './menu.model';
-import { Building2Icon, ClipboardListIcon, LayoutDashboardIcon, LucideIconData, SlidersHorizontalIcon, UsersIcon } from 'lucide-angular';
+import { Building2Icon, CalendarClockIcon, ClipboardListIcon, LayoutDashboardIcon, LucideIconData, SlidersHorizontalIcon, UsersIcon } from 'lucide-angular';
 import { UserRole } from '../../../core/models/enums';
 import { CLIENTS_UI_KEYS } from '../../pages/clients/access/clients-access.keys';
 import { COMMANDES_UI_KEYS } from '../../pages/commandes/access/commandes-access.keys';
 import { DASHBOARD_UI_KEYS } from '../../pages/dashboard/access/dashboard-access.keys';
 import { PARAMETRES_UI_KEYS } from '../../pages/parametres/access/parametres-access.keys';
+import { POINTAGES_UI_KEYS } from '../../pages/pointages/access/pointages-access.keys';
 import { USERS_UI_KEYS } from '../../pages/users/access/users-access.keys';
 
 /**
@@ -16,6 +17,7 @@ import { USERS_UI_KEYS } from '../../pages/users/access/users-access.keys';
 export const MENU: MenuItem[] = [
   { label: 'Général', isTitle: true },
   { label: 'Tableau de bord', icon: LayoutDashboardIcon, link: '/dashboard', uiAccessKey: DASHBOARD_UI_KEYS.PAGE_ACCESS },
+  { label: 'Pointages', icon: CalendarClockIcon, link: '/pointages', uiAccessKey: POINTAGES_UI_KEYS.PAGE_ACCESS },
 
   { label: 'Gestion', isTitle: true },
   { label: 'Clients', icon: Building2Icon, link: '/clients', uiAccessKey: CLIENTS_UI_KEYS.PAGE_ACCESS },

@@ -1,0 +1,108 @@
+<div class="page" [style.--pt-slot-h]="heurePx() / 4 + 'px'">
+  <!-- Pas d'en-tête : le titre est porté par l'onglet ; titre accessible seulement -->
+  <h1 class="visually-hidden">Pointages</h1>
+
+  <!-- Barre d'outils -->
+  <section class="card-box toolbar" aria-label="Personne et période">
+    <label class="personne">Personne
+      <select class="personne-select" [disabled]="personneLocked()" [title]="personneLocked() ? 'Seuls les profils Admin et Direction peuvent choisir une autre personne.' : ''" (change)="setPersonne($event)">
+        @for (personne of personneOptions(); track personne.id) {
+          <option [value]="personne.id" [selected]="personne.id === personneId()">{{ personne.label }}</option>
+        }
+      </select>
+    </label>
+    <div class="nav">
+      <button type="button" class="nav-btn" aria-label="Semaine précédente" title="Semaine précédente" (click)="semainePrecedente()"><lucide-icon [img]="ChevronLeft" [size]="16" /></button>
+      <button type="button" class="today-btn" (click)="aujourdHui()">Aujourd'hui</button>
+      <button type="button" class="nav-btn" aria-label="Semaine suivante" title="Semaine suivante" (click)="semaineSuivante()"><lucide-icon [img]="ChevronRight" [size]="16" /></button>
+    </div>
+    <div class="semaine">Semaine {{ numeroSemaine() }} <span class="semaine-periode">· {{ libelleSemaine() }}</span></div>
+    <!-- Choix d'une semaine : affiché à la demande, comme le filtre de période des commandes -->
+    @if (!weekPickerOpen()) {
+      <button type="button" class="chip-btn" (click)="weekPickerOpen.set(true)"><lucide-icon [img]="CalendarIcon" [size]="15" class="muted" />Choisir une semaine</button>
+    } @else {
+      <div class="week-picker" role="group" aria-label="Aller à une semaine">
+        <lucide-icon [img]="CalendarIcon" [size]="15" class="accent" />
+        <label class="inline">Semaine du <input type="date" class="date-input" [value]="weekPickerValue()" title="Choisissez un jour : la semaine qui le contient s'affiche" (input)="choisirSemaine($event)"></label>
+        <button type="button" class="close-btn" aria-label="Fermer le choix de la semaine" title="Fermer" (click)="weekPickerOpen.set(false)"><lucide-icon [img]="X" [size]="14" [strokeWidth]="2.2" /></button>
+      </div>
+    }
+    <div class="toolbar-end">
+      <button type="button" class="switch" role="switch" [attr.aria-checked]="weekend()" (click)="toggleWeekend()">
+        <span class="track" [class.on]="weekend()" aria-hidden="true"><span class="knob"></span></span>Week-end
+      </button>
+      <span class="total-pill"><lucide-icon [img]="Clock" [size]="15" />Semaine : {{ totalSemaine() }} h</span>
+    </div>
+  </section>
+
+  <!-- Coller : bandeau tant qu'un pointage est copié -->
+  @if (copie(); as copie) {
+    <div class="copy-banner" role="status">
+      <lucide-icon [img]="Copy" [size]="16" class="accent" />
+      <span><strong>Pointage copié</strong> — {{ bulleInfos(copie).titre }}. Cliquez sur un créneau pour le coller.</span>
+      <button type="button" class="copy-cancel" (click)="annulerCopie()">Annuler</button>
+    </div>
+  }
+
+  <!-- Planning -->
+  <section class="card-box planning" [class.pasting]="copie()" aria-label="Planning de la semaine" (mousemove)="copie() && suivreFantome($event)" (mouseleave)="cacherFantome()">
+    <full-calendar #calendar [options]="calendarOptions()" [events]="events()">
+      <ng-template #dayHeaderContent let-arg>
+        <div class="day-head" [class.weekend-day]="arg.date.getDay() === 0 || arg.date.getDay() === 6">
+          <div class="day-label">{{ enteteJour(arg.date).label }}</div>
+          <div class="day-total">{{ enteteJour(arg.date).total }}</div>
+        </div>
+      </ng-template>
+
+      <ng-template #eventContent let-arg>
+        @if (arg.event.extendedProps.pointage; as pointage) {
+          @let b = bloc(pointage);
+          <div class="evt" role="button" tabindex="0" [attr.aria-label]="'Modifier le pointage ' + b.aria" (dblclick)="modifier(pointage, $event)" (keydown.enter)="modifier(pointage, $event)">
+            <span class="evt-title" [class.ruled]="b.filet" [class.spaced]="b.actionsAEspacer">{{ b.titre }}</span>
+            @if (b.avecTags) {
+              <span class="evt-tags">
+                @for (tag of b.tags; track $index) { <span class="evt-tag" [class.free]="!tag.parametre">{{ tag.label }}</span> }
+              </span>
+            }
+            @if (b.lignes > 0) {
+              <span class="evt-desc" [style.-webkit-line-clamp]="b.lignes">{{ b.texte }}</span>
+            }
+          </div>
+          <span class="evt-actions" (mousedown)="stop($event)" (touchstart)="stop($event)">
+            <button type="button" class="evt-btn" title="Modifier" [attr.aria-label]="'Modifier le pointage ' + b.aria" (click)="modifier(pointage, $event)"><lucide-icon [img]="Pencil" [size]="12" [strokeWidth]="2.2" /></button>
+            <button type="button" class="evt-btn" title="Copier" [attr.aria-label]="'Copier le pointage ' + b.titre" (click)="copier(pointage, $event)"><lucide-icon [img]="Copy" [size]="12" [strokeWidth]="2.2" /></button>
+            <button type="button" class="evt-btn danger" title="Supprimer" [attr.aria-label]="'Supprimer le pointage ' + b.titre" (click)="supprimer(pointage, $event)"><lucide-icon [img]="Trash2" [size]="12" [strokeWidth]="2.2" /></button>
+          </span>
+        } @else {
+          <!-- Plage en cours de sélection -->
+          <div class="sel-label">{{ plage(arg.event.start, arg.event.end) }}</div>
+        }
+      </ng-template>
+    </full-calendar>
+  </section>
+
+  <!-- Fantôme du collage : créneau exact où le pointage copié sera collé -->
+  @if (copie() && fantome(); as f) {
+    <div class="ghost-frame" aria-hidden="true" [style.top.px]="f.cadre.top" [style.left.px]="f.cadre.left" [style.width.px]="f.cadre.width" [style.height.px]="f.cadre.height">
+      <div class="ghost" [style.top.px]="f.bloc.top" [style.left.px]="f.bloc.left" [style.width.px]="f.bloc.width" [style.height.px]="f.bloc.height" [style.--ghost-color]="f.couleur">
+        <span class="ghost-time">{{ f.horaire }}</span>
+        <span class="ghost-title">{{ f.titre }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Bulle au survol : titre, type, tags et description complète -->
+  @if (bulle(); as bulle) {
+    @let infos = bulleInfos(bulle.pointage);
+    <div class="tip" role="tooltip" [style.top.px]="bulle.top" [style.left.px]="bulle.left">
+      <span class="tip-title">{{ infos.titre }}</span>
+      <span class="tip-meta">{{ infos.meta }}</span>
+      @if (infos.tags.length) {
+        <span class="tip-tags">
+          @for (tag of infos.tags; track $index) { <span class="tip-tag" [class.free]="!tag.parametre">{{ tag.label }}</span> }
+        </span>
+      }
+      @if (infos.texte) { <span class="tip-desc">{{ infos.texte }}</span> }
+    </div>
+  }
+</div>

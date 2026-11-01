@@ -1,0 +1,158 @@
+// Couleurs propres à l'écran = valeurs exactes de la maquette validée (clair / sombre).
+:host {
+  display: block;
+  --pt-text: #212a3a;
+  --pt-emph: #060c17;
+  --pt-muted: #7987a1;
+  --pt-grid: #e3e7ed;
+  --pt-half: #f0f2f5;
+  --pt-weekend-bg: #fafbfc;
+  --pt-track-off: #cbd1db;
+  --pt-tip-shadow: rgba(33, 42, 58, .16);
+  color: var(--pt-text);
+  font-size: 14px;
+}
+
+:host-context([data-bs-theme='dark']) {
+  --pt-text: #d0d6e1;
+  --pt-emph: #ffffff;
+  --pt-grid: #1a2440;
+  --pt-half: #141d33;
+  --pt-weekend-bg: #0a1222;
+  --pt-track-off: #41516c;
+  --pt-tip-shadow: rgba(0, 0, 0, .5);
+}
+
+// Écran en colonne à la hauteur de la zone de contenu : fenêtre moins barre du
+// haut (60) + onglets (49) + marge haute (25), marge basse (16, voir
+// _custom.scss) et pied de page (51). Le planning prend toute la hauteur
+// restante et défile à l'intérieur de sa carte, jamais la page.
+.page { position: relative; display: flex; flex-direction: column; height: calc(100vh - 201px); min-height: 420px; }
+.card-box { background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: 12px; box-shadow: 0 5px 18px rgba(36, 54, 93, .06); }
+.muted { color: var(--pt-muted); }
+.accent { color: #6571ff; }
+
+// --- Barre d'outils --------------------------------------------------------
+.toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; padding: 8px 14px; }
+.personne { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 13px; color: var(--pt-muted); }
+.personne-select { height: 36px; min-width: 230px; padding: 0 10px; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-body-bg); color: var(--pt-text); font-size: 13.5px; }
+.personne-select:disabled { background: var(--bs-tertiary-bg); opacity: 1; }
+.nav { display: flex; align-items: center; gap: 6px; }
+.nav-btn { display: inline-flex; width: 36px; height: 36px; align-items: center; justify-content: center; padding: 0; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-body-bg); color: var(--pt-text); cursor: pointer; }
+.today-btn { height: 36px; padding: 0 12px; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-body-bg); color: var(--pt-text); font-size: 13px; cursor: pointer; }
+.semaine { font-size: 15px; font-weight: 600; color: var(--pt-emph); }
+.semaine-periode { color: var(--pt-muted); font-size: 13.5px; font-weight: 400; }
+.chip-btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-body-bg); color: var(--pt-text); font-size: 13px; cursor: pointer; }
+.week-picker { display: inline-flex; align-items: center; gap: 8px; padding: 3px 6px 3px 12px; border: 1px solid #6571ff; border-radius: 8px; background: rgba(101, 113, 255, .05); color: var(--pt-text); font-size: 13px; }
+.inline { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
+.date-input { height: 30px; padding: 0 8px; border: 1px solid var(--bs-border-color); border-radius: 6px; background: var(--bs-body-bg); color: var(--pt-text); font-size: 13px; }
+:host-context([data-bs-theme='dark']) .date-input { color-scheme: dark; }
+.close-btn { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; border: 0; border-radius: 6px; background: transparent; color: var(--pt-muted); cursor: pointer; }
+.toolbar-end { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-left: auto; }
+.switch { display: inline-flex; align-items: center; gap: 10px; height: 36px; padding: 0; border: 0; background: transparent; color: var(--pt-text); font-size: 13.5px; cursor: pointer; }
+.track { position: relative; display: block; flex: none; width: 40px; height: 22px; border-radius: 11px; background: var(--pt-track-off); transition: background .2s; }
+.track.on { background: #6571ff; }
+.knob { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: left .2s; }
+.track.on .knob { left: 20px; }
+.total-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 8px; background: rgba(101, 113, 255, .10); color: #5765f5; font-size: 13px; font-weight: 600; }
+
+// --- Bandeau de copie ------------------------------------------------------
+// Bandeau flottant en bas du planning : il ne prend pas de place, donc la
+// hauteur des heures et la position du planning ne bougent pas pendant une copie.
+// Fond opaque sous la teinte (dégradé) pour rester lisible au-dessus des blocs.
+.copy-banner { position: absolute; bottom: 16px; left: 50%; z-index: 30; display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100% - 32px); padding: 10px 14px; transform: translateX(-50%); border: 1px solid #6571ff; border-radius: 10px; background: linear-gradient(rgba(101, 113, 255, .07), rgba(101, 113, 255, .07)), var(--bs-body-bg); box-shadow: 0 8px 24px var(--pt-tip-shadow); color: var(--pt-text); font-size: 13px; }
+.copy-cancel { height: 30px; margin-left: auto; padding: 0 12px; border: 1px solid var(--bs-border-color); border-radius: 6px; background: var(--bs-body-bg); color: var(--pt-text); font-size: 12.5px; cursor: pointer; }
+
+// --- Planning (FullCalendar) -----------------------------------------------
+.planning { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+// L'hôte porte aussi la classe .fc (display: flex de FullCalendar) : ne pas le surcharger.
+.planning full-calendar { height: 100%; }
+
+.day-head { padding: 8px 10px; text-align: left; }
+.day-label { color: var(--pt-emph); font-size: 13px; font-weight: 600; }
+.weekend-day .day-label { color: var(--pt-muted); }
+.day-total { margin-top: 2px; color: var(--pt-muted); font-size: 11.5px; font-weight: 400; }
+
+:host ::ng-deep {
+  .fc {
+    --fc-border-color: var(--bs-border-color);
+    --fc-today-bg-color: transparent;
+    --fc-page-bg-color: var(--bs-body-bg);
+    --fc-neutral-bg-color: var(--bs-tertiary-bg);
+    --fc-highlight-color: rgba(101, 113, 255, .08);
+    font-family: inherit;
+  }
+  .fc .fc-scrollgrid { border: 0; }
+  .fc-theme-standard td, .fc-theme-standard th { border-color: var(--bs-border-color); }
+
+  // En-têtes de jour : fond tertiaire, texte à gauche, jour courant souligné.
+  .fc .fc-col-header-cell { background: var(--bs-tertiary-bg); }
+  .fc .fc-col-header-cell-cushion { display: block; padding: 0; color: inherit; text-decoration: none; }
+  .fc .fc-col-header-cell.fc-day-today { box-shadow: inset 0 -2px 0 #6571ff; }
+
+  // Grille : trait plein à l'heure, tirets à la demi-heure, rien au quart d'heure.
+  // Interligne nul : sinon une cellule vide fait au moins une ligne de texte (22 px)
+  // et la hauteur calculée d'un quart d'heure n'est pas respectée.
+  .fc .fc-timegrid-slot { height: var(--pt-slot-h, 11px); border-top: 1px solid transparent; line-height: 0; }
+  .fc .fc-timegrid-slot-label-frame { height: 0; overflow: visible; }
+  .fc .fc-timegrid-slot-label-cushion { line-height: 1.2; }
+  .fc .fc-timegrid-slot-lane[data-time$=':00:00'] { border-top: 1px solid var(--pt-grid); }
+  .fc .fc-timegrid-slot-lane[data-time$=':30:00'] { border-top: 1px dashed var(--pt-half); }
+  .fc .fc-timegrid-slot-label { vertical-align: top; border-top: 1px solid var(--bs-border-color); }
+  .fc .fc-timegrid-slot-label:not([data-time$=':00:00']) { border-top-color: transparent; }
+  .fc .fc-timegrid-slot-label-cushion { padding: 3px 8px 0 0; color: var(--pt-muted); font-size: 11.5px; }
+  .fc .fc-timegrid-axis-cushion, .fc .fc-timegrid-slot-label-frame { text-align: right; }
+  .fc .fc-timegrid-col.fc-day-sat, .fc .fc-timegrid-col.fc-day-sun { background: var(--pt-weekend-bg); }
+  .fc .fc-timegrid-col-events { margin: 0 3px; }
+  .fc .fc-timegrid-slots td { cursor: cell; }
+  .pasting .fc .fc-timegrid-slots td { cursor: copy; }
+  // Collage : les blocs laissent passer le clic, pour coller aussi par-dessus un
+  // pointage existant, exactement là où le fantôme est affiché.
+  .pasting .fc .fc-timegrid-event-harness { pointer-events: none; }
+
+  // Blocs : couleur du type d'action, texte calé en haut à gauche.
+  // margin / padding : annule la règle .fc-event du thème NobleUI (plugin-overrides).
+  .fc .fc-timegrid-event.pt-evt, .fc .fc-timegrid-event.pt-sel { margin: 0; padding: 0; }
+  .fc .fc-timegrid-event.pt-evt { top: 1px; bottom: 2px; border: 0; border-radius: 6px; box-shadow: 0 1px 2px rgba(6, 12, 23, .18); color: #10182b; }
+  .fc .fc-timegrid-event-harness:hover { z-index: 20 !important; }
+  .fc .fc-timegrid-event .fc-event-main { position: relative; height: 100%; padding: 0; color: #10182b; overflow: hidden; }
+  .fc-timegrid-event-harness-inset .fc-timegrid-event { box-shadow: 0 0 0 1px var(--bs-body-bg); }
+
+  // Poignée de redimensionnement (glisser le bas du bloc).
+  .fc .pt-evt .fc-event-resizer-end { left: 50%; bottom: 2px; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: rgba(6, 12, 23, .25); cursor: ns-resize; }
+
+  // Plage en cours de sélection.
+  .fc .fc-timegrid-event.pt-sel { top: 1px; bottom: 2px; border: 2px dashed #6571ff; border-radius: 6px; background: rgba(101, 113, 255, .12); box-shadow: none; }
+}
+
+.evt { display: flex; flex-direction: column; align-items: stretch; height: 100%; padding: 4px 7px; box-sizing: border-box; overflow: hidden; text-align: left; cursor: pointer; outline: none; }
+.evt-title { display: block; flex: none; padding-bottom: 3px; overflow: hidden; font-size: 11.5px; font-weight: 700; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.evt-title.spaced { padding-right: 48px; }
+.evt-title.ruled { border-bottom: 1px solid rgba(6, 12, 23, .18); }
+.evt-tags { display: flex; flex-wrap: wrap; gap: 3px; max-height: 38px; margin-top: 4px; overflow: hidden; }
+.evt-tag { display: inline-flex; align-items: center; max-width: 100%; height: 16px; padding: 0 6px; overflow: hidden; border: 1px solid rgba(29, 42, 107, .18); border-radius: 999px; background: rgba(255, 255, 255, .72); color: #1d2a6b; font-size: 10px; font-weight: 600; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
+.evt-tag.free { border: 1px dashed rgba(16, 24, 43, .5); background: transparent; }
+.evt-desc { display: -webkit-box; margin-top: 4px; overflow: hidden; color: rgba(16, 24, 43, .82); font-size: 11px; font-weight: 400; line-height: 1.35; -webkit-box-orient: vertical; }
+
+// Actions au survol : modifier, copier, supprimer.
+.evt-actions { position: absolute; top: 3px; right: 3px; display: flex; gap: 3px; opacity: 0; transition: opacity .12s; }
+:host ::ng-deep .fc-event:hover .evt-actions, :host ::ng-deep .fc-event:focus-within .evt-actions { opacity: 1; }
+.evt-btn { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 5px; background: rgba(255, 255, 255, .85); color: #41516c; cursor: pointer; }
+.evt-btn.danger { color: #d4204a; }
+
+.sel-label { padding: 4px 7px; color: #5765f5; font-size: 11.5px; font-weight: 600; }
+
+// --- Bulle de survol -------------------------------------------------------
+// --- Fantôme du collage -----------------------------------------------------
+.ghost-frame { position: fixed; z-index: 25; overflow: hidden; pointer-events: none; }
+.ghost { position: absolute; display: flex; flex-direction: column; gap: 2px; padding: 3px 7px; box-sizing: border-box; overflow: hidden; border: 2px dashed #6571ff; border-radius: 6px; background: color-mix(in srgb, var(--ghost-color) 92%, transparent); box-shadow: 0 4px 14px rgba(101, 113, 255, .35); color: #10182b; }
+.ghost-time { flex: none; align-self: flex-start; padding: 0 6px; border-radius: 4px; background: #6571ff; color: #fff; font-size: 11.5px; font-weight: 700; line-height: 1.45; white-space: nowrap; }
+.ghost-title { overflow: hidden; font-size: 11px; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+
+.tip { position: fixed; z-index: 1050; width: 280px; padding: 10px 12px; box-sizing: border-box; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-body-bg); box-shadow: 0 8px 24px var(--pt-tip-shadow); pointer-events: none; text-align: left; }
+.tip-title { display: block; color: var(--pt-emph); font-size: 12px; font-weight: 700; }
+.tip-meta { display: block; margin-top: 2px; color: var(--pt-muted); font-size: 11.5px; }
+.tip-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--bs-border-color); }
+.tip-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border: 1px solid transparent; border-radius: 999px; background: rgba(101, 113, 255, .14); color: #5765f5; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.tip-tag.free { border: 1px dashed var(--pt-muted); background: transparent; color: var(--pt-text); }
+.tip-desc { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--bs-border-color); color: var(--pt-text); font-size: 12px; line-height: 1.45; white-space: normal; }

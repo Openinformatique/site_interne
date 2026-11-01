@@ -1,0 +1,120 @@
+<div class="fiche-card modal-card" role="dialog" aria-modal="true" aria-labelledby="pointage-modal-title">
+  <div class="card-head">
+    <h2 id="pointage-modal-title" class="modal-title-text">{{ title() }}</h2>
+    <button type="button" class="icon-btn borderless" aria-label="Fermer" (click)="close()"><lucide-icon [img]="X" [size]="16" /></button>
+  </div>
+
+  <!-- Disposition reprise de l'ancien écran : libellés à gauche, une ligne par information -->
+  <div class="rows">
+    <span class="row-label">Date<span class="req" aria-hidden="true">*</span></span>
+    <div class="horaire">
+      <input type="date" class="input date" aria-label="Date" [class.invalid]="errors()['horaire']" [value]="draft().date" (input)="set('date', $event)">
+      <label class="inline">De
+        <input type="time" step="900" class="input time" [class.invalid]="errors()['horaire']" [value]="draft().debut" (input)="set('debut', $event)">
+      </label>
+      <label class="inline">à
+        <input type="time" step="900" class="input time" [class.invalid]="errors()['horaire']" [value]="draft().fin" (input)="set('fin', $event)">
+      </label>
+      <span class="duree">Durée <strong>{{ dureeLabel() }}</strong></span>
+      @if (errors()['horaire']; as message) { <span class="err full-line">{{ message }}</span> }
+    </div>
+
+    <label for="pt-type" class="row-label">Action<span class="req" aria-hidden="true">*</span></label>
+    <div class="stack">
+      <span class="type-line">
+        <span class="type-dot" aria-hidden="true" [style.background]="typeColor()"></span>
+        <select id="pt-type" class="input" [class.invalid]="errors()['typeAction']" (change)="setType($event)">
+          <option value="" [selected]="!draft().typeAction">— Choisir —</option>
+          @for (type of reference().types; track type.cle) {
+            <option [value]="type.cle" [selected]="draft().typeAction === type.cle">{{ type.libelle }}</option>
+          }
+        </select>
+      </span>
+      @if (errors()['typeAction']; as message) { <span class="err">{{ message }}</span> }
+    </div>
+
+    <!-- Tags : saisie assistée (table TAGS) ou tag libre ; ajouté avec Entrée, Tab ou en quittant le champ -->
+    <label for="pt-tags" class="row-label">Tags</label>
+    <div class="tags-field">
+      <div class="tag-box" [class.focus]="tagFocus()">
+        @for (tag of draft().tags; track tag; let i = $index) {
+          <span class="tag-chip" [class.free]="!isParamTag(tag)" [title]="isParamTag(tag) ? 'Tag du paramétrage' : 'Tag libre'">{{ tag }}<button type="button" class="tag-remove" [attr.aria-label]="'Retirer le tag ' + tag" (click)="removeTag(i)"><lucide-icon [img]="X" [size]="11" [strokeWidth]="2.6" /></button></span>
+        }
+        <input id="pt-tags" type="text" class="tag-input" autocomplete="off" role="combobox" aria-controls="pt-tags-list"
+               [attr.aria-expanded]="tagMenuOpen()" [placeholder]="draft().tags.length ? '' : 'Saisir un tag…'" [value]="tagInput()"
+               (input)="tagInput.set($any($event.target).value); tagFocus.set(true)" (keydown)="onTagKey($event)" (focus)="tagFocus.set(true)" (blur)="onTagBlur()">
+      </div>
+      @if (tagMenuOpen()) {
+        <div id="pt-tags-list" class="tag-menu" role="listbox" aria-label="Tags proposés">
+          @for (tag of tagSuggestions(); track tag) {
+            <button type="button" role="option" aria-selected="false" class="tag-option" (mousedown)="pickTag($event, tag)">{{ tag }}</button>
+          }
+          @if (tagFreeHint()) { <div class="tag-free-hint">Entrée : ajouter « {{ tagInput().trim() }} » comme tag libre</div> }
+        </div>
+      }
+    </div>
+
+    <label for="pt-desc" class="row-label top">Description</label>
+    <textarea id="pt-desc" rows="5" class="input textarea" [value]="draft().description" (input)="set('description', $event)"></textarea>
+
+    <label for="pt-client" class="row-label">Client@if (clientRequired()) {<span class="req" aria-hidden="true">*</span>}</label>
+    <div class="stack">
+      <select id="pt-client" class="input" [class.invalid]="errors()['clientId']" (change)="setClient($event)">
+        <option value="" [selected]="!draft().clientId">— Interne (sans client) —</option>
+        @for (client of clientOptions(); track client.id) {
+          <option [value]="client.id" [selected]="draft().clientId === '' + client.id">{{ client.label }}</option>
+        }
+      </select>
+      @if (errors()['clientId']; as message) { <span class="err">{{ message }}</span> }
+    </div>
+
+    <label for="pt-contact" class="row-label">Contact@if (contactRequired()) {<span class="req" aria-hidden="true">*</span>}</label>
+    <div class="stack">
+      <select id="pt-contact" class="input" [class.invalid]="errors()['contactId']" [disabled]="noClient()" (change)="set('contactId', $event)">
+        <option value="" [selected]="!draft().contactId">—</option>
+        @for (contact of contactOptions(); track contact.id) {
+          <option [value]="contact.id" [selected]="draft().contactId === '' + contact.id">{{ contact.label }}</option>
+        }
+      </select>
+      @if (errors()['contactId']; as message) { <span class="err">{{ message }}</span> }
+    </div>
+
+    <label for="pt-commande" class="row-label">Commande@if (nature()) {<span class="req" aria-hidden="true">*</span>}</label>
+    <div class="stack">
+      <select id="pt-commande" class="input" [class.invalid]="errors()['commandeId']" [disabled]="noClient()" (change)="set('commandeId', $event)">
+        <option value="" [selected]="!draft().commandeId">{{ noClient() ? '—' : nature() ? '— Choisir —' : '— Sans commande —' }}</option>
+        @for (commande of commandeOptions(); track commande.id) {
+          <option [value]="commande.id" [selected]="draft().commandeId === '' + commande.id">{{ commande.label }}</option>
+        }
+      </select>
+      @if (commandeHint()) { <span class="hint">{{ commandeHint() }}</span> }
+      @if (errors()['commandeId']; as message) { <span class="err">{{ message }}</span> }
+    </div>
+
+    <span class="row-label">Facturable</span>
+    <div class="facturation">
+      <!-- Trois états : en attente (à décider), facturable, non facturable -->
+      <div class="segmented" role="radiogroup" aria-label="Facturable">
+        @for (option of facturations; track option.value) {
+          <button type="button" role="radio" class="segment" [class.on]="draft().facturation === option.value"
+                  [attr.aria-checked]="draft().facturation === option.value" (click)="setFacturation(option.value)">
+            <span class="segment-dot" aria-hidden="true" [style.background]="option.color"></span>{{ option.label }}
+          </button>
+        }
+      </div>
+      <label class="inline">Durée contrat
+        <input type="text" inputmode="decimal" class="input tf" [class.invalid]="errors()['tempsFacturable']" [disabled]="nonFacturable()"
+               [value]="draft().tempsFacturable" (input)="set('tempsFacturable', $event)"> h
+      </label>
+      @if (errors()['tempsFacturable']; as message) { <span class="err full-line">{{ message }}</span> }
+    </div>
+  </div>
+
+  <div class="modal-foot">
+    @if (!isNew()) {
+      <button type="button" class="btn-delete" (click)="remove()"><lucide-icon [img]="Trash2" [size]="15" />Supprimer</button>
+    }
+    <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+    <button type="button" class="btn-save" [disabled]="saving()" (click)="save()">Enregistrer</button>
+  </div>
+</div>
