@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { sqlDateToIso } from '../../../common/utils/sql-date.util';
+import {
+  jourMetier,
+  sqlUtcText,
+  utcTextToDate,
+} from '../../../common/utils/sql-date.util';
 import { ClientContratEntity } from '../../clients/infrastructure/entities/client-contrat.entity';
 import { ClientEntity } from '../../clients/infrastructure/entities/client.entity';
 import { ParametreEntity } from '../../parametres/infrastructure/entities/parametre.entity';
@@ -154,7 +158,8 @@ export class TypeOrmCommandeFicheRepository implements CommandeFichePort {
       )
       .select('pointage.id', 'id')
       .addSelect('pointage.utilisateurId', 'utilisateurId')
-      .addSelect('pointage.dateHeureDebut', 'debut')
+      // Instant UTC lu en texte, puis jour à Paris (voir sql-date.util).
+      .addSelect(sqlUtcText('pointage.dateHeureDebut'), 'debut')
       .addSelect('salarie.displayName', 'personne')
       .addSelect('pointage.typeAction', 'typeAction')
       .addSelect('typa.zoneParametre', 'typeActionLibelle')
@@ -173,7 +178,7 @@ export class TypeOrmCommandeFicheRepository implements CommandeFichePort {
     for (const row of rows) {
       const pointage: PointageCommande = {
         id: row.id,
-        date: row.debut ? sqlDateToIso(row.debut) : null,
+        date: row.debut ? jourMetier(utcTextToDate(row.debut)) : null,
         personne: row.personne,
         typeAction: row.typeAction || null,
         typeActionLibelle: row.typeActionLibelle || row.typeAction || null,
@@ -287,7 +292,7 @@ export class TypeOrmCommandeFicheRepository implements CommandeFichePort {
 interface RawPointage {
   id: number;
   utilisateurId: string | null;
-  debut: Date | string | null;
+  debut: string | null;
   personne: string | null;
   typeAction: string | null;
   typeActionLibelle: string | null;

@@ -24,7 +24,11 @@ hiver, 6 h UTC en été, soit 8 h en France). L'API échange des instants ISO
 Le pilote mssql de TypeORM lit et écrit les `datetime2` en heure locale du
 serveur Node : le dépôt passe donc par du texte UTC explicite, en lecture
 (`CONVERT(varchar(23), …, 126)` + `Z`), en filtre de période et en écriture
-(`CAST(:debut AS datetime2)`).
+(`CAST(:debut AS datetime2)`). Helpers communs dans
+`common/utils/sql-date.util.ts` (`sqlUtcText`, `utcTextToDate`,
+`dateToUtcText`), aussi utilisés par les fiches client (mouvements de contrat)
+et commande (temps passé), qui affichent le jour du pointage **à Paris**
+(`jourMetier`, fuseau `Europe/Paris`).
 
 ## Codes `facturable`
 

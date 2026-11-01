@@ -2,6 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import {
+  dateToUtcText,
+  sqlUtcText,
+  utcTextToDate,
+} from '../../../common/utils/sql-date.util';
 import { ClientEntity } from '../../clients/infrastructure/entities/client.entity';
 import { ContactEntity } from '../../clients/infrastructure/entities/contact.entity';
 import { CommandeEntity } from '../../commandes/infrastructure/entities/commande.entity';
@@ -54,10 +59,10 @@ export class TypeOrmPointageRepository implements PointagePort {
     const rows = await this.selectPointages()
       .where('pointage.utilisateurId = :utilisateurId', { utilisateurId })
       .andWhere('pointage.dateHeureDebut < CAST(:au AS datetime2)', {
-        au: utcText(au),
+        au: dateToUtcText(au),
       })
       .andWhere('pointage.dateHeureFin > CAST(:du AS datetime2)', {
-        du: utcText(du),
+        du: dateToUtcText(du),
       })
       .orderBy('pointage.dateHeureDebut', 'ASC')
       .addOrderBy('pointage.id', 'ASC')
@@ -235,30 +240,36 @@ export class TypeOrmPointageRepository implements PointagePort {
   }
 
   private selectPointages(): SelectQueryBuilder<PointageEntity> {
-    return this.pointages
-      .createQueryBuilder('pointage')
-      .leftJoin(ClientEntity, 'client', 'client.id = pointage.clientId')
-      .leftJoin(CommandeEntity, 'commande', 'commande.id = pointage.commandeId')
-      .leftJoin(ContactEntity, 'contact', 'contact.id = pointage.contactId')
-      .select('pointage.id', 'id')
-      .addSelect('pointage.utilisateurId', 'utilisateurId')
-      // Lus en texte ISO puis convertis en UTC (voir utcText).
-      .addSelect('CONVERT(varchar(23), pointage.dateHeureDebut, 126)', 'debut')
-      .addSelect('CONVERT(varchar(23), pointage.dateHeureFin, 126)', 'fin')
-      .addSelect('pointage.typeAction', 'typeAction')
-      .addSelect('pointage.clientId', 'clientId')
-      .addSelect('client.codeClient', 'clientCode')
-      .addSelect('client.raisonSociale', 'clientNom')
-      .addSelect('pointage.commandeId', 'commandeId')
-      .addSelect(
-        'COALESCE(commande.numeroCommandeClient, commande.numeroDevis)',
-        'commandeNumero',
-      )
-      .addSelect('pointage.contactId', 'contactId')
-      .addSelect('contact.nomContact', 'contactNom')
-      .addSelect('pointage.description', 'description')
-      .addSelect('pointage.facturable', 'facturable')
-      .addSelect('pointage.tempsFacturable', 'tempsFacturable');
+    return (
+      this.pointages
+        .createQueryBuilder('pointage')
+        .leftJoin(ClientEntity, 'client', 'client.id = pointage.clientId')
+        .leftJoin(
+          CommandeEntity,
+          'commande',
+          'commande.id = pointage.commandeId',
+        )
+        .leftJoin(ContactEntity, 'contact', 'contact.id = pointage.contactId')
+        .select('pointage.id', 'id')
+        .addSelect('pointage.utilisateurId', 'utilisateurId')
+        // Instants UTC lus en texte (voir sql-date.util).
+        .addSelect(sqlUtcText('pointage.dateHeureDebut'), 'debut')
+        .addSelect(sqlUtcText('pointage.dateHeureFin'), 'fin')
+        .addSelect('pointage.typeAction', 'typeAction')
+        .addSelect('pointage.clientId', 'clientId')
+        .addSelect('client.codeClient', 'clientCode')
+        .addSelect('client.raisonSociale', 'clientNom')
+        .addSelect('pointage.commandeId', 'commandeId')
+        .addSelect(
+          'COALESCE(commande.numeroCommandeClient, commande.numeroDevis)',
+          'commandeNumero',
+        )
+        .addSelect('pointage.contactId', 'contactId')
+        .addSelect('contact.nomContact', 'contactNom')
+        .addSelect('pointage.description', 'description')
+        .addSelect('pointage.facturable', 'facturable')
+        .addSelect('pointage.tempsFacturable', 'tempsFacturable')
+    );
   }
 }
 
@@ -284,8 +295,8 @@ function toPointage(row: RawPointage): Pointage {
   return {
     id: row.id,
     utilisateurId: row.utilisateurId ?? '',
-    debut: fromUtcText(row.debut),
-    fin: fromUtcText(row.fin),
+    debut: utcTextToDate(row.debut),
+    fin: utcTextToDate(row.fin),
     typeAction: row.typeAction ?? '',
     clientId: row.clientId,
     clientCode: row.clientCode?.trim() || null,
@@ -301,23 +312,9 @@ function toPointage(row: RawPointage): Pointage {
   };
 }
 
-/**
- * `date_heure_debut` / `date_heure_fin` contiennent des instants UTC (données
- * reprises comprises). Le pilote mssql de TypeORM lit et écrit les datetime2 en
- * heure locale du serveur Node (useUTC: false) : toutes les dates de ce module
- * passent donc par du texte UTC explicite, en lecture comme en écriture.
- */
-function utcText(date: Date): string {
-  return date.toISOString().slice(0, 23).replace('T', ' ');
-}
-
-/** Texte ISO sans fuseau (CONVERT style 126) → instant UTC. */
-function fromUtcText(text: string): Date {
-  return new Date(`${text}Z`);
-}
-
+/** Début et fin écrits en texte UTC explicite (voir sql-date.util). */
 function instantsUtc(input: PointageInput): { debut: string; fin: string } {
-  return { debut: utcText(input.debut), fin: utcText(input.fin) };
+  return { debut: dateToUtcText(input.debut), fin: dateToUtcText(input.fin) };
 }
 
 function toColumns(

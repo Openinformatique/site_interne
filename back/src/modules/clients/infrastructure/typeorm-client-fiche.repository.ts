@@ -21,7 +21,12 @@ import { joinNomContact, splitNomContact } from '../domain/contact-name';
 import { ClientContratEntity } from './entities/client-contrat.entity';
 import { ClientEntity } from './entities/client.entity';
 import { ContactEntity } from './entities/contact.entity';
-import { sqlDateToIso } from '../../../common/utils/sql-date.util';
+import {
+  jourMetier,
+  sqlDateToIso,
+  sqlUtcText,
+  utcTextToDate,
+} from '../../../common/utils/sql-date.util';
 
 /** Heures par jour si le paramètre TDIV/HJOUR est absent ou invalide. */
 const DEFAULT_HEURES_PAR_JOUR = 8;
@@ -192,7 +197,8 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
     const pointages = await this.pointages
       .createQueryBuilder('pointage')
       .leftJoin(UserEntity, 'salarie', 'salarie.id = pointage.utilisateurId')
-      .select('pointage.dateHeureDebut', 'debut')
+      // Instant UTC lu en texte, puis jour à Paris (voir sql-date.util).
+      .select(sqlUtcText('pointage.dateHeureDebut'), 'debut')
       .addSelect('pointage.description', 'description')
       .addSelect('pointage.tempsFacturable', 'heures')
       .addSelect('salarie.login', 'login')
@@ -200,7 +206,7 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
         ids: commandes.map((c) => c.id),
       })
       .getRawMany<{
-        debut: Date | null;
+        debut: string | null;
         description: string | null;
         heures: string | null;
         login: string | null;
@@ -223,7 +229,7 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
       })),
       ...pointages.map((pointage) => ({
         type: 'POINTAGE' as const,
-        date: pointage.debut ? sqlDateToIso(pointage.debut) : null,
+        date: pointage.debut ? jourMetier(utcTextToDate(pointage.debut)) : null,
         libelle: pointage.description ?? '',
         utilisateur: pointage.login,
         credit: 0,
