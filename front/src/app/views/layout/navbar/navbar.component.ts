@@ -55,6 +55,22 @@ export class NavbarComponent implements OnInit {
     const role = this.user()?.role;
     return role ? USER_ROLE_LABELS[role] : '';
   });
+  /**
+   * Initiales de la pastille de profil : le nom affiché s'il est déjà court
+   * (trigramme repris de l'ancienne application, ex. « JV »), sinon la
+   * première lettre des deux premiers mots (« Administrateur local » → « AL »).
+   */
+  readonly initiales = computed(() => {
+    const nom = (this.user()?.displayName ?? '').trim();
+    if (!nom) {
+      return '?';
+    }
+    const mots = nom.split(/[\s.\-_']+/).filter(Boolean);
+    if (mots.length === 1 && nom.length <= 3) {
+      return nom.toUpperCase();
+    }
+    return mots.slice(0, 2).map((mot) => mot[0]).join('').toUpperCase();
+  });
 
   ngOnInit(): void {
     this.themeModeService.currentTheme.subscribe((theme) => {
