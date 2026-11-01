@@ -7,6 +7,7 @@ import { UserRole } from './core/models/enums';
 import { CLIENTS_UI_KEYS } from './views/pages/clients/access/clients-access.keys';
 import { COMMANDES_UI_KEYS } from './views/pages/commandes/access/commandes-access.keys';
 import { DASHBOARD_UI_KEYS } from './views/pages/dashboard/access/dashboard-access.keys';
+import { PARAMETRES_UI_KEYS } from './views/pages/parametres/access/parametres-access.keys';
 import { USERS_UI_KEYS } from './views/pages/users/access/users-access.keys';
 
 export const routes: Routes = [
@@ -41,6 +42,12 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/commandes/commandes.routes'),
         canActivate: [uiAccessGuard],
         data: { uiAccessKey: COMMANDES_UI_KEYS.PAGE_ACCESS },
+      },
+      {
+        path: 'parametres',
+        loadChildren: () => import('./views/pages/parametres/parametres.routes'),
+        canActivate: [roleGuard, uiAccessGuard],
+        data: { roles: [UserRole.Admin, UserRole.Direction], uiAccessKey: PARAMETRES_UI_KEYS.PAGE_ACCESS },
       },
       {
         path: 'profile',

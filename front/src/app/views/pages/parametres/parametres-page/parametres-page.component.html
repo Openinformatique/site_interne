@@ -1,0 +1,104 @@
+<section class="parametres-page">
+  <header class="page-heading">
+    <span class="heading-icon" aria-hidden="true"><lucide-icon [img]="icons.SlidersHorizontal" [size]="24" /></span>
+    <div>
+      <h1>Paramètres</h1>
+      <p class="subtitle">Tables de paramètres et leurs valeurs, proposées dans les listes de l'application.</p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <app-page-loader />
+  } @else {
+    <div class="columns">
+      <!-- Tables de paramètres -->
+      <section class="fiche-card" aria-labelledby="t-tables">
+        <div class="card-head">
+          <h2 id="t-tables">Tables <span class="count">{{ tables().length }}</span></h2>
+          <button type="button" class="add-btn" *appUiVisible="UiKeys.CREATE_TABLE_BUTTON" (click)="openTable(null)">
+            <lucide-icon [img]="icons.Plus" [size]="15" [strokeWidth]="2.2" />Nouvelle table
+          </button>
+        </div>
+        <div class="search-bar">
+          <span class="search">
+            <lucide-icon [img]="icons.Search" [size]="16" aria-hidden="true" />
+            <input type="search" [value]="tableSearch()" (input)="tableSearch.set($any($event.target).value)" aria-label="Rechercher une table" placeholder="Rechercher (code, nom)…">
+          </span>
+        </div>
+        <ul class="tables" role="listbox" aria-label="Tables de paramètres">
+          @for (table of visibleTables(); track table.code) {
+            <li class="table-row" [class.selected]="table.code === selectedCode()">
+              <button type="button" role="option" class="table-select" [attr.aria-selected]="table.code === selectedCode()" (click)="selectTable(table.code)">
+                <span class="table-code">{{ table.code }}</span>
+                <span class="table-nom">{{ table.nom }}</span>
+                <span class="table-count">{{ table.nbParametres }}</span>
+              </button>
+              <button type="button" class="table-edit" title="Modifier la table et ses rubriques" [attr.aria-label]="'Modifier la table ' + table.code" (click)="openTable(table, $event)">
+                <lucide-icon [img]="icons.Pencil" [size]="15" />
+              </button>
+            </li>
+          } @empty {
+            <li class="empty">Aucune table.</li>
+          }
+        </ul>
+      </section>
+
+      <!-- Paramètres de la table choisie -->
+      <section class="fiche-card" aria-labelledby="t-params">
+        @if (selected(); as table) {
+          <div class="card-head">
+            <div class="params-title">
+              <h2 id="t-params"><span class="code">{{ table.code }}</span> — {{ table.nom }} <span class="count">{{ parametreCount() }}</span></h2>
+              @if (table.aide) { <p class="table-aide">{{ table.aide }}</p> }
+            </div>
+            <button type="button" class="add-btn" *appUiVisible="UiKeys.CREATE_PARAMETRE_BUTTON" (click)="openParametre(null)">
+              <lucide-icon [img]="icons.Plus" [size]="15" [strokeWidth]="2.2" />Nouveau paramètre
+            </button>
+          </div>
+          <div class="search-bar params-tools">
+            <span class="search">
+              <lucide-icon [img]="icons.Search" [size]="16" aria-hidden="true" />
+              <input type="search" [value]="parametreSearch()" (input)="parametreSearch.set($any($event.target).value)" aria-label="Rechercher un paramètre" placeholder="Rechercher (clé, valeurs)…">
+            </span>
+            <button type="button" class="switch" role="switch" [attr.aria-checked]="showInactive()" (click)="showInactive.set(!showInactive())">
+              <span class="track" [class.on]="showInactive()" aria-hidden="true"><span class="knob"></span></span>Afficher les inactifs
+            </button>
+          </div>
+          @if (visibleParametres().length === 0) {
+            <p class="empty">Aucun paramètre dans cette table.</p>
+          } @else {
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th scope="col" class="col-cle">{{ table.nomCle }}</th>
+                  @for (rubrique of table.rubriques; track rubrique.num) { <th scope="col">{{ rubrique.nom }}</th> }
+                  <th scope="col" class="col-statut">Statut</th>
+                  <th scope="col" class="col-actions center">Actions</th>
+                </tr></thead>
+                <tbody>
+                  @for (parametre of visibleParametres(); track parametre.cle) {
+                    <tr class="clickable" [class.is-inactive]="!parametre.actif" (click)="openParametre(parametre)">
+                      <td class="nowrap semibold emph">{{ parametre.cle }}</td>
+                      @for (rubrique of table.rubriques; track rubrique.num) { <td class="emph">{{ valeur(parametre, rubrique.num) }}</td> }
+                      <td><span class="pill" [class.off]="!parametre.actif">{{ parametre.actif ? 'Actif' : 'Inactif' }}</span></td>
+                      <td class="center nowrap actions-cell">
+                        <button type="button" class="icon-btn" title="Modifier" [attr.aria-label]="'Modifier le paramètre ' + parametre.cle" (click)="openParametre(parametre); $event.stopPropagation()">
+                          <lucide-icon [img]="icons.Pencil" [size]="15" />
+                        </button>
+                        <button type="button" class="icon-btn danger" *appUiVisible="UiKeys.DELETE_BUTTON" title="Supprimer" [attr.aria-label]="'Supprimer le paramètre ' + parametre.cle" (click)="deleteParametre(parametre, $event)">
+                          <lucide-icon [img]="icons.Trash2" [size]="15" />
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        } @else {
+          <p class="empty">Choisissez une table.</p>
+        }
+      </section>
+    </div>
+  }
+</section>

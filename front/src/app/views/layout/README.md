@@ -14,6 +14,7 @@ Défini dans [`sidebar/menu.ts`](sidebar/menu.ts), affiché par `SidebarComponen
 | GESTION        | Clients         | —                                   | `/clients`                | tous                |
 | GESTION        | Commandes       | —                                   | `/commandes`              | tous                |
 | ADMINISTRATION | Utilisateurs    | — (création depuis la liste)        | `/users`                  | ADMIN, DIRECTION    |
+| ADMINISTRATION | Paramètres      | —                                   | `/parametres`             | ADMIN, DIRECTION    |
 
 - Une entrée peut être restreinte par rôle (`roles`) et par clé d'accès UI
   (`uiAccessKey`) ; une section sans entrée visible est masquée.

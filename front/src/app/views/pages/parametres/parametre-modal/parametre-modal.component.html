@@ -1,0 +1,31 @@
+<div class="fiche-card modal-card" role="dialog" aria-modal="true" aria-labelledby="parametre-modal-title">
+  <div class="card-head">
+    <h2 id="parametre-modal-title" class="modal-title-text">{{ title() }} <span class="table-nom">— {{ table()?.nom }}</span></h2>
+    <button type="button" class="icon-btn borderless" aria-label="Fermer" (click)="close()"><lucide-icon [img]="X" [size]="16" /></button>
+  </div>
+
+  @if (table(); as t) {
+    <div class="form-grid parametre-form">
+      <label class="field"><span class="cap">{{ t.nomCle }}<span class="req" aria-hidden="true">*</span></span>
+        <input type="text" class="input" [attr.maxlength]="t.tailleCle" [class.invalid]="errors()['cle']" [value]="cle()" [disabled]="!isNew()" (input)="setCle($event)">
+        @if (errors()['cle']; as message) { <span class="err">{{ message }}</span> } @else { <span class="hint">{{ t.tailleCle }} caractères maximum</span> }
+      </label>
+      <div class="field"><span class="cap">Statut</span>
+        <button type="button" class="switch" role="switch" [attr.aria-checked]="actif()" (click)="actif.set(!actif())">
+          <span class="track" [class.on]="actif()" aria-hidden="true"><span class="knob"></span></span>{{ actif() ? 'Actif' : 'Inactif' }}
+        </button>
+      </div>
+      @for (rubrique of t.rubriques; track rubrique.num; let first = $first) {
+        <label class="field full"><span class="cap">{{ rubrique.nom }}@if (first) {<span class="req" aria-hidden="true">*</span>}</span>
+          <input type="text" maxlength="80" class="input" [class.invalid]="errors()['valeurs.' + rubrique.num]" [value]="valeurs()[rubrique.num] || ''" (input)="setValeur(rubrique.num, $event)">
+          @if (errors()['valeurs.' + rubrique.num]; as message) { <span class="err">{{ message }}</span> } @else if (rubrique.aide) { <span class="hint">{{ rubrique.aide }}</span> }
+        </label>
+      }
+    </div>
+  }
+
+  <div class="modal-foot">
+    <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+    <button type="button" class="btn-save" [disabled]="saving()" (click)="save()">Enregistrer</button>
+  </div>
+</div>

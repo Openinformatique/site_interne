@@ -1,0 +1,85 @@
+<div class="fiche-card modal-card" role="dialog" aria-modal="true" aria-labelledby="table-modal-title">
+  <div class="card-head">
+    <h2 id="table-modal-title" class="modal-title-text">{{ title() }}</h2>
+    <button type="button" class="icon-btn borderless" aria-label="Fermer" (click)="close()"><lucide-icon [img]="icons.X" [size]="16" /></button>
+  </div>
+
+  <div class="table-grid">
+    <label class="field"><span class="cap">Code<span class="req" aria-hidden="true">*</span></span>
+      <input type="text" maxlength="4" class="input code-input" [class.invalid]="errors()['code']" [value]="draft().code" [disabled]="!isNew()" (input)="set('code', $event)">
+    </label>
+    <label class="field span-2"><span class="cap">Nom de la table<span class="req" aria-hidden="true">*</span></span>
+      <input type="text" maxlength="40" class="input" [class.invalid]="errors()['nom']" [value]="draft().nom" (input)="set('nom', $event)">
+      @if (errors()['nom']; as message) { <span class="err">{{ message }}</span> }
+    </label>
+    <div aria-hidden="true"></div>
+    @if (errors()['code']; as message) { <span class="err full">{{ message }}</span> }
+    <label class="field span-2"><span class="cap">Libellé de la clé<span class="req" aria-hidden="true">*</span></span>
+      <input type="text" maxlength="20" class="input" [class.invalid]="errors()['nomCle']" [value]="draft().nomCle" (input)="set('nomCle', $event)">
+      @if (errors()['nomCle']; as message) { <span class="err">{{ message }}</span> }
+    </label>
+    <label class="field"><span class="cap">Taille de la clé<span class="req" aria-hidden="true">*</span></span>
+      <input type="number" min="1" max="8" class="input num-input" [class.invalid]="errors()['tailleCle']" [value]="draft().tailleCle" (input)="set('tailleCle', $event)">
+      @if (errors()['tailleCle']; as message) { <span class="err">{{ message }}</span> }
+    </label>
+    <div aria-hidden="true"></div>
+    <label class="field full"><span class="cap">Aide</span>
+      <textarea rows="2" maxlength="255" class="input textarea" [value]="draft().aide" (input)="set('aide', $event)"></textarea>
+    </label>
+    <div class="full">
+      <button type="button" class="switch combo-switch" role="switch" [attr.aria-checked]="draft().codeDansCombo" (click)="toggleCombo()">
+        <span class="track" [class.on]="draft().codeDansCombo" aria-hidden="true"><span class="knob"></span></span>Afficher la clé devant le libellé dans les listes
+      </button>
+    </div>
+  </div>
+
+  <div class="rubriques">
+    <div class="rubriques-head">
+      <h3>Rubriques <span class="count">{{ draft().rubriques.length }}</span></h3>
+      <button type="button" class="add-btn small" (click)="addRubrique()"><lucide-icon [img]="icons.Plus" [size]="14" [strokeWidth]="2.2" />Ajouter une rubrique</button>
+    </div>
+    <div class="rubriques-table">
+      <table>
+        <thead><tr>
+          <th scope="col" class="col-num">N°</th>
+          <th scope="col">Nom de la rubrique</th>
+          <th scope="col">Aide</th>
+          <th scope="col" class="col-del"><span class="visually-hidden">Supprimer</span></th>
+        </tr></thead>
+        <tbody>
+          @for (rubrique of draft().rubriques; track $index) {
+            <tr>
+              <td class="rub-num">{{ num($index) }}</td>
+              <td class="rub-cell">
+                <input type="text" maxlength="40" class="rub-input" [class.invalid]="errors()['rubriques.' + $index + '.nom']" [value]="rubrique.nom"
+                       [attr.aria-label]="'Nom de la rubrique ' + num($index)" (input)="setRubrique($index, 'nom', $event)">
+              </td>
+              <td class="rub-cell">
+                <input type="text" maxlength="255" class="rub-input" [value]="rubrique.aide" [attr.aria-label]="'Aide de la rubrique ' + num($index)" (input)="setRubrique($index, 'aide', $event)">
+              </td>
+              <td class="rub-del">
+                @if ($index > 0) {
+                  <button type="button" class="icon-btn borderless danger" title="Supprimer la rubrique" [attr.aria-label]="'Supprimer la rubrique ' + num($index)" (click)="removeRubrique($index)">
+                    <lucide-icon [img]="icons.Trash2" [size]="14" />
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (errors()['rubriques']; as message) { <p class="err">{{ message }}</p> }
+    <p class="rub-hint">La rubrique 01 est le libellé affiché dans les listes de l'application.</p>
+  </div>
+
+  <div class="modal-foot">
+    @if (!isNew()) {
+      <button type="button" class="btn-outline delete-btn" *appUiVisible="UiKeys.DELETE_BUTTON" (click)="deleteTable()">
+        <lucide-icon [img]="icons.Trash2" [size]="15" />Supprimer la table
+      </button>
+    }
+    <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+    <button type="button" class="btn-save" [disabled]="saving()" (click)="save()">Enregistrer</button>
+  </div>
+</div>

@@ -30,4 +30,9 @@ export class ParametresApi {
     }
     return values$;
   }
+
+  /** Oublie la table en cache (valeurs modifiées dans l'écran Paramètres). */
+  invalidate(codeTable: string): void {
+    this.cache.delete(codeTable.toUpperCase());
+  }
 }
