@@ -1,4 +1,7 @@
-import { ValidationException } from '../../../common/exceptions/app-exceptions';
+import {
+  BusinessRuleViolationException,
+  ValidationException,
+} from '../../../common/exceptions/app-exceptions';
 import type {
   CommandeDetail,
   CommandeFichePort,
@@ -38,7 +41,12 @@ const detail = (changes: Partial<CommandeDetail> = {}): CommandeDetail => ({
 
 function setup(current: CommandeDetail | null, clientActif: boolean | null) {
   const updates: CommandeInput[] = [];
+  const clotures: string[] = [];
   const fiche = {
+    cloturerCommande: (_id: number, date: string) => {
+      clotures.push(date);
+      return Promise.resolve();
+    },
     findCommande: () => Promise.resolve(current),
     createCommande: () => Promise.resolve(7),
     updateCommande: (_id: number, data: CommandeInput) => {
@@ -50,7 +58,7 @@ function setup(current: CommandeDetail | null, clientActif: boolean | null) {
     parametreExists: () => Promise.resolve(true),
   } as unknown as CommandeFichePort;
   const list = {} as CommandeListPort;
-  return { useCase: new CommandeFicheUseCase(fiche, list), updates };
+  return { useCase: new CommandeFicheUseCase(fiche, list), updates, clotures };
 }
 
 async function fieldsOf(promise: Promise<unknown>): Promise<string[]> {
@@ -66,6 +74,23 @@ async function fieldsOf(promise: Promise<unknown>): Promise<string[]> {
 }
 
 describe('CommandeFicheUseCase', () => {
+  it('clôture une commande en cours à la date du jour', async () => {
+    const { useCase, clotures } = setup(detail(), true);
+    await useCase.cloturer(7, 'u', '2026-11-02');
+    expect(clotures).toEqual(['2026-11-02']);
+  });
+
+  it('refuse de clôturer une commande déjà clôturée', async () => {
+    const { useCase, clotures } = setup(
+      detail({ dateCloture: '2026-10-01' }),
+      true,
+    );
+    await expect(useCase.cloturer(7, 'u', '2026-11-02')).rejects.toBeInstanceOf(
+      BusinessRuleViolationException,
+    );
+    expect(clotures).toEqual([]);
+  });
+
   it('refuse un client inactif à la création', async () => {
     const { useCase } = setup(null, false);
     expect(await fieldsOf(useCase.create(input, 'u'))).toEqual(['clientId']);

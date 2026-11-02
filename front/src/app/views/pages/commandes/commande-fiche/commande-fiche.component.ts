@@ -173,10 +173,13 @@ export class CommandeFicheComponent implements OnDestroy {
     if (id !== null) {
       this.load(id);
     } else {
-      // Création depuis une fiche client : client prérempli.
-      const client = parseId(this.route.snapshot.queryParamMap.get('client'));
+      // Création depuis une fiche client (client prérempli) ou depuis le
+      // tableau de bord, « Renouveler » un contrat (client et contrat).
+      const params = this.route.snapshot.queryParamMap;
+      const client = parseId(params.get('client'));
       if (client !== null) {
-        this.form.update((form) => ({ ...form, clientId: String(client) }));
+        const contrat = parseId(params.get('contrat'));
+        this.form.update((form) => ({ ...form, clientId: String(client), clientContratId: contrat === null ? '' : String(contrat) }));
         this.initial.set(this.form());
       }
     }

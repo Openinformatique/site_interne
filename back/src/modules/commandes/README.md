@@ -59,13 +59,14 @@ Excel (sommes possibles) ; ligne d'en-tête figée avec filtres automatiques.
 
 ### Fiche commande
 
-| Route | Rôle |
-| --- | --- |
-| `POST /commandes`, `GET/PUT /commandes/:id` | création, consultation, modification |
-| `GET /commandes/:id/temps` | temps passé : `personnes` (cumul, décroissant) et `pointages` (plus récents d'abord) |
-| `GET/POST /commandes/:id/documents` | documents (plus récents d'abord) ; ajout en multipart : `file`, `typeDocument` (TDOC), `commentaire` |
-| `GET /commandes/:id/documents/:documentId/fichier` | contenu (`inline=true` : affichage, PDF et images seulement) |
-| `DELETE /commandes/:id/documents/:documentId` | suppression définitive (référence et fichier) |
+| Route                                              | Rôle                                                                                                 |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `POST /commandes`, `GET/PUT /commandes/:id`        | création, consultation, modification                                                                 |
+| `POST /commandes/:id/cloture`                      | clôture à la date du jour (Paris), autres champs inchangés ; 409 si déjà clôturée (tableau de bord)  |
+| `GET /commandes/:id/temps`                         | temps passé : `personnes` (cumul, décroissant) et `pointages` (plus récents d'abord)                 |
+| `GET/POST /commandes/:id/documents`                | documents (plus récents d'abord) ; ajout en multipart : `file`, `typeDocument` (TDOC), `commentaire` |
+| `GET /commandes/:id/documents/:documentId/fichier` | contenu (`inline=true` : affichage, PDF et images seulement)                                         |
+| `DELETE /commandes/:id/documents/:documentId`      | suppression définitive (référence et fichier)                                                        |
 
 - **Obligatoires** : client, type (TYPC), dates du devis et de commande,
   libellé, jours commandés et prévus (positifs, 4 décimales au plus). N° de

@@ -118,6 +118,14 @@ export class TypeOrmCommandeFicheRepository implements CommandeFichePort {
     );
   }
 
+  async cloturerCommande(
+    id: number,
+    dateCloture: string,
+    userId: string,
+  ): Promise<void> {
+    await this.commandes.update({ id }, { dateCloture, updatedBy: userId });
+  }
+
   async findClientActif(clientId: number): Promise<boolean | null> {
     const client = await this.clients.findOne({
       select: { id: true, actif: true },

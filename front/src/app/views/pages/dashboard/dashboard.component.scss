@@ -1,0 +1,135 @@
+// Tableau de bord — couleurs propres à l'écran = valeurs exactes de la maquette
+// validée (02/11/2026) ; fonds, bordures et textes : variables du thème.
+:host {
+  display: block;
+  container-type: inline-size;
+  --dash-primary: #6571ff;
+  --dash-danger: #ff3366;
+  --dash-danger-soft: #ffe5ec;
+  --dash-danger-fg: #d61a4b;
+  --dash-warning: #fbbc06;
+  --dash-warning-soft: #fff5d6;
+  --dash-warning-fg: #8a6500;
+  --dash-track: #e9ecef;
+  --dash-cp: rgb(154, 204, 230);
+  --dash-cp-soft: #e3f1f8;
+  --dash-cp-fg: #2a6f93;
+  --dash-ferie: #aeb7c5;
+  --dash-we: #f1f3f6;
+}
+
+:host-context([data-bs-theme='dark']) {
+  --dash-danger-soft: rgba(255, 51, 102, .16);
+  --dash-danger-fg: #ff6b8f;
+  --dash-warning-soft: rgba(251, 188, 6, .16);
+  --dash-warning-fg: #fbbc06;
+  --dash-track: #1b2742;
+  --dash-cp-soft: rgba(154, 204, 230, .16);
+  --dash-cp-fg: #9acce6;
+  --dash-ferie: #41516c;
+  --dash-we: #0a1222;
+}
+
+.dashboard-title { margin: 0 0 20px; font-size: 16px; font-weight: 500; }
+
+// Page sur toute la largeur (styles/_custom.scss). Commandes à gauche, contrats
+// à droite, congés dessous sur toute la largeur ; une carte par ligne si la zone
+// fait moins de 1 200 px.
+.dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+@container (min-width: 1200px) {
+  .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .span-all { grid-column: 1 / -1; }
+}
+
+.dash-card { min-width: 0; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: 6px; }
+.card-head { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--bs-border-color); }
+.card-head h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; font-weight: 500; }
+.card-head h2 lucide-icon { width: 18px; height: 18px; color: var(--bs-secondary-color); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.chip { padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chip.danger { background: var(--dash-danger-soft); color: var(--dash-danger-fg); }
+.chip.warning { background: var(--dash-warning-soft); color: var(--dash-warning-fg); }
+.chip.info { background: var(--dash-cp-soft); color: var(--dash-cp-fg); }
+.chip.neutral { border: 1px solid var(--bs-border-color); background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); }
+.module-state { margin: 0; padding: 32px 20px; color: var(--bs-secondary-color); text-align: center; }
+.card-foot { padding: 10px 20px; border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: 12px; }
+
+// Tableaux
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { padding: 9px 8px; border-bottom: 1px solid var(--bs-border-color); background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); font-size: 12px; font-weight: 500; text-align: left; white-space: nowrap; }
+td { padding: 8px 8px; border-bottom: 1px solid var(--bs-border-color); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { padding-left: 14px; border-left: 3px solid transparent; }
+th:last-child, td:last-child { padding-right: 12px; }
+tr.sev-danger td:first-child { border-left-color: var(--dash-danger); }
+tr.sev-warning td:first-child { border-left-color: var(--dash-warning); }
+tr.sev-soon td:first-child { border-left-color: var(--bs-border-color); }
+.num { text-align: right; white-space: nowrap; }
+.nowrap { white-space: nowrap; }
+.main { font-weight: 500; }
+.sub { margin-top: 2px; color: var(--bs-secondary-color); font-size: 12px; }
+.neg { color: var(--dash-danger-fg); font-weight: 500; }
+// Client : nom et libellé sur une ligne chacun, coupés (texte complet au survol).
+// La colonne client prend la place restante (max-width: 0) et coupe son texte ;
+// les autres colonnes gardent leur largeur naturelle sans retour à la ligne.
+.client { width: 100%; max-width: 0; }
+th.client { min-width: 140px; }
+td.client .main, td.client .sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.gauge { display: flex; align-items: center; gap: 6px; width: 104px; }
+.bar { flex: 1; height: 6px; overflow: hidden; border-radius: 3px; background: var(--dash-track); }
+.bar i { display: block; height: 100%; border-radius: 3px; }
+.bar.danger i { background: var(--dash-danger); }
+.bar.warning i { background: var(--dash-warning); }
+.pct { width: 36px; color: var(--bs-secondary-color); font-size: 12px; text-align: right; }
+
+.badge-j { display: inline-block; margin-top: 3px; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.badge-j.danger { background: var(--dash-danger-soft); color: var(--dash-danger-fg); }
+.badge-j.warning { background: var(--dash-warning-soft); color: var(--dash-warning-fg); }
+.badge-j.soon { border: 1px solid var(--bs-border-color); background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); }
+.badge-j.info { background: var(--dash-cp-soft); color: var(--dash-cp-fg); }
+
+// Commandes : ligne cliquable
+table.clickable tbody tr { cursor: pointer; }
+table.clickable tbody tr:hover td, table.clickable tbody tr:focus-visible td { background: color-mix(in srgb, var(--dash-primary) 6%, transparent); }
+table.clickable tbody tr:hover .main, table.clickable tbody tr:focus-visible .main { color: var(--dash-primary); }
+table.clickable tbody tr:focus-visible { outline: none; }
+
+// Boutons de ligne (icône seule, libellé au survol) : Renouveler, Clôturer
+td.act { width: 1%; text-align: right; }
+.btn-icon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--dash-primary); border-radius: 4px; background: transparent; color: var(--dash-primary); cursor: pointer; }
+.btn-icon lucide-icon { width: 15px; height: 15px; }
+.btn-icon:disabled { opacity: .5; cursor: default; }
+.btn-icon:hover:not(:disabled) { background: var(--dash-primary); color: #fff; }
+.btn-icon:focus-visible { outline: 2px solid var(--dash-primary); outline-offset: 2px; }
+
+// Congés : frise de 15 jours
+// Disposition fixe : la frise occupe toute la largeur restante, partagée en
+// colonnes égales (pas de défilement horizontal au-delà de 760 px).
+table.conges { min-width: 760px; table-layout: fixed; }
+table.conges .col-personne { width: 190px; }
+table.conges .col-periode { width: 230px; }
+table.conges .col-jours { width: 64px; }
+table.conges td.main { overflow: hidden; text-overflow: ellipsis; }
+table.conges th.day, table.conges td.day { padding: 0; border-left: 1px solid var(--bs-border-color); text-align: center; }
+table.conges th.day { padding: 6px 0; font-size: 11px; line-height: 1.25; }
+table.conges th.day b { display: block; color: var(--bs-body-color); font-size: 12px; font-weight: 500; }
+table.conges th.day.today { box-shadow: inset 0 -2px 0 var(--dash-primary); }
+table.conges th.day.today b { color: var(--dash-primary); }
+table.conges .we { background: var(--dash-we); }
+table.conges td.day { height: 44px; }
+table.conges td.day.today-col { box-shadow: inset 1px 0 0 var(--dash-primary), inset -1px 0 0 var(--dash-primary); }
+.blk { display: block; height: 22px; background: var(--dash-cp); }
+.blk.apres-midi { background: linear-gradient(90deg, transparent 50%, var(--dash-cp) 50%); }
+.blk.matin { background: linear-gradient(90deg, var(--dash-cp) 50%, transparent 50%); }
+.blk.ferie { background: repeating-linear-gradient(135deg, var(--dash-ferie) 0 3px, transparent 3px 6px); }
+
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-txt { margin-left: auto; }
+.sw { display: inline-block; width: 14px; height: 10px; border: 1px solid var(--bs-border-color); border-radius: 2px; }
+.sw.cp { border-color: var(--dash-cp); background: var(--dash-cp); }
+.sw.half { background: linear-gradient(90deg, transparent 50%, var(--dash-cp) 50%); }
+.sw.ferie { background: repeating-linear-gradient(135deg, var(--dash-ferie) 0 3px, transparent 3px 6px); }
+.sw.we { background: var(--dash-we); }

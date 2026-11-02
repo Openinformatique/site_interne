@@ -20,6 +20,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiConflictResponse,
   ApiConsumes,
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -116,6 +117,24 @@ export class CommandeFicheController {
   ): Promise<CommandeDetailResponseDto> {
     return CommandeDetailResponseDto.fromDomain(
       await this.fiche.update(id, body, user.userId),
+    );
+  }
+
+  @Post(':id/cloture')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Clôturer une commande',
+    description:
+      'Date de clôture = date du jour (Paris) ; autres champs inchangés.',
+  })
+  @ApiOkResponse({ type: CommandeDetailResponseDto })
+  @ApiConflictResponse({ description: 'Commande déjà clôturée.' })
+  async cloturer(
+    @Param('id', idPipe('id')) id: number,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<CommandeDetailResponseDto> {
+    return CommandeDetailResponseDto.fromDomain(
+      await this.fiche.cloturer(id, user.userId),
     );
   }
 

@@ -1,0 +1,196 @@
+<h1 class="dashboard-title">Tableau de bord</h1>
+
+<div class="dashboard-grid">
+
+  <!-- Commandes à livrer (colonne de gauche) -->
+  <section class="dash-card" [class.span-all]="!visible(UiKeys.CONTRATS_SECTION)" *appUiVisible="UiKeys.COMMANDES_SECTION">
+    <div class="card-head">
+      <h2><lucide-icon [img]="icons.clock" />Commandes à livrer</h2>
+      <div class="chips">
+        @if (commandesEnRetard()) {
+          <span class="chip danger">{{ commandesEnRetard() }} en retard</span>
+        }
+        @if (commandesAVenir()) {
+          <span class="chip warning">{{ commandesAVenir() }} à livrer sous 2 semaines</span>
+        }
+      </div>
+    </div>
+    @switch (commandes()) {
+      @case (null) { <p class="module-state">Chargement…</p> }
+      @case ('erreur') { <p class="module-state">Impossible de charger les commandes.</p> }
+      @default {
+        @if (liste(commandes()).length === 0) {
+          <app-empty-state title="Aucune commande à livrer" message="Aucune commande en retard ni à livrer dans les 2 semaines." />
+        } @else {
+          <div class="table-wrap">
+            <table class="clickable">
+              <thead>
+                <tr>
+                  <th class="client">Client / commande</th><th>N° commande</th><th>Délai</th>
+                  <th class="num" title="Jours commandés">J. cmd.</th><th class="num" title="Jours passés">J. passés</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (commande of liste(commandes()); track commande.id) {
+                  <tr [class]="'sev-' + severiteCommande(commande)" tabindex="0" title="Ouvrir la commande"
+                      (click)="ouvrirCommande(commande)" (keydown.enter)="ouvrirCommande(commande)">
+                    <td class="client">
+                      <div class="main" [title]="commande.raisonSociale || ''">{{ commande.raisonSociale || commande.codeClient }}</div>
+                      <div class="sub" [title]="commande.libelle || ''">{{ commande.libelle }}</div>
+                    </td>
+                    <td class="nowrap">{{ commande.numeroCommande || '—' }}</td>
+                    <td class="nowrap">
+                      {{ frDate(commande.delai) }}<br>
+                      <span class="badge-j" [class]="badgeDelai(commande).classe">{{ badgeDelai(commande).texte }}</span>
+                    </td>
+                    <td class="num">{{ jours(commande.joursCommandes) }}</td>
+                    <td class="num" [class.neg]="depasse(commande)">{{ jours(commande.joursPasses) }}</td>
+                    <td class="act">
+                      <button type="button" class="btn-icon" *appUiVisible="UiKeys.CLOTURER_BUTTON"
+                              title="Clôturer la commande à la date du jour" aria-label="Clôturer la commande"
+                              [disabled]="clotureEnCours() === commande.id" (click)="cloturer(commande, $event)" (keydown.enter)="$event.stopPropagation()">
+                        <lucide-icon [img]="icons.cloturer" />
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    }
+    <div class="card-foot">Non clôturées · délai dépassé ou sous 2 semaines · du plus en retard au plus lointain · clic sur une ligne : ouvrir la commande</div>
+  </section>
+
+  <!-- Contrats à renouveler (colonne de droite) -->
+  <section class="dash-card" [class.span-all]="!visible(UiKeys.COMMANDES_SECTION)" *appUiVisible="UiKeys.CONTRATS_SECTION">
+    <div class="card-head">
+      <h2><lucide-icon [img]="icons.gauge" />Contrats à renouveler</h2>
+      <div class="chips">
+        @if (contratsEpuises()) {
+          <span class="chip danger">{{ pluriel(contratsEpuises(), 'épuisé', 'épuisés') }}</span>
+        }
+        @if (contratsBientotEpuises()) {
+          <span class="chip warning">{{ contratsBientotEpuises() }} bientôt épuisé{{ contratsBientotEpuises() > 1 ? 's' : '' }}</span>
+        }
+      </div>
+    </div>
+    @switch (contrats()) {
+      @case (null) { <p class="module-state">Chargement…</p> }
+      @case ('erreur') { <p class="module-state">Impossible de charger les contrats.</p> }
+      @default {
+        @if (liste(contrats()).length === 0) {
+          <app-empty-state title="Aucun contrat à renouveler" message="Aucun contrat n'a moins d'1 heure restante." />
+        } @else {
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="client">Client / contrat</th><th class="num">Crédit (h)</th><th class="num">Débit (h)</th>
+                  <th class="num">Restant (h)</th><th>Consommé</th><th>Échéance</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (contrat of liste(contrats()); track contrat.contratId) {
+                  <tr [class]="'sev-' + severiteContrat(contrat)">
+                    <td class="client">
+                      <div class="main" [title]="contrat.raisonSociale || ''">{{ contrat.raisonSociale || contrat.codeClient }}</div>
+                      <div class="sub" [title]="contrat.libelleContrat || ''">{{ contrat.codeClient }} · {{ contrat.libelleContrat || 'Contrat sans libellé' }}</div>
+                    </td>
+                    <td class="num">{{ nombre(contrat.credit) }}</td>
+                    <td class="num">{{ nombre(contrat.debit) }}</td>
+                    <td class="num" [class.neg]="contrat.restant <= 0">{{ nombre(contrat.restant) }}</td>
+                    <td>
+                      <div class="gauge">
+                        <div class="bar" [class]="severiteContrat(contrat)"><i [style.width]="largeurJauge(contrat.consommation)"></i></div>
+                        <span class="pct">{{ pourcentage(contrat.consommation) }}</span>
+                      </div>
+                    </td>
+                    <td class="nowrap">
+                      {{ frDate(contrat.dateEcheance) }}
+                      @if (badgeEcheance(contrat); as badge) {
+                        <br><span class="badge-j" [class]="badge.classe">{{ badge.texte }}</span>
+                      }
+                    </td>
+                    <td class="act">
+                      <button type="button" class="btn-icon" title="Renouveler : nouvelle commande sur ce client et ce contrat"
+                              aria-label="Renouveler le contrat" (click)="renouveler(contrat)">
+                        <lucide-icon [img]="icons.renouveler" />
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    }
+    <div class="card-foot">Contrats en cours de plus d'1 h dont il reste moins d'1 h · du restant le plus bas au plus haut</div>
+  </section>
+
+  <!-- Congés des 15 prochains jours -->
+  <section class="dash-card span-all" *appUiVisible="UiKeys.CONGES_SECTION">
+    <div class="card-head">
+      <h2><lucide-icon [img]="icons.conges" />Congés des 15 prochains jours</h2>
+      <div class="chips">
+        @if (absentsAujourdhui()) {
+          <span class="chip info">{{ pluriel(absentsAujourdhui(), "absent aujourd'hui", "absents aujourd'hui") }}</span>
+        }
+        @if (personnesEnConge()) {
+          <span class="chip neutral">{{ pluriel(personnesEnConge(), 'personne', 'personnes') }}</span>
+        }
+      </div>
+    </div>
+    @switch (conges()) {
+      @case (null) { <p class="module-state">Chargement…</p> }
+      @case ('erreur') { <p class="module-state">Impossible de charger les congés.</p> }
+      @default {
+        @if (congesData(); as data) {
+          @if (data.conges.length === 0) {
+            <app-empty-state title="Aucun congé" message="Personne n'a de congé posé sur les 15 prochains jours." />
+          } @else {
+            <div class="table-wrap">
+              <table class="conges">
+                <thead>
+                  <tr>
+                    <th class="col-personne">Personne</th><th class="col-periode">Période</th><th class="num col-jours">Jours</th>
+                    @for (colonne of colonnes(); track colonne.jour) {
+                      <th class="day" [class.we]="colonne.weekEnd" [class.today]="colonne.aujourdhui">{{ colonne.libelle }}<b>{{ colonne.numero }}</b></th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (conge of data.conges; track conge.utilisateurId + conge.debut.jour) {
+                    <tr>
+                      <td class="main nowrap">{{ conge.nom }}</td>
+                      <td class="nowrap">
+                        {{ periode(conge) }}<br>
+                        <span class="badge-j" [class]="badgeConge(conge).classe">{{ badgeConge(conge).texte }}</span>
+                      </td>
+                      <td class="num">{{ nbJours(conge.nbJours) }}</td>
+                      @for (colonne of colonnes(); track colonne.jour) {
+                        <td class="day" [class.we]="colonne.weekEnd" [class.today-col]="colonne.aujourdhui">
+                          @if (bloc(conge, colonne.jour); as classe) {
+                            <span [class]="classe"></span>
+                          }
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+          <div class="card-foot legend">
+            <span><i class="sw cp"></i>Congé</span><span><i class="sw half"></i>Demi-journée</span>
+            <span><i class="sw ferie"></i>Férié</span><span><i class="sw we"></i>Week-end</span>
+            <span class="legend-txt">Du {{ frDate(data.du).slice(0, 5) }} au {{ frDate(data.au) }} · par date de début</span>
+          </div>
+        }
+      }
+    }
+  </section>
+
+</div>

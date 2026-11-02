@@ -1,8 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  BusinessRuleViolationException,
   ResourceNotFoundException,
   ValidationException,
 } from '../../../common/exceptions/app-exceptions';
+import { jourMetier } from '../../../common/utils/sql-date.util';
 import { COMMANDE_FICHE } from '../domain/commande-fiche.port';
 import type {
   CommandeDetail,
@@ -56,6 +58,25 @@ export class CommandeFicheUseCase {
     const current = await this.get(id);
     await this.assertReferences(input, current);
     await this.fiche.updateCommande(id, input, userId);
+    return this.get(id);
+  }
+
+  /**
+   * Clôture à la date du jour (tableau de bord, « Commandes à livrer ») ;
+   * refusée si la commande est déjà clôturée.
+   */
+  async cloturer(
+    id: number,
+    userId: string,
+    aujourdhui = jourMetier(new Date()),
+  ): Promise<CommandeDetail> {
+    const current = await this.get(id);
+    if (current.dateCloture) {
+      throw new BusinessRuleViolationException(
+        'Cette commande est déjà clôturée.',
+      );
+    }
+    await this.fiche.cloturerCommande(id, aujourdhui, userId);
     return this.get(id);
   }
 

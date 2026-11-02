@@ -63,7 +63,9 @@ Manifeste `access/commandes-page.access.ts` : accès à la page
 ## Fiche commande (`commande-fiche/`)
 
 `/commandes/:id` (consultation / modification) et `/commandes/nouvelle`
-(création ; `?client=<id>` préremplit le client, depuis la fiche client).
+(création ; `?client=<id>` préremplit le client, depuis la fiche client ;
+`&contrat=<id>` préremplit aussi le contrat, depuis « Renouveler » du tableau
+de bord).
 Maquette validée le 31/10/2026 ; même style que la fiche client (mixins
 `clients/client-fiche/_fiche-shared.scss`).
 

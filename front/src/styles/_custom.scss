@@ -64,10 +64,11 @@
   --app-inactive-bg: #070d19;
 }
 
-// Pointages : planning sur toute la largeur de la zone de contenu (pas de
+// Pointages et tableau de bord : toute la largeur de la zone de contenu (pas de
 // limite container-xxl) et marges latérales réduites, pour la lisibilité.
 // Sélecteur complet : plus spécifique que `.main-wrapper .page-wrapper .page-content`.
-.main-wrapper .page-wrapper .page-content.workspace-page-content:has(app-pointages-page) {
+.main-wrapper .page-wrapper .page-content.workspace-page-content:has(app-pointages-page),
+.main-wrapper .page-wrapper .page-content.workspace-page-content:has(app-dashboard) {
   max-width: none;
   padding-left: 16px;
   padding-right: 16px;

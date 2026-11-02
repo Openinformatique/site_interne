@@ -95,6 +95,12 @@ export interface CommandeFichePort {
     input: CommandeInput,
     userId: string,
   ): Promise<void>;
+  /** Renseigne la date de clôture, sans toucher aux autres champs. */
+  cloturerCommande(
+    id: number,
+    dateCloture: string,
+    userId: string,
+  ): Promise<void>;
   /** Client existant (non supprimé) et son statut. */
   findClientActif(clientId: number): Promise<boolean | null>;
   contratBelongsToClient(contratId: number, clientId: number): Promise<boolean>;

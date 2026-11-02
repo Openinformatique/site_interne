@@ -18,6 +18,7 @@ import { PdfModule } from './modules/pdf/pdf.module';
 import { PointagesModule } from './modules/pointages/pointages.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { TableauDeBordModule } from './modules/tableau-de-bord/tableau-de-bord.module';
 import { TechnicalDemoModule } from './modules/technical-demo/technical-demo.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -50,6 +51,7 @@ import { UsersModule } from './modules/users/users.module';
     ClientsModule,
     CommandesModule,
     PointagesModule,
+    TableauDeBordModule,
     // Endpoints de démonstration : routes inexistantes lorsque désactivés.
     ...(isTechnicalDemoEnabled() ? [TechnicalDemoModule] : []),
   ],

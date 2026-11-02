@@ -68,6 +68,11 @@ export class CommandesApi {
     return this.api.put<CommandeDetail>(`/commandes/${id}`, input).pipe(tap(() => this.changedSubject.next()));
   }
 
+  /** Clôture à la date du jour (409 si déjà clôturée). */
+  cloturer(id: number): Observable<CommandeDetail> {
+    return this.api.post<CommandeDetail>(`/commandes/${id}/cloture`).pipe(tap(() => this.changedSubject.next()));
+  }
+
   temps(id: number): Observable<CommandeTemps> {
     return this.api.get<CommandeTemps>(`/commandes/${id}/temps`);
   }
