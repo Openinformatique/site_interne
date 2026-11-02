@@ -1,0 +1,147 @@
+<div class="fiche-card modal-card" role="dialog" aria-modal="true" aria-labelledby="import-title">
+  <div class="m-head">
+    <span class="m-icon"><lucide-icon [img]="icons.FileSpreadsheet" [size]="19" /></span>
+    <div>
+      <h2 id="import-title" class="m-title">Importer des pointages</h2>
+      <div class="m-sub">Pointages créés pour <b>{{ personneNom() }}</b> (personne affichée)</div>
+    </div>
+    <button type="button" class="icon-btn borderless m-close" aria-label="Fermer" (click)="close()"><lucide-icon [img]="icons.X" [size]="16" /></button>
+  </div>
+
+  <div class="m-body">
+    @switch (etat()) {
+      @case ('choix') {
+        <label class="drop" [class.survol]="survol()" [class.attente]="enCours()"
+               (dragover)="survoler($event, true)" (dragleave)="survoler($event, false)" (drop)="deposer($event)">
+          <input type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" class="visually-hidden" [disabled]="!!enCours()" (change)="choisir($event)" />
+          <lucide-icon [img]="icons.Upload" [size]="34" />
+          @if (enCours()) {
+            <span class="t">Contrôle de {{ fichier()?.name }}…</span>
+          } @else {
+            <span class="t">Déposer un classeur Excel ici, ou cliquer pour le choisir</span>
+            <span class="s">Fichier .xlsx ou .xls · première feuille · ligne 1 = en-têtes, pointages à partir de la ligne 2</span>
+          }
+        </label>
+        <div class="fmt">
+          <div class="fmt-h">Colonnes attendues (en-têtes de la ligne 1, dans cet ordre)</div>
+          <div class="cols">
+            @for (colonne of colonnes; track colonne.lettre) {
+              <div><b>{{ colonne.lettre }}</b>{{ colonne.entete }} @if (colonne.aide) { <span>({{ colonne.aide }})</span> }</div>
+            }
+          </div>
+          <div class="rule">Le fichier est d'abord contrôlé : en-têtes et ordre des colonnes, puis chaque ligne. Chaque jour, les pointages sont placés les uns après les autres à partir de 7 h, dans l'ordre du fichier. Si une erreur est trouvée, rien n'est importé.</div>
+        </div>
+      }
+
+      @case ('apercu') {
+        <div class="summary">
+          <span class="chip ok">Fichier valide</span>
+          <span class="chip n">{{ pluriel(resultat()!.pointages.length, 'pointage', 'pointages') }}</span>
+          <span class="chip n">{{ pluriel(jours().length, 'jour', 'jours') }}</span>
+          <span class="chip n">{{ heures(totalHeures()) }}</span>
+          <span class="file"><lucide-icon [img]="icons.CircleCheck" [size]="15" class="ok-ico" />{{ fichier()?.name }}</span>
+        </div>
+        <div class="tw">
+          <table>
+            <thead>
+              <tr><th>Ligne</th><th>Horaire</th><th>Client</th><th>Type</th><th>Commande</th><th>Contact</th><th>Description</th><th class="num">Durée</th></tr>
+            </thead>
+            <tbody>
+              @for (jour of jours(); track jour.jour) {
+                <tr class="day"><td colspan="8">{{ jour.libelle }} <span>· {{ pluriel(jour.pointages.length, 'pointage', 'pointages') }} · {{ heures(jour.heures) }}</span></td></tr>
+                @for (p of jour.pointages; track p.ligne) {
+                  <tr>
+                    <td class="mut">{{ p.ligne }}</td>
+                    <td class="nw">{{ p.debut }} – {{ p.fin }}</td>
+                    <td class="nw">@if (p.client) { {{ p.client }} } @else { <span class="mut">Interne</span> }</td>
+                    <td>{{ p.type }}</td>
+                    <td class="nw">@if (p.commande) { {{ p.commande }} } @else { <span class="mut">—</span> }</td>
+                    <td class="nw">@if (p.contact) { {{ p.contact }} } @else { <span class="mut">—</span> }</td>
+                    <td>@for (tag of p.tags; track tag.libelle) {<span class="tag" [class.libre]="!tag.parametre" [title]="tag.parametre ? 'Tag du paramétrage' : 'Tag libre'">{{ tag.libelle }}</span>}{{ p.description }}</td>
+                    <td class="num">{{ heures(p.heures) }}</td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @case ('erreurs') {
+        <div class="alert"><lucide-icon [img]="icons.CircleAlert" [size]="18" /><div><b>Rien n'a été importé.</b> Corrige le fichier puis importe-le à nouveau.</div></div>
+        <div class="summary">
+          <span class="chip ko">{{ pluriel(resultat()!.erreurs.length, 'erreur', 'erreurs') }}</span>
+          @if (lignesEnErreur()) {
+            <span class="chip n">{{ pluriel(lignesEnErreur(), 'ligne concernée', 'lignes concernées') }}</span>
+          }
+          <span class="file">{{ fichier()?.name }}</span>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Ligne</th><th>Colonne</th><th>Valeur lue</th><th>Problème</th></tr></thead>
+            <tbody>
+              @for (erreur of resultat()!.erreurs; track $index) {
+                <tr>
+                  <td>@if (erreur.ligne !== null) { <span class="lig">{{ erreur.ligne }}</span> } @else { <span class="mut">Fichier</span> }</td>
+                  <td class="nw">{{ erreur.colonne ?? '—' }}</td>
+                  <td>@if (erreur.valeur) { <span class="val">{{ erreur.valeur }}</span> } @else { <span class="mut">(vide)</span> }</td>
+                  <td>{{ erreur.message }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @case ('format') {
+        <div class="alert"><lucide-icon [img]="icons.CircleAlert" [size]="18" /><div><b>Le fichier n'est pas au format attendu : rien n'a été importé.</b> La ligne 1 doit contenir les en-têtes ci-dessous, dans cet ordre (majuscules et accents indifférents).</div></div>
+        <div class="summary">
+          <span class="chip ko">{{ pluriel(colonnesNonConformes(), 'colonne non conforme', 'colonnes non conformes') }}</span>
+          <span class="file">{{ fichier()?.name }}</span>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Colonne</th><th>En-tête attendu</th><th>En-tête lu</th><th></th></tr></thead>
+            <tbody>
+              @for (colonne of resultat()!.format!.colonnes; track colonne.lettre) {
+                <tr>
+                  <td class="nw"><b>{{ colonne.lettre }}</b></td>
+                  <td>@if (colonne.attendu) { {{ colonne.attendu }} } @else { <span class="mut">(aucune colonne attendue)</span> }</td>
+                  <td>@if (colonne.lu) { <span class="val">{{ colonne.lu }}</span> } @else { <span class="mut">(vide)</span> }</td>
+                  <td>
+                    @if (colonne.conforme) {
+                      <span class="chip ok">Conforme</span>
+                    } @else if (colonne.attendu) {
+                      <span class="chip ko">Attendu : {{ colonne.attendu }}</span>
+                    } @else {
+                      <span class="chip ko">Colonne en trop</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="modal-foot">
+    @switch (etat()) {
+      @case ('choix') {
+        <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+        <button type="button" class="btn-save" disabled>Importer</button>
+      }
+      @case ('apercu') {
+        <button type="button" class="btn-outline" [disabled]="!!enCours()" (click)="autreFichier()">Changer de fichier</button>
+        <button type="button" class="btn-save" [disabled]="!!enCours()" (click)="importer()">
+          {{ enCours() === 'import' ? 'Import en cours…' : 'Importer ' + pluriel(resultat()!.pointages.length, 'pointage', 'pointages') }}
+        </button>
+      }
+      @default {
+        <button type="button" class="btn-outline" (click)="close()">Fermer</button>
+        <button type="button" class="btn-save" (click)="autreFichier()">Choisir un autre fichier</button>
+      }
+    }
+  </div>
+</div>

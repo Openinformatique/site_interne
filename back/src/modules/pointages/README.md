@@ -96,6 +96,46 @@ déplacement et au redimensionnement depuis le planning.
 
 Suppression définitive (`204`).
 
+### `POST /api/v1/pointages/import/verification` — `POST /api/v1/pointages/import`
+
+Import de pointages depuis un classeur Excel (bouton « Importer » de l'écran
+Pointages), pour la personne `utilisateurId` (multipart : `file`,
+`utilisateurId` ; droits de la saisie). `verification` contrôle et renvoie
+l'aperçu sans rien créer ; l'import refait tout le contrôle puis crée tous
+les pointages dans une transaction. Au moindre défaut, **rien n'est créé**.
+Réponse : `format` (contrôle des en-têtes ; null si le fichier n'est pas un
+classeur lisible), `erreurs` (ligne, colonne, valeur lue, message),
+`pointages` (aperçu), `importes`. Règles (`domain/import-pointages.ts`,
+`application/import-pointages.use-case.ts`) :
+
+- **Fichier** : .xlsx ou .xls (Excel 97-2003), lus avec SheetJS (`xlsx` 0.20.3,
+  installé depuis cdn.sheetjs.com : la version npm est ancienne et
+  vulnérable) ; seuls les vrais classeurs sont admis (signature ZIP ou OLE2).
+- **Format** : première feuille ; ligne 1 = en-têtes exactement dans cet
+  ordre (casse, accents et espaces indifférents) : Client, Type de tâche,
+  Thème, Devis, Date, Durée, Observations, Contact ; rien au-delà de la
+  colonne H. Sinon, aucune ligne n'est contrôlée. 5 Mo et 2 000 lignes au plus.
+- **Lignes** à partir de la ligne 2, lignes entièrement vides ignorées :
+  - A Client : **code client** d'un client actif ; vide = interne ;
+  - B Type : clé TYPA (ASSC, COM, AUTRE…), obligatoire ;
+  - C Thème : tags séparés par `;` ou `,` ; un tag du paramétrage TAGS est
+    repris avec son libellé, sinon tag libre ; description « [Tag] texte » ;
+  - D Devis : n° de commande (sinon de devis) d'une commande du client ; la
+    commande **en cours** portant ce numéro ; erreur si toutes sont clôturées
+    ou si plusieurs sont en cours ;
+  - E Date : date Excel, numéro de série, JJ/MM/AAAA ou AAAA-MM-JJ ;
+  - F Durée : heures, > 0 et ≤ 24 ;
+  - G Observations : texte du pointage ;
+  - H Contact : « NOM Prénom » d'un contact du client (actif de préférence).
+- Puis les **règles de la saisie** (`PointagesUseCase.erreursSaisie`), chaque
+  erreur rapportée sur sa colonne : client obligatoire selon le type,
+  commande de contrat pour une assistance, contact obligatoire, etc.
+- **Horaires** : chaque jour, à partir de **7 h** (Paris), les pointages se
+  suivent dans l'ordre du fichier, **sans tenir compte des pointages déjà
+  saisis** ce jour-là ; erreur si un jour dépasse minuit.
+- Facturable « oui », temps facturable = durée (valeurs par défaut de la
+  saisie).
+
 ### `GET /api/v1/pointages/alertes`
 
 Cloche d'alertes de la barre du haut : jours incomplets de l'**utilisateur

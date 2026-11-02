@@ -43,6 +43,10 @@
 .today-btn { height: 36px; padding: 0 12px; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-body-bg); color: var(--pt-text); font-size: 13px; cursor: pointer; }
 .semaine { font-size: 15px; font-weight: 600; color: var(--pt-emph); }
 .semaine-periode { color: var(--pt-muted); font-size: 13.5px; font-weight: 400; }
+// Bouton Importer : bordure et texte primaires, plein au survol (maquette validée).
+.chip-btn.import-btn { border-color: #6571ff; color: #6571ff; font-weight: 500; }
+.chip-btn.import-btn:hover:not(:disabled) { background: #6571ff; color: #fff; }
+.chip-btn.import-btn:disabled { opacity: .5; cursor: not-allowed; }
 .chip-btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-body-bg); color: var(--pt-text); font-size: 13px; cursor: pointer; }
 .week-picker { display: inline-flex; align-items: center; gap: 8px; padding: 3px 6px 3px 12px; border: 1px solid #6571ff; border-radius: 8px; background: rgba(101, 113, 255, .05); color: var(--pt-text); font-size: 13px; }
 .inline { display: inline-flex; align-items: center; gap: 6px; margin: 0; }

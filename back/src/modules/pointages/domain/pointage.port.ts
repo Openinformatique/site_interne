@@ -87,6 +87,8 @@ export interface PointagePort {
   list(utilisateurId: string, du: Date, au: Date): Promise<Pointage[]>;
   find(id: number): Promise<Pointage | null>;
   create(input: PointageInput, userId: string): Promise<number>;
+  /** Création groupée (import) : tout ou rien, dans une transaction. */
+  createMany(inputs: readonly PointageInput[], userId: string): Promise<number>;
   update(id: number, input: PointageInput, userId: string): Promise<void>;
   delete(id: number): Promise<void>;
 

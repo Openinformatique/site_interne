@@ -32,6 +32,8 @@
         <span class="track" [class.on]="weekend()" aria-hidden="true"><span class="knob"></span></span>Week-end
       </button>
       <span class="total-pill"><lucide-icon [img]="Clock" [size]="15" />Semaine : {{ totalSemaine() }} h</span>
+      <!-- Import de pointages depuis un classeur Excel (import-pointages-modal) -->
+      <button type="button" class="chip-btn import-btn" [disabled]="!personneId()" (click)="ouvrirImport()"><lucide-icon [img]="FileSpreadsheet" [size]="15" />Importer</button>
       <!-- Éditions : relevé mensuel, contrats d'assistance -->
       <div ngbDropdown #editions="ngbDropdown" placement="bottom-end" class="editions">
         <button type="button" class="chip-btn editions-btn" ngbDropdownToggle><lucide-icon [img]="Printer" [size]="15" />Éditions<lucide-icon [img]="ChevronDown" [size]="14" class="chevron" /></button>

@@ -88,6 +88,24 @@ export class TypeOrmPointageRepository implements PointagePort {
     return (result.identifiers[0] as { id: number }).id;
   }
 
+  async createMany(
+    inputs: readonly PointageInput[],
+    userId: string,
+  ): Promise<number> {
+    await this.pointages.manager.transaction(async (manager) => {
+      for (const input of inputs) {
+        await manager
+          .createQueryBuilder()
+          .insert()
+          .into(PointageEntity)
+          .values({ ...toColumns(input), createdBy: userId, updatedBy: userId })
+          .setParameters(instantsUtc(input))
+          .execute();
+      }
+    });
+    return inputs.length;
+  }
+
   async update(
     id: number,
     input: PointageInput,

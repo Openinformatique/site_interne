@@ -87,6 +87,28 @@ Enregistrer.
   commande de type contrat (liste filtrée, suffixe « (contrat) »). Commandes
   clôturées et contacts inactifs masqués, sauf ceux du pointage.
 
+## Import Excel (`import-pointages-modal/`)
+
+Bouton **Importer** de la barre d'outils (avant « Éditions », bordure
+primaire, plein au survol) : fenêtre « Importer des pointages » pour la
+personne affichée. Maquette validée le 02/11/2026. Règles du fichier : voir
+le README du module pointages back.
+
+- **Choix du fichier** : zone de dépôt ou clic (.xlsx ou .xls), rappel des colonnes
+  attendues (en-têtes de la ligne 1) et des règles. Le contrôle part dès le
+  choix du fichier.
+- **Format incorrect** : tableau colonne par colonne (en-tête attendu / lu,
+  « Conforme » ou « Attendu : … », colonne en trop).
+- **Erreurs** : « Rien n'a été importé », tableau Ligne / Colonne / Valeur lue
+  / Problème (plusieurs erreurs possibles par ligne).
+- **Aperçu** (fichier valide) : pastilles (pointages, jours, total), tableau
+  groupé par jour avec ligne Excel, horaire calculé, client (« Interne »),
+  type, commande, contact, tags (paramétrés en bleu, libres en pointillé),
+  description, durée ; bouton « Importer N pointages ».
+- Après l'import : message « N pointages importés », planning rechargé et
+  positionné sur la semaine du premier jour importé ; la cloche d'alertes se
+  met à jour (`PointagesApi.changed$`).
+
 ## Relevé mensuel (`releve-mensuel-modal/`)
 
 Fenêtre de 520 px, libellés à gauche :

@@ -29,7 +29,7 @@ import type {
   TypeAction,
 } from '../domain/pointage.port';
 
-interface FieldError {
+export interface FieldError {
   field: string;
   message: string;
 }
@@ -171,6 +171,17 @@ export class PointagesUseCase {
   }
 
   private async assertValid(input: PointageInput): Promise<void> {
+    const errors = await this.erreursSaisie(input);
+    if (errors.length > 0) {
+      throw new ValidationException(errors);
+    }
+  }
+
+  /**
+   * Règles de saisie d'un pointage, par champ (saisie et import Excel :
+   * application/import-pointages.use-case.ts).
+   */
+  async erreursSaisie(input: PointageInput): Promise<FieldError[]> {
     const errors: FieldError[] = [];
     const add = (field: string, message: string) =>
       errors.push({ field, message });
@@ -231,10 +242,7 @@ export class PointagesUseCase {
     ) {
       add('contactId', "Ce contact n'appartient pas au client.");
     }
-
-    if (errors.length > 0) {
-      throw new ValidationException(errors);
-    }
+    return errors;
   }
 }
 

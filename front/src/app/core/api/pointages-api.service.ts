@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, Subject, tap } from 'rxjs';
 
 import { ApiClient } from './api-client.service';
-import { ClientPointageOptions, JourIncomplet, Pointage, PointageInput, PointagesReference } from '../models/pointage.model';
+import { ClientPointageOptions, JourIncomplet, Pointage, PointageInput, PointagesReference, ResultatImport } from '../models/pointage.model';
 
 @Injectable({ providedIn: 'root' })
 export class PointagesApi {
@@ -15,6 +15,18 @@ export class PointagesApi {
   /** Jours ouvrés incomplets (moins de 7 h) de l'utilisateur connecté, sur 2 semaines. */
   alertes(): Observable<JourIncomplet[]> {
     return this.api.get<JourIncomplet[]>('/pointages/alertes');
+  }
+
+  /** Import Excel : contrôle du classeur et aperçu, sans rien créer. */
+  verifierImport(utilisateurId: string, fichier: File): Observable<ResultatImport> {
+    return this.api.postForm<ResultatImport>('/pointages/import/verification', formulaireImport(utilisateurId, fichier));
+  }
+
+  /** Import Excel : nouveau contrôle puis création (tout ou rien). */
+  importer(utilisateurId: string, fichier: File): Observable<ResultatImport> {
+    return this.api
+      .postForm<ResultatImport>('/pointages/import', formulaireImport(utilisateurId, fichier))
+      .pipe(tap((resultat) => resultat.importes > 0 && this.changedSubject.next()));
   }
 
   /** Types d'action, tags, personnes sélectionnables et clients actifs. */
@@ -83,3 +95,10 @@ export interface ExportCflCriteres {
 
 /** Contenu du relevé mensuel : une ligne par description, ou par client et type d'action. */
 export type ContenuReleve = 'detail' | 'synthese';
+
+function formulaireImport(utilisateurId: string, fichier: File): FormData {
+  const form = new FormData();
+  form.append('file', fichier, fichier.name);
+  form.append('utilisateurId', utilisateurId);
+  return form;
+}

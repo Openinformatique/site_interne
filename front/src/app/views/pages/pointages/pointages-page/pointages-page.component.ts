@@ -41,6 +41,7 @@ import { PointageModalComponent, PointageModalResult } from '../pointage-modal/p
 import { FormatReleve, ouvrirReleveMensuel } from '../releve-mensuel-modal/releve-mensuel-modal.component';
 import { ouvrirEditionContrats as ouvrirFenetreEditionContrats } from '../edition-contrats-modal/edition-contrats-modal.component';
 import { ouvrirExportCfl as ouvrirFenetreExportCfl } from '../export-cfl-modal/export-cfl-modal.component';
+import { ouvrirImportPointages } from '../import-pointages-modal/import-pointages-modal.component';
 import {
   couleurType,
   dureeHeures,
@@ -347,6 +348,31 @@ export class PointagesPageComponent implements OnInit {
   private moi(): string | undefined {
     const moi = this.auth.currentUser()?.id.toLowerCase() ?? '';
     return this.reference().personnes.find((personne) => personne.id.toLowerCase() === moi)?.id;
+  }
+
+  /** Import Excel pour la personne affichée ; ensuite, planning sur la semaine du premier jour importé. */
+  ouvrirImport(): void {
+    const personneId = this.personneId();
+    const nom = this.personneOptions().find((personne) => personne.id === personneId)?.label ?? '';
+    void ouvrirImportPointages(this.modal, personneId, nom).then((resultat) => {
+      if (!resultat) {
+        return;
+      }
+      void Swal.fire({
+        icon: 'success',
+        title: `${resultat.importes} pointage${resultat.importes > 1 ? 's importés' : ' importé'}`,
+        showConfirmButton: false,
+        timer: 1600,
+        width: 400,
+      });
+      const [annee, mois, jour] = resultat.premierJour.split('-').map(Number);
+      const lundi = lundiDe(new Date(annee!, mois! - 1, jour!));
+      if (lundi.getTime() === this.semaine().getTime()) {
+        this.charger(personneId, lundi);
+      } else {
+        this.allerA(lundi);
+      }
+    });
   }
 
   private allerA(date: Date): void {

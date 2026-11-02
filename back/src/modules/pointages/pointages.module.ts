@@ -18,8 +18,14 @@ import { ExportCflUseCase } from './application/export-cfl.use-case';
 import { EXPORT_CFL } from './domain/export-cfl';
 import { TypeOrmExportCflRepository } from './infrastructure/typeorm-export-cfl.repository';
 import { ExportCflController } from './presentation/export-cfl.controller';
+import {
+  CLASSEUR_IMPORT,
+  ImportPointagesUseCase,
+} from './application/import-pointages.use-case';
+import { SheetJsImportPointagesReader } from './infrastructure/sheetjs-import-pointages.reader';
+import { ImportPointagesController } from './presentation/import-pointages.controller';
 
-/** Module pointages (voir README.md) : planning hebdomadaire, saisie des pointages et relevé mensuel. */
+/** Module pointages (voir README.md) : planning hebdomadaire, saisie des pointages et relevé mensuel, import Excel. */
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -32,7 +38,11 @@ import { ExportCflController } from './presentation/export-cfl.controller';
     ]),
     PdfModule,
   ],
-  controllers: [PointagesController, ExportCflController],
+  controllers: [
+    ImportPointagesController,
+    PointagesController,
+    ExportCflController,
+  ],
   providers: [
     PointagesUseCase,
     ReleveMensuelUseCase,
@@ -40,6 +50,8 @@ import { ExportCflController } from './presentation/export-cfl.controller';
     { provide: POINTAGES, useClass: TypeOrmPointageRepository },
     ExportCflUseCase,
     { provide: EXPORT_CFL, useClass: TypeOrmExportCflRepository },
+    ImportPointagesUseCase,
+    { provide: CLASSEUR_IMPORT, useClass: SheetJsImportPointagesReader },
   ],
 })
 export class PointagesModule {}

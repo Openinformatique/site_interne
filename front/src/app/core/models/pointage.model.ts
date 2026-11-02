@@ -95,3 +95,44 @@ export interface JourIncomplet {
   /** Jours écoulés (1 = hier). */
   joursEcoules: number;
 }
+
+/** Import Excel : contrôle d'une colonne de la ligne 1. */
+export interface ControleColonneImport {
+  lettre: string;
+  /** Vide pour une colonne en trop. */
+  attendu: string;
+  lu: string | null;
+  conforme: boolean;
+}
+
+export interface ErreurImport {
+  /** Ligne Excel ; null : tout le fichier. */
+  ligne: number | null;
+  /** « D – Devis » ; null : toute la ligne. */
+  colonne: string | null;
+  valeur: string | null;
+  message: string;
+}
+
+export interface PointageImporte {
+  ligne: number;
+  jour: string;
+  debut: string;
+  fin: string;
+  /** Code client ; null : interne. */
+  client: string | null;
+  type: string;
+  commande: string | null;
+  contact: string | null;
+  tags: { libelle: string; parametre: boolean }[];
+  description: string;
+  heures: number;
+}
+
+export interface ResultatImport {
+  /** null : fichier illisible. */
+  format: { conforme: boolean; colonnes: ControleColonneImport[] } | null;
+  erreurs: ErreurImport[];
+  pointages: PointageImporte[];
+  importes: number;
+}
