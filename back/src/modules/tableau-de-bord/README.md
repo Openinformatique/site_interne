@@ -12,7 +12,7 @@ d'un module par profil se fait côté front (accès UI `dashboard.section.*`).
 
 | Route                                               | Rôle                                       |
 | --------------------------------------------------- | ------------------------------------------ |
-| `GET /api/v1/tableau-de-bord/contrats-a-renouveler` | contrats de plus d'1 h dont il reste < 1 h |
+| `GET /api/v1/tableau-de-bord/contrats-a-renouveler` | contrats de plus d'1 h dont il reste ≤ 1 h |
 | `GET /api/v1/tableau-de-bord/commandes-a-livrer`    | commandes en retard ou à livrer sous 14 j  |
 | `GET /api/v1/tableau-de-bord/conges`                | congés de l'équipe sur 15 jours            |
 
@@ -26,7 +26,7 @@ d'un module par profil se fait côté front (accès UI `dashboard.section.*`).
   débit = temps facturable des pointages des commandes du contrat, à partir de
   la première commande.
 - Retenus si le **crédit total dépasse 1 h** (`CREDIT_MINIMUM`) et s'il
-  **reste moins d'1 h** (`RESTANT_MAXIMUM`), épuisés compris (restant ≤ 0).
+  **reste 1 h ou moins** (`RESTANT_MAXIMUM`, valeur arrondie à 4 décimales), épuisés compris (restant ≤ 0).
 - Tri : restant croissant, puis raison sociale.
 - `joursAvantEcheance` : jours jusqu'à l'échéance (null sans échéance).
 
@@ -74,7 +74,7 @@ Règles dans `domain/conges.ts` :
 
 - `conges.spec.ts` : regroupement des jours, fériés, demi-journées, reprise,
   fenêtre et tri ;
-- `tableau-de-bord.use-case.spec.ts` : restant < 1 h et crédit > 1 h, tri,
+- `tableau-de-bord.use-case.spec.ts` : restant ≤ 1 h (arrondi) et crédit > 1 h, tri,
   horizon de 14 jours, conversion en jours, fenêtre de 15 jours.
 
 Les requêtes ont été vérifiées sur la base locale.

@@ -23,7 +23,7 @@ export class TableauDeBordController {
   @ApiOperation({
     summary: 'Contrats à renouveler',
     description:
-      "Contrats non échus de clients actifs, de plus d'1 h de crédit, dont il reste moins d'1 h ; du restant le plus bas au plus haut.",
+      "Contrats non échus de clients actifs, de plus d'1 h de crédit, dont il reste 1 h ou moins (négatif compris) ; du restant le plus bas au plus haut.",
   })
   @ApiOkResponse({ type: ContratARenouvelerResponseDto, isArray: true })
   async contratsARenouveler(): Promise<ContratARenouvelerResponseDto[]> {

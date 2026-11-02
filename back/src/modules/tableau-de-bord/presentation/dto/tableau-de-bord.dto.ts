@@ -5,7 +5,7 @@ import type {
   ContratARenouveler,
 } from '../../domain/tableau-de-bord.port';
 
-/** Contrat de plus d'1 h de crédit dont il reste moins d'1 h. */
+/** Contrat de plus d'1 h de crédit dont il reste 1 h ou moins. */
 export class ContratARenouvelerResponseDto {
   @ApiProperty() contratId!: number;
   @ApiProperty({ nullable: true, type: String })

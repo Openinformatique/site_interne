@@ -12,6 +12,8 @@ voir `back/src/modules/tableau-de-bord/README.md`. Maquette validée le
   gauche, **Contrats à renouveler** à droite ; **Congés des 15 prochains
   jours** dessous, sur toute la largeur. Une carte par ligne quand la zone de
   contenu fait moins de 1 200 px (container query).
+- Commandes et contrats : 10 lignes visibles au plus (hauteur de ligne fixe,
+  62 px), défilement vertical au-delà, en-tête de colonnes figé.
 - Colonnes resserrées pour tenir dans une demi-largeur : la colonne client
   prend la place restante, sur deux lignes fixes (nom, puis code et contrat
   ou libellé de la commande) coupées avec « … », texte complet au survol ;
@@ -30,7 +32,7 @@ voir `back/src/modules/tableau-de-bord/README.md`. Maquette validée le
 
 ### Contrats à renouveler
 
-- Contrats de plus d'1 h de crédit dont il reste moins d'1 h, du restant le
+- Contrats de plus d'1 h de crédit dont il reste 1 h ou moins (négatif compris), du restant le
   plus bas au plus haut.
 - Pastilles « N épuisés » (restant ≤ 0, rouge) et « N bientôt épuisés » (orange).
 - Colonnes : client (raison sociale ; code et libellé du contrat dessous),
@@ -38,7 +40,14 @@ voir `back/src/modules/tableau-de-bord/README.md`. Maquette validée le
   pourcentage, échéance (badge « Dans N j » si elle tombe dans les 30 jours),
   bouton **Renouveler**.
 - **Renouveler** ouvre un onglet « Nouvelle commande »
-  (`/commandes/nouvelle?client=…&contrat=…`), client et contrat préremplis.
+  (`/commandes/nouvelle?client=…&contrat=…&renouvellement=1`) : client et
+  contrat préremplis, ainsi que les valeurs d'un renouvellement (type
+  « Assistance sur contrat », n° de devis et de commande « ASSISTANCE »,
+  libellé « Ajout de temps contrat d'assistance », dates du devis, de
+  commande et de clôture du jour). Restent à saisir : jours commandés et
+  prévus. La commande, clôturée dès sa création, n'apparaît pas dans les
+  commandes à livrer ; elle augmente le crédit du contrat, qui sort de la
+  liste s'il lui reste ensuite plus d'1 h.
 - Pas d'action au clic sur la ligne.
 
 ### Commandes à livrer

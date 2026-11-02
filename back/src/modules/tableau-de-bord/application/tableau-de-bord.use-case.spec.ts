@@ -34,13 +34,15 @@ function port(overrides: Partial<TableauDeBordPort>): TableauDeBordPort {
 }
 
 describe('TableauDeBordUseCase', () => {
-  it('retient les contrats de plus d’1 h de crédit dont il reste moins d’1 h, du restant le plus bas au plus haut', async () => {
+  it('retient les contrats de plus d’1 h de crédit dont il reste 1 h ou moins (négatif compris), du restant le plus bas au plus haut', async () => {
     const suivis = new Map<number, SuiviContrat>([
       [1, { credit: 100, debit: 99 }],
       [2, { credit: 100, debit: 99.5 }],
       [3, { credit: 40, debit: 46.5 }],
       [4, { credit: 1, debit: 1 }],
       [6, { credit: 0.5, debit: 0.5 }],
+      [7, { credit: 100, debit: 98.9999 }],
+      [8, { credit: 9339.4104, debit: 9338.4104 }],
     ]);
     const useCase = new TableauDeBordUseCase(
       port({
@@ -53,6 +55,8 @@ describe('TableauDeBordUseCase', () => {
             candidat(4),
             candidat(5),
             candidat(6),
+            candidat(7),
+            candidat(8),
           ]),
         suivis: jest.fn().mockResolvedValue(suivis),
       }),
@@ -60,7 +64,7 @@ describe('TableauDeBordUseCase', () => {
 
     const contrats = await useCase.contratsARenouveler(AUJOURDHUI);
 
-    expect(contrats.map((c) => c.contratId)).toEqual([3, 2]);
+    expect(contrats.map((c) => c.contratId)).toEqual([3, 2, 1, 8]);
     expect(contrats[0]).toMatchObject({
       restant: -6.5,
       consommation: 1.1625,

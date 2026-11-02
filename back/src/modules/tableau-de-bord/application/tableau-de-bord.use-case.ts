@@ -9,7 +9,7 @@ import {
   type TableauDeBordPort,
 } from '../domain/tableau-de-bord.port';
 
-/** Contrat à renouveler : il lui reste moins de ce nombre d'heures… */
+/** Contrat à renouveler : il lui reste au plus ce nombre d'heures (négatif compris)… */
 export const RESTANT_MAXIMUM = 1;
 /** …et son crédit total dépasse ce nombre d'heures. */
 export const CREDIT_MINIMUM = 1;
@@ -37,7 +37,7 @@ export class TableauDeBordUseCase {
     @Inject(TABLEAU_DE_BORD) private readonly port: TableauDeBordPort,
   ) {}
 
-  /** Contrats de plus d'1 h de crédit dont il reste moins d'1 h, du restant le plus bas au plus haut. */
+  /** Contrats de plus d'1 h de crédit dont il reste 1 h ou moins, du restant le plus bas au plus haut. */
   async contratsARenouveler(
     aujourdhui = jourMetier(new Date()),
   ): Promise<ContratARenouveler[]> {
@@ -52,7 +52,7 @@ export class TableauDeBordUseCase {
         if (
           !suivi ||
           suivi.credit <= CREDIT_MINIMUM ||
-          suivi.credit - suivi.debit >= RESTANT_MAXIMUM
+          round4(suivi.credit - suivi.debit) > RESTANT_MAXIMUM
         ) {
           return [];
         }

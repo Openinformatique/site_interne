@@ -56,6 +56,12 @@
 
 // Tableaux
 .table-wrap { overflow-x: auto; }
+// Commandes et contrats : 10 lignes visibles au plus, défilement vertical au-delà ;
+// hauteurs de ligne fixées pour que la zone tombe juste, en-tête figé.
+.scroll-10 { --row-h: 62px; --head-h: 38px; max-height: calc(var(--head-h) + 10 * var(--row-h)); overflow-y: auto; }
+.scroll-10 thead tr { height: var(--head-h); }
+.scroll-10 tbody tr { height: var(--row-h); }
+.scroll-10 thead th { position: sticky; top: 0; z-index: 1; }
 table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 th { padding: 9px 8px; border-bottom: 1px solid var(--bs-border-color); background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); font-size: 12px; font-weight: 500; text-align: left; white-space: nowrap; }
 td { padding: 8px 8px; border-bottom: 1px solid var(--bs-border-color); vertical-align: middle; }

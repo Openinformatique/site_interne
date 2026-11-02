@@ -18,6 +18,7 @@ import { EmptyStateComponent } from '../../../../shared/components/empty-state/e
 import { PageLoaderComponent } from '../../../../shared/components/page-loader/page-loader.component';
 import { COMMANDES_UI_KEYS } from '../access/commandes-access.keys';
 import { CommandeDocumentsComponent } from './commande-documents/commande-documents.component';
+import { todayIso } from '../../clients/client-fiche/client-fiche.utils';
 import { decimalText, parseDecimal } from './commande-fiche.utils';
 import { CommandeTempsComponent } from './commande-temps/commande-temps.component';
 
@@ -44,6 +45,23 @@ const EMPTY_FORM: CommandeForm = {
   clientId: '', clientContratId: '', typeCommande: '', numeroDevis: '', dateDevis: '', numeroCommandeClient: '',
   dateCommande: '', libelleCommande: '', nbJoursCommande: '', nbJoursPrevus: '', delai: '', montant: '', dateCloture: '',
 };
+
+/**
+ * Valeurs d'une commande de renouvellement de contrat d'assistance
+ * (tableau de bord, « Renouveler ») : type « Assistance sur contrat »,
+ * devis, commande et clôture à la date du jour.
+ */
+function renouvellementContrat(aujourdhui: string): Partial<CommandeForm> {
+  return {
+    typeCommande: 'ASSC',
+    numeroDevis: 'ASSISTANCE',
+    dateDevis: aujourdhui,
+    numeroCommandeClient: 'ASSISTANCE',
+    dateCommande: aujourdhui,
+    libelleCommande: "Ajout de temps contrat d'assistance",
+    dateCloture: aujourdhui,
+  };
+}
 
 const REQUIRED: Field[] = ['clientId', 'typeCommande', 'dateDevis', 'dateCommande', 'libelleCommande', 'nbJoursCommande', 'nbJoursPrevus'];
 
@@ -174,12 +192,19 @@ export class CommandeFicheComponent implements OnDestroy {
       this.load(id);
     } else {
       // Création depuis une fiche client (client prérempli) ou depuis le
-      // tableau de bord, « Renouveler » un contrat (client et contrat).
+      // tableau de bord, « Renouveler » un contrat (client, contrat et valeurs
+      // du renouvellement, voir renouvellementContrat).
       const params = this.route.snapshot.queryParamMap;
       const client = parseId(params.get('client'));
       if (client !== null) {
         const contrat = parseId(params.get('contrat'));
-        this.form.update((form) => ({ ...form, clientId: String(client), clientContratId: contrat === null ? '' : String(contrat) }));
+        const renouvellement = params.get('renouvellement') === '1' ? renouvellementContrat(todayIso()) : {};
+        this.form.update((form) => ({
+          ...form,
+          ...renouvellement,
+          clientId: String(client),
+          clientContratId: contrat === null ? '' : String(contrat),
+        }));
         this.initial.set(this.form());
       }
     }

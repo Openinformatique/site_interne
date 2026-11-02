@@ -22,7 +22,7 @@
         @if (liste(commandes()).length === 0) {
           <app-empty-state title="Aucune commande à livrer" message="Aucune commande en retard ni à livrer dans les 2 semaines." />
         } @else {
-          <div class="table-wrap">
+          <div class="table-wrap scroll-10">
             <table class="clickable">
               <thead>
                 <tr>
@@ -81,9 +81,9 @@
       @case ('erreur') { <p class="module-state">Impossible de charger les contrats.</p> }
       @default {
         @if (liste(contrats()).length === 0) {
-          <app-empty-state title="Aucun contrat à renouveler" message="Aucun contrat n'a moins d'1 heure restante." />
+          <app-empty-state title="Aucun contrat à renouveler" message="Aucun contrat n'a 1 heure restante ou moins." />
         } @else {
-          <div class="table-wrap">
+          <div class="table-wrap scroll-10">
             <table>
               <thead>
                 <tr>
@@ -127,7 +127,7 @@
         }
       }
     }
-    <div class="card-foot">Contrats en cours de plus d'1 h dont il reste moins d'1 h · du restant le plus bas au plus haut</div>
+    <div class="card-foot">Contrats en cours de plus d'1 h dont il reste 1 h ou moins · du restant le plus bas au plus haut</div>
   </section>
 
   <!-- Congés des 15 prochains jours -->

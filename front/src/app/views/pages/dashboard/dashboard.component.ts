@@ -137,9 +137,9 @@ export class DashboardComponent {
 
   // --- Actions ----------------------------------------------------------------
 
-  /** Nouvelle commande sur le client et le contrat. */
+  /** Nouvelle commande de renouvellement sur le client et le contrat (valeurs préremplies par la fiche). */
   renouveler(contrat: ContratARenouveler): void {
-    this.tabsService.openTab(`/commandes/nouvelle?client=${contrat.clientId}&contrat=${contrat.contratId}`, 'Nouvelle commande');
+    this.tabsService.openTab(`/commandes/nouvelle?client=${contrat.clientId}&contrat=${contrat.contratId}&renouvellement=1`, 'Nouvelle commande');
   }
 
   ouvrirCommande(commande: CommandeALivrer): void {

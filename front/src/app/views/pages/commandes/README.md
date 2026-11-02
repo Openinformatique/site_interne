@@ -64,8 +64,11 @@ Manifeste `access/commandes-page.access.ts` : accès à la page
 
 `/commandes/:id` (consultation / modification) et `/commandes/nouvelle`
 (création ; `?client=<id>` préremplit le client, depuis la fiche client ;
-`&contrat=<id>` préremplit aussi le contrat, depuis « Renouveler » du tableau
-de bord).
+`&contrat=<id>` préremplit aussi le contrat ; `&renouvellement=1`, depuis
+« Renouveler » du tableau de bord, préremplit en plus le type « Assistance
+sur contrat » (ASSC), les n° de devis et de commande « ASSISTANCE », le
+libellé « Ajout de temps contrat d'assistance », et les dates du devis, de
+commande et de clôture à la date du jour — `renouvellementContrat`).
 Maquette validée le 31/10/2026 ; même style que la fiche client (mixins
 `clients/client-fiche/_fiche-shared.scss`).
 
