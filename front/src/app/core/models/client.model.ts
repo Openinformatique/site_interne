@@ -86,6 +86,27 @@ export interface Contrat {
   restant: number;
 }
 
+/** Contrat proposé à l'édition groupée « Contrats d'assistance » (Pointages › Éditions). */
+export interface ContratAssistance {
+  id: number;
+  libelleContrat: string | null;
+  dateMiseEnPlace: string | null;
+  dateEcheance: string | null;
+  clientId: number;
+  clientNom: string;
+  /** Clé du paramétrage GSOC ; null = sans groupe. */
+  groupe: string | null;
+  groupeLibelle: string | null;
+}
+
+/** Critères de l'édition groupée (date d'arrêté « AAAA-MM-JJ » obligatoire). */
+export interface EditionContratsCriteres {
+  arreteAu: string;
+  groupe: string | null;
+  clientId: number | null;
+  contratId: number | null;
+}
+
 /** Mouvement du suivi d'un contrat : commande (crédit) ou pointage (débit), en heures. */
 export interface ContratMouvement {
   type: 'COMMANDE' | 'POINTAGE';

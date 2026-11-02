@@ -1,0 +1,53 @@
+<div class="fiche-card modal-card" role="dialog" aria-modal="true" aria-labelledby="edition-contrats-title">
+  <div class="card-head">
+    <h2 id="edition-contrats-title" class="modal-title-text">Édition des contrats d'assistance</h2>
+    <button type="button" class="icon-btn borderless" aria-label="Fermer" (click)="close()"><lucide-icon [img]="X" [size]="16" /></button>
+  </div>
+
+  <!-- Libellés à gauche, filtres en cascade : groupe → client → contrat -->
+  <div class="rows">
+    <label for="ed-date" class="row-label">Arrêté au<span class="req" aria-hidden="true">*</span></label>
+    <div class="stack">
+      <input id="ed-date" type="date" class="input date" [class.invalid]="!arreteAu()" [value]="arreteAu()" (input)="setArreteAu($event)">
+      @if (!arreteAu()) { <span class="err">Champ obligatoire.</span> }
+    </div>
+
+    <label for="ed-groupe" class="row-label">Groupe</label>
+    <select id="ed-groupe" class="input" (change)="setGroupe($event)">
+      <option value="" [selected]="groupe() === null">Tous les groupes</option>
+      @for (option of groupes(); track option.cle) {
+        <option [value]="option.cle" [selected]="groupe() === option.cle">{{ option.libelle }}</option>
+      }
+    </select>
+
+    <label for="ed-client" class="row-label">Client</label>
+    <select id="ed-client" class="input" (change)="setClient($event)">
+      <option value="" [selected]="clientId() === null">{{ groupe() ? 'Tous les clients du groupe' : 'Tous les clients' }}</option>
+      @for (client of clients(); track client.id) {
+        <option [value]="client.id" [selected]="clientId() === client.id">{{ client.nom }}</option>
+      }
+    </select>
+
+    <label for="ed-contrat" class="row-label">Contrat</label>
+    <select id="ed-contrat" class="input" [disabled]="clientId() === null" (change)="setContrat($event)">
+      <option value="" [selected]="contratId() === null">{{ clientId() === null ? 'Tous les contrats' : 'Tous les contrats du client' }}</option>
+      @for (contrat of contratsDuClient(); track contrat.id) {
+        <option [value]="contrat.id" [selected]="contratId() === contrat.id">{{ contrat.libelleContrat || 'Contrat ' + contrat.id }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Compteur : contrats qui seront édités (un PDF chacun) -->
+  <div class="compteur" [class.vide]="retenus().length === 0" role="status">
+    <lucide-icon [img]="FileText" [size]="16" />
+    <span>{{ compteur() }}</span>
+  </div>
+
+  <div class="modal-foot">
+    <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+    <button type="button" class="btn-save btn-download" [disabled]="impossible()" (click)="telecharger()">
+      <lucide-icon [img]="Download" [size]="16" />
+      {{ downloading() ? 'Préparation du zip…' : retenus().length ? 'Télécharger le zip (' + retenus().length + ' PDF)' : 'Télécharger le zip' }}
+    </button>
+  </div>
+</div>

@@ -3,7 +3,9 @@ import { join } from 'node:path';
 import PDFDocument from 'pdfkit';
 import { ResourceNotFoundException } from '../../../common/exceptions/app-exceptions';
 import {
+  ExportCflPdfData,
   PdfGeneratorPort,
+  PDF_TEMPLATE_EXPORT_CFL,
   PDF_TEMPLATE_RELEVE_MENSUEL,
   PDF_TEMPLATE_SUIVI_CONTRAT,
   PDF_TEMPLATE_TECHNICAL_DEMO,
@@ -11,6 +13,7 @@ import {
   SuiviContratPdfData,
   TechnicalDemoPdfData,
 } from '../domain/pdf-generator.port';
+import { renderExportCfl } from './export-cfl.renderer';
 import { renderReleveMensuel } from './releve-mensuel.renderer';
 
 /**
@@ -28,6 +31,9 @@ export class PdfKitPdfGenerator implements PdfGeneratorPort {
     }
     if (template === PDF_TEMPLATE_SUIVI_CONTRAT) {
       return this.renderSuiviContrat(data as SuiviContratPdfData);
+    }
+    if (template === PDF_TEMPLATE_EXPORT_CFL) {
+      return this.collect(renderExportCfl(data as ExportCflPdfData));
     }
     if (template === PDF_TEMPLATE_RELEVE_MENSUEL) {
       return this.collect(renderReleveMensuel(data as ReleveMensuelPdfData));
@@ -133,6 +139,16 @@ export class PdfKitPdfGenerator implements PdfGeneratorPort {
         width: W,
         align: 'right',
       });
+    if (data.arreteAu) {
+      document
+        .font('Helvetica-Bold')
+        .fontSize(9.5)
+        .fillColor(C.text)
+        .text(`Arrêté au ${data.arreteAu}`, L, document.y + 2, {
+          width: W,
+          align: 'right',
+        });
+    }
     let y = Math.max(document.y, 80) + 16;
     document
       .moveTo(L, y)
@@ -230,13 +246,17 @@ export class PdfKitPdfGenerator implements PdfGeneratorPort {
       ];
       const cells = cols.map((col, j) => ({ col, texte: textes[j] ?? '' }));
       document.font('Helvetica').fontSize(8.5);
+      // Seuls Demandeur et Nature peuvent passer à la ligne : mesurer les
+      // autres colonnes coûte cher sur un contrat de plusieurs milliers de lignes.
       const h =
         Math.max(
-          ...cells.map(({ col, texte }) =>
-            document.heightOfString(texte || ' ', {
-              width: col.w - 2 * pad,
-            }),
-          ),
+          ...cells
+            .filter((_, j) => j === 1 || j === 2)
+            .map(({ col, texte }) =>
+              document.heightOfString(texte || ' ', {
+                width: col.w - 2 * pad,
+              }),
+            ),
         ) +
         2 * pad;
       if (y + h > bas) {
@@ -253,6 +273,10 @@ export class PdfKitPdfGenerator implements PdfGeneratorPort {
       }
       let x = L;
       cells.forEach(({ col, texte }, j) => {
+        x += col.w;
+        if (!texte) {
+          return;
+        }
         const fort = ligne.commande && (j === 2 || j === 4);
         const couleur =
           ligne.commande && j === 4 ? C.credit : j <= 1 ? C.text : C.emph;
@@ -260,11 +284,12 @@ export class PdfKitPdfGenerator implements PdfGeneratorPort {
           .font(fort ? 'Helvetica-Bold' : 'Helvetica')
           .fontSize(8.5)
           .fillColor(couleur)
-          .text(texte, x + pad, y + pad, {
+          .text(texte, x - col.w + pad, y + pad, {
             width: col.w - 2 * pad,
             align: col.align,
+            // Date et heures tiennent sur une ligne : pas de calcul de coupure.
+            lineBreak: j === 1 || j === 2,
           });
-        x += col.w;
       });
       y += h;
       document

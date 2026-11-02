@@ -43,6 +43,33 @@ export class PointagesApi {
   releveMensuelExcel(utilisateurId: string, annee: number, mois: number): Observable<{ blob: Blob; filename: string }> {
     return this.api.download('/pointages/releve.xlsx', { utilisateurId, annee, mois });
   }
+
+  /** « Export (format CFL) » : travaux réalisés pour un client sur une période (PDF). */
+  exportCflPdf(criteres: ExportCflCriteres): Observable<{ blob: Blob; filename: string }> {
+    return this.api.download('/pointages/export-cfl.pdf', {
+      du: criteres.du,
+      au: criteres.au,
+      clientId: criteres.clientId,
+      commandeId: criteres.commandeId ?? undefined,
+      utilisateurId: criteres.utilisateurId ?? undefined,
+      typeAction: criteres.typeAction ?? undefined,
+      // Liste « a,b » (la virgule n'apparaît pas dans les tags du paramétrage).
+      tags: criteres.tags.length ? criteres.tags.join(',') : undefined,
+      sansTag: criteres.sansTag || undefined,
+    });
+  }
+}
+
+/** Critères de l'« Export (format CFL) » (dates « AAAA-MM-JJ », bornes incluses). */
+export interface ExportCflCriteres {
+  du: string;
+  au: string;
+  clientId: number;
+  commandeId: number | null;
+  utilisateurId: string | null;
+  typeAction: string | null;
+  tags: string[];
+  sansTag: boolean;
 }
 
 /** Contenu du relevé mensuel : une ligne par description, ou par client et type d'action. */

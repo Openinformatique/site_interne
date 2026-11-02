@@ -32,7 +32,7 @@
         <span class="track" [class.on]="weekend()" aria-hidden="true"><span class="knob"></span></span>Week-end
       </button>
       <span class="total-pill"><lucide-icon [img]="Clock" [size]="15" />Semaine : {{ totalSemaine() }} h</span>
-      <!-- Éditions : relevé mensuel -->
+      <!-- Éditions : relevé mensuel, contrats d'assistance -->
       <div ngbDropdown #editions="ngbDropdown" placement="bottom-end" class="editions">
         <button type="button" class="chip-btn editions-btn" ngbDropdownToggle><lucide-icon [img]="Printer" [size]="15" />Éditions<lucide-icon [img]="ChevronDown" [size]="14" class="chevron" /></button>
         <div ngbDropdownMenu class="editions-menu">
@@ -43,6 +43,14 @@
           <button type="button" ngbDropdownItem class="editions-item" (click)="editions.close(); ouvrirReleveMensuel('excel')">
             <lucide-icon [img]="FileSpreadsheet" [size]="18" class="editions-ico" />
             <span><b>Relevé mensuel (Excel)</b><small>Version détaillée en tableau filtrable</small></span>
+          </button>
+          <button type="button" ngbDropdownItem class="editions-item" (click)="editions.close(); ouvrirEditionContrats()">
+            <lucide-icon [img]="FileCheck" [size]="18" class="editions-ico" />
+            <span><b>Contrats d'assistance</b><small>Suivi de chaque contrat, PDF réunis dans un zip</small></span>
+          </button>
+          <button type="button" ngbDropdownItem class="editions-item" (click)="editions.close(); ouvrirExportCfl()">
+            <lucide-icon [img]="FileOutput" [size]="18" class="editions-ico" />
+            <span><b>Export (format CFL)</b><small>Travaux réalisés pour un client, sur une période</small></span>
           </button>
         </div>
       </div>

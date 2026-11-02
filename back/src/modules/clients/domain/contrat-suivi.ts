@@ -25,6 +25,32 @@ export function pointageDansLeSuivi(
   return debut === null || (jour !== null && jour >= debut);
 }
 
+/**
+ * Mouvement repris dans un suivi arrêté à une date (incluse) ; sans date
+ * d'arrêté, tous les mouvements sont repris.
+ */
+export function mouvementArrete(
+  jour: string | null,
+  arreteAu: string | null,
+): boolean {
+  return arreteAu === null || (jour !== null && jour <= arreteAu);
+}
+
+/**
+ * Contrat en cours à une date : mis en place au plus tard ce jour-là et non
+ * échu (sans échéance, ou échéance ce jour-là ou après).
+ */
+export function contratEnCours(
+  contrat: { dateMiseEnPlace: string | null; dateEcheance: string | null },
+  jour: string,
+): boolean {
+  return (
+    contrat.dateMiseEnPlace !== null &&
+    contrat.dateMiseEnPlace <= jour &&
+    (contrat.dateEcheance === null || contrat.dateEcheance >= jour)
+  );
+}
+
 /** Demandeur d'un pointage : contact « NOM,Prénom » affiché « NOM Prénom ». */
 export function nomDemandeur(nomContact: string | null): string | null {
   const { nom, prenom } = splitNomContact(nomContact);

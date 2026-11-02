@@ -74,6 +74,20 @@ export interface ContratMouvement {
   debit: number;
 }
 
+/** Contrat proposé à l'édition groupée « Contrats d'assistance ». */
+export interface ContratAssistance {
+  id: number;
+  libelleContrat: string | null;
+  dateMiseEnPlace: string | null;
+  dateEcheance: string | null;
+  clientId: number;
+  /** Raison sociale (code client à défaut). */
+  clientNom: string;
+  /** Clé du paramétrage GSOC ; null = sans groupe. */
+  groupe: string | null;
+  groupeLibelle: string | null;
+}
+
 export interface ContactInput {
   /** 1 = M., 2 = Mme. */
   civilite: number;
@@ -126,10 +140,23 @@ export interface ClientFichePort {
     heuresParJour: number,
   ): Promise<ContratSummary[]>;
   contratBelongsTo(clientId: number, contratId: number): Promise<boolean>;
+  /**
+   * Mouvements du suivi ; `arreteAu` (« AAAA-MM-JJ », incluse) écarte les
+   * commandes et pointages postérieurs (édition arrêtée à une date).
+   */
   listMouvements(
     contratId: number,
     heuresParJour: number,
+    arreteAu?: string | null,
   ): Promise<ContratMouvement[]>;
+  /** Mouvements de plusieurs contrats en une fois (édition groupée). */
+  listMouvementsParContrat(
+    contratIds: readonly number[],
+    heuresParJour: number,
+    arreteAu?: string | null,
+  ): Promise<Map<number, ContratMouvement[]>>;
+  /** Tous les contrats des clients (non supprimés), pour l'édition groupée. */
+  listContratsAssistance(): Promise<ContratAssistance[]>;
   createContrat(
     clientId: number,
     input: ContratInput,

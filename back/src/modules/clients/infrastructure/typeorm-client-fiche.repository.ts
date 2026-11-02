@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, Repository } from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 import { CommandeEntity } from '../../commandes/infrastructure/entities/commande.entity';
 import { ParametreEntity } from '../../parametres/infrastructure/entities/parametre.entity';
 import { PointageEntity } from '../../pointages/infrastructure/entities/pointage.entity';
@@ -13,6 +13,7 @@ import type {
   CommandeSummary,
   Contact,
   ContactInput,
+  ContratAssistance,
   ContratInput,
   ContratMouvement,
   ContratSummary,
@@ -20,6 +21,7 @@ import type {
 import { joinNomContact, splitNomContact } from '../domain/contact-name';
 import {
   debutDuSuivi,
+  mouvementArrete,
   nomDemandeur,
   pointageDansLeSuivi,
 } from '../domain/contrat-suivi';
@@ -219,34 +221,97 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
   async listMouvements(
     contratId: number,
     heuresParJour: number,
+    arreteAu: string | null = null,
   ): Promise<ContratMouvement[]> {
+    const parContrat = await this.listMouvementsParContrat(
+      [contratId],
+      heuresParJour,
+      arreteAu,
+    );
+    return parContrat.get(contratId) ?? [];
+  }
+
+  async listMouvementsParContrat(
+    contratIds: readonly number[],
+    heuresParJour: number,
+    arreteAu: string | null = null,
+  ): Promise<Map<number, ContratMouvement[]>> {
+    const resultat = new Map<number, ContratMouvement[]>();
+    if (contratIds.length === 0) {
+      return resultat;
+    }
+    // Deux requêtes pour tous les contrats (édition groupée : plusieurs dizaines).
     const commandes = await this.commandes.find({
-      where: { clientContratId: contratId },
+      where: { clientContratId: In([...contratIds]) },
     });
+    const pointages =
+      commandes.length === 0
+        ? []
+        : await this.pointages
+            .createQueryBuilder('pointage')
+            .leftJoin(
+              UserEntity,
+              'salarie',
+              'salarie.id = pointage.utilisateurId',
+            )
+            .leftJoin(
+              ContactEntity,
+              'contact',
+              'contact.id = pointage.contactId',
+            )
+            .select('pointage.commandeId', 'commandeId')
+            // Instant UTC lu en texte, puis jour à Paris (voir sql-date.util).
+            .addSelect(sqlUtcText('pointage.dateHeureDebut'), 'debut')
+            .addSelect('pointage.description', 'description')
+            .addSelect('pointage.tempsFacturable', 'heures')
+            .addSelect('salarie.login', 'login')
+            .addSelect('contact.nomContact', 'contact')
+            .where('pointage.commandeId IN (:...ids)', {
+              ids: commandes.map((c) => c.id),
+            })
+            .getRawMany<{
+              commandeId: number;
+              debut: string | null;
+              description: string | null;
+              heures: string | null;
+              login: string | null;
+              contact: string | null;
+            }>();
+
+    const contratDeCommande = new Map(
+      commandes.map((c) => [c.id, c.clientContratId]),
+    );
+    for (const contratId of contratIds) {
+      resultat.set(
+        contratId,
+        this.mouvementsDuContrat(
+          commandes.filter((c) => c.clientContratId === contratId),
+          pointages.filter(
+            (p) => contratDeCommande.get(Number(p.commandeId)) === contratId,
+          ),
+          heuresParJour,
+          arreteAu,
+        ),
+      );
+    }
+    return resultat;
+  }
+
+  private mouvementsDuContrat(
+    commandes: CommandeEntity[],
+    pointages: {
+      debut: string | null;
+      description: string | null;
+      heures: string | null;
+      login: string | null;
+      contact: string | null;
+    }[],
+    heuresParJour: number,
+    arreteAu: string | null,
+  ): ContratMouvement[] {
     if (commandes.length === 0) {
       return [];
     }
-    const pointages = await this.pointages
-      .createQueryBuilder('pointage')
-      .leftJoin(UserEntity, 'salarie', 'salarie.id = pointage.utilisateurId')
-      .leftJoin(ContactEntity, 'contact', 'contact.id = pointage.contactId')
-      // Instant UTC lu en texte, puis jour à Paris (voir sql-date.util).
-      .select(sqlUtcText('pointage.dateHeureDebut'), 'debut')
-      .addSelect('pointage.description', 'description')
-      .addSelect('pointage.tempsFacturable', 'heures')
-      .addSelect('salarie.login', 'login')
-      .addSelect('contact.nomContact', 'contact')
-      .where('pointage.commandeId IN (:...ids)', {
-        ids: commandes.map((c) => c.id),
-      })
-      .getRawMany<{
-        debut: string | null;
-        description: string | null;
-        heures: string | null;
-        login: string | null;
-        contact: string | null;
-      }>();
-
     const debut = debutDuSuivi(
       commandes.map((c) => c.dateCommande ?? c.dateDevis),
     );
@@ -288,11 +353,56 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
     ];
     // Date décroissante ; à date égale, la commande sous les pointages
     // (elle les précède chronologiquement).
-    return mouvements.sort(
-      (a, b) =>
-        (b.date ?? '').localeCompare(a.date ?? '') ||
-        (a.type === b.type ? 0 : a.type === 'COMMANDE' ? 1 : -1),
-    );
+    return mouvements
+      .filter((mouvement) => mouvementArrete(mouvement.date, arreteAu))
+      .sort(
+        (a, b) =>
+          (b.date ?? '').localeCompare(a.date ?? '') ||
+          (a.type === b.type ? 0 : a.type === 'COMMANDE' ? 1 : -1),
+      );
+  }
+
+  async listContratsAssistance(): Promise<ContratAssistance[]> {
+    const rows = await this.contrats
+      .createQueryBuilder('contrat')
+      .innerJoin(ClientEntity, 'client', 'client.id = contrat.clientId')
+      .leftJoin(
+        ParametreEntity,
+        'gsoc',
+        "gsoc.codeTable = 'GSOC' AND gsoc.numRubrique = '01' AND gsoc.cleParametre = client.groupe",
+      )
+      .select('contrat.id', 'id')
+      .addSelect('contrat.libelleContrat', 'libelleContrat')
+      .addSelect('contrat.dateMiseEnPlace', 'dateMiseEnPlace')
+      .addSelect('contrat.dateEcheance', 'dateEcheance')
+      .addSelect('client.id', 'clientId')
+      .addSelect('client.raisonSociale', 'raisonSociale')
+      .addSelect('client.codeClient', 'codeClient')
+      .addSelect('client.groupe', 'groupe')
+      .addSelect('gsoc.zoneParametre', 'groupeLibelle')
+      .orderBy('client.raisonSociale', 'ASC')
+      .addOrderBy('contrat.libelleContrat', 'ASC')
+      .getRawMany<{
+        id: number;
+        libelleContrat: string | null;
+        dateMiseEnPlace: Date | string | null;
+        dateEcheance: Date | string | null;
+        clientId: number;
+        raisonSociale: string | null;
+        codeClient: string | null;
+        groupe: string | null;
+        groupeLibelle: string | null;
+      }>();
+    return rows.map((row) => ({
+      id: Number(row.id),
+      libelleContrat: row.libelleContrat?.trim() || null,
+      dateMiseEnPlace: sqlDateToIso(row.dateMiseEnPlace),
+      dateEcheance: sqlDateToIso(row.dateEcheance),
+      clientId: Number(row.clientId),
+      clientNom: row.raisonSociale?.trim() || row.codeClient?.trim() || '',
+      groupe: row.groupe?.trim() || null,
+      groupeLibelle: row.groupeLibelle?.trim() || null,
+    }));
   }
 
   async createContrat(

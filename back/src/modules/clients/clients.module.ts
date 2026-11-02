@@ -6,6 +6,7 @@ import { PointageEntity } from '../pointages/infrastructure/entities/pointage.en
 import { ClientFicheUseCase } from './application/client-fiche.use-case';
 import { ClientRelationsUseCase } from './application/client-relations.use-case';
 import { ContratSuiviPdfUseCase } from './application/contrat-suivi-pdf.use-case';
+import { ContratsAssistanceZipUseCase } from './application/contrats-assistance-zip.use-case';
 import { PdfModule } from '../pdf/pdf.module';
 import { ListClientsUseCase } from './application/list-clients.use-case';
 import { CLIENT_FICHE } from './domain/client-fiche.port';
@@ -16,6 +17,7 @@ import { ContactEntity } from './infrastructure/entities/contact.entity';
 import { TypeOrmClientFicheRepository } from './infrastructure/typeorm-client-fiche.repository';
 import { TypeOrmClientRepository } from './infrastructure/typeorm-client.repository';
 import { ClientsController } from './presentation/clients.controller';
+import { ContratsAssistanceController } from './presentation/contrats-assistance.controller';
 
 /**
  * Module clients (voir README.md) : liste des clients et fiche client
@@ -33,12 +35,13 @@ import { ClientsController } from './presentation/clients.controller';
     ]),
     PdfModule,
   ],
-  controllers: [ClientsController],
+  controllers: [ClientsController, ContratsAssistanceController],
   providers: [
     ListClientsUseCase,
     ClientFicheUseCase,
     ClientRelationsUseCase,
     ContratSuiviPdfUseCase,
+    ContratsAssistanceZipUseCase,
     { provide: CLIENT_REPOSITORY, useClass: TypeOrmClientRepository },
     { provide: CLIENT_FICHE, useClass: TypeOrmClientFicheRepository },
   ],

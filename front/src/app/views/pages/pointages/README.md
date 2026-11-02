@@ -25,8 +25,10 @@ défilement remis à zéro) et au redimensionnement.
 - **Week-end** : affiche samedi et dimanche (jours ouvrés par défaut).
 - **Semaine : x h** : total des jours affichés.
 - **Éditions** (tout à droite, maquette validée le 02/11/2026) : menu
-  « Relevé mensuel » et « Relevé mensuel (Excel) » (voir ci-dessous). Le
-  menu se referme au choix d'une option, avant l'ouverture de la fenêtre.
+  « Relevé mensuel », « Relevé mensuel (Excel) » (voir ci-dessous),
+  « Contrats d'assistance » (voir `edition-contrats-modal/README.md`) et
+  « Export (format CFL) » (voir `export-cfl-modal/README.md`). Le menu se
+  referme au choix d'une option, avant l'ouverture de la fenêtre.
 
 ### Planning (FullCalendar, vue semaine)
 

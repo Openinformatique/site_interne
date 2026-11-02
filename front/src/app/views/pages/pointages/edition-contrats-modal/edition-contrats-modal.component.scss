@@ -1,0 +1,21 @@
+@use '../../clients/client-fiche/fiche-shared' as fiche;
+
+@include fiche.fiche-tokens;
+@include fiche.fiche-components;
+
+// Mêmes valeurs que la maquette validée (fenêtre de 560 px, libellés à gauche).
+.modal-card { box-shadow: 0 18px 48px rgba(0, 0, 0, .25); }
+.modal-title-text { margin: 0; font-size: 16px; font-weight: 600; color: var(--fiche-emph); }
+
+.rows { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px 14px; align-items: center; padding: 18px 20px; }
+.row-label { display: flex; align-items: center; gap: 2px; margin: 0; font-size: 13px; font-weight: 500; color: var(--fiche-text); }
+.stack { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.input.date { width: 170px; }
+.input:disabled { background: var(--bs-tertiary-bg); color: var(--fiche-muted); }
+:host-context([data-bs-theme='dark']) .input { color-scheme: dark; }
+
+.compteur { display: flex; align-items: center; gap: 10px; margin: 0 20px 18px; padding: 10px 14px; border-radius: 8px; background: rgba(101, 113, 255, .08); color: var(--fiche-emph); font-size: 13.5px; }
+.compteur.vide { background: var(--bs-tertiary-bg); color: var(--fiche-muted); }
+
+.btn-download { display: inline-flex; align-items: center; gap: 8px; }
+.btn-save:disabled { opacity: .5; cursor: not-allowed; }

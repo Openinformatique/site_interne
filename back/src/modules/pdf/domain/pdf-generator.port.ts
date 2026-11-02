@@ -34,11 +34,42 @@ export interface SuiviContratPdfLigne {
 export interface SuiviContratPdfData {
   client: string;
   libelleContrat: string;
+  /** « JJ/MM/AAAA » : suivi arrêté à cette date (mention sous le contrat). */
+  arreteAu?: string | null;
   credit: number;
   debit: number;
   solde: number;
   /** Date de la plus récente à la plus ancienne. */
   lignes: SuiviContratPdfLigne[];
+  /** « JJ/MM/AAAA », en pied de chaque page. */
+  editeLe: string;
+}
+
+/** « Export (format CFL) » : travaux réalisés pour un client (Pointages › Éditions). */
+export const PDF_TEMPLATE_EXPORT_CFL = 'export-cfl';
+
+/** Ligne de l'export : un pointage. */
+export interface ExportCflPdfLigne {
+  /** Contact demandeur « NOM Prénom ». */
+  demandeur: string;
+  /** « JJ/MM/AAAA ». */
+  date: string;
+  libelle: string;
+  /** Durée du créneau, en minutes. */
+  minutes: number;
+  /** Salarié (initiales). */
+  salarie: string;
+}
+
+/** Données de l'« Export (format CFL) ». */
+export interface ExportCflPdfData {
+  client: string;
+  /** « Période du 01/10/2026 au 31/10/2026 ». */
+  periode: string;
+  /** « Commande : toutes · Type : tous · Personne : toutes · Tags : tous ». */
+  filtres: string;
+  /** De la plus récente à la plus ancienne. */
+  lignes: ExportCflPdfLigne[];
   /** « JJ/MM/AAAA », en pied de chaque page. */
   editeLe: string;
 }

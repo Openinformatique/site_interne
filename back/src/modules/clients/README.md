@@ -46,6 +46,8 @@ Réponse : enveloppe standard, `data` = lignes (`ClientSummaryResponseDto`),
 | `POST /clients/:id/contrats` · `PUT …/contrats/:cid`  | création / modification d'un contrat                                                   |
 | `GET /clients/:id/contrats/:cid/mouvements`           | suivi du contrat : commandes (crédit) et pointages (débit), date décroissante          |
 | `GET /clients/:id/contrats/:cid/suivi.pdf`            | édition PDF « Suivi du contrat d'assistance » (`inline`)                               |
+| `GET /contrats-assistance`                            | tous les contrats (client, groupe `GSOC`, dates) pour l'édition groupée                |
+| `GET /contrats-assistance/edition.zip`                | zip des « Suivi du contrat » arrêtés à `arreteAu` (`groupe`, `clientId`, `contratId`)  |
 | `GET /clients/:id/contacts`                           | contacts actifs et inactifs, triés par nom                                             |
 | `POST /clients/:id/contacts` · `PUT …/contacts/:ctid` | création / modification d'un contact                                                   |
 | `GET /clients/:id/commandes`                          | commandes du client (`includeClosed`, `du`, `au`)                                      |
@@ -77,6 +79,19 @@ Règles :
   de la commande), Débit (h), Crédit (h), du plus récent au plus ancien,
   commandes surlignées en vert ; pied « Édité le … » sur chaque page. Contrat
   sans commande : édition avec crédit 0 h ;
+- **édition groupée « Contrats d'assistance »** (Pointages › Éditions,
+  `ContratsAssistanceZipUseCase`, `ContratsAssistanceController`, tous les
+  profils) : contrats **en cours** à la date d'arrêté (mis en place au plus
+  tard ce jour-là, sans échéance ou échéance ce jour-là ou après), filtrés par
+  groupe / client / contrat ; un PDF « Suivi du contrat » par contrat,
+  **arrêté à cette date** (commandes et pointages postérieurs écartés, totaux
+  à cette date, mention « Arrêté au … » sous le libellé) ; fichiers « Client -
+  Contrat.pdf » (caractères interdits retirés, « (2) » en cas de doublon) dans
+  « Contrats assistance au JJ-MM-AAAA.zip » (`jszip`). Aucun contrat retenu :
+  `VALIDATION_ERROR` sur `arreteAu`. Mouvements de tous les contrats lus en
+  deux requêtes (`listMouvementsParContrat`) ; le rendu reste le plus long
+  (~20 s pour l'ensemble, dont l'essentiel pour un contrat de plusieurs
+  milliers de pointages) ;
 - **contacts** : le nom reste stocké au format historique « NOM,Prénom »
   (`domain/contact-name.ts`), nom en majuscules ; civilité 1 = M., 2 = Mme ;
   poste = libellé du paramétrage `FONC` ; e-mail au format valide ;

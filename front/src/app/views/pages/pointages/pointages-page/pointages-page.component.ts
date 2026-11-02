@@ -20,6 +20,8 @@ import {
   ChevronRight,
   Clock,
   Copy,
+  FileCheck,
+  FileOutput,
   FileSpreadsheet,
   FileText,
   LucideAngularModule,
@@ -36,6 +38,8 @@ import { ApiError } from '../../../../core/models/api.model';
 import { FACTURABLE, Pointage, PointageInput, PointagesReference } from '../../../../core/models/pointage.model';
 import { PointageModalComponent, PointageModalResult } from '../pointage-modal/pointage-modal.component';
 import { FormatReleve, ouvrirReleveMensuel } from '../releve-mensuel-modal/releve-mensuel-modal.component';
+import { ouvrirEditionContrats as ouvrirFenetreEditionContrats } from '../edition-contrats-modal/edition-contrats-modal.component';
+import { ouvrirExportCfl as ouvrirFenetreExportCfl } from '../export-cfl-modal/export-cfl-modal.component';
 import {
   couleurType,
   dureeHeures,
@@ -114,6 +118,8 @@ export class PointagesPageComponent implements OnInit {
   readonly CalendarIcon = CalendarIcon;
   readonly Clock = Clock;
   readonly Copy = Copy;
+  readonly FileCheck = FileCheck;
+  readonly FileOutput = FileOutput;
   readonly FileSpreadsheet = FileSpreadsheet;
   readonly FileText = FileText;
   readonly Pencil = Pencil;
@@ -304,6 +310,16 @@ export class PointagesPageComponent implements OnInit {
   /** Relevé mensuel (PDF ou Excel) : personne affichée par défaut, modifiable par Admin et Direction. */
   ouvrirReleveMensuel(format: FormatReleve = 'pdf'): void {
     ouvrirReleveMensuel(this.modal, this.personneOptions(), this.personneId(), this.personneLocked(), format);
+  }
+
+  /** Contrats d'assistance : un PDF de suivi par contrat, réunis dans un zip (edition-contrats-modal). */
+  ouvrirEditionContrats(): void {
+    ouvrirFenetreEditionContrats(this.modal);
+  }
+
+  /** Export (format CFL) : travaux réalisés pour un client sur une période (export-cfl-modal). */
+  ouvrirExportCfl(): void {
+    ouvrirFenetreExportCfl(this.modal);
   }
 
   private allerA(date: Date): void {

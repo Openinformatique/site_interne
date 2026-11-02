@@ -1,0 +1,87 @@
+<div class="fiche-card modal-card" role="dialog" aria-modal="true" aria-labelledby="export-cfl-title">
+  <div class="card-head">
+    <h2 id="export-cfl-title" class="modal-title-text">Export (format CFL)</h2>
+    <button type="button" class="icon-btn borderless" aria-label="Fermer" (click)="close()"><lucide-icon [img]="X" [size]="16" /></button>
+  </div>
+
+  <!-- Libellés à gauche, comme la saisie d'un pointage -->
+  <div class="rows">
+    <span class="row-label">Période<span class="req" aria-hidden="true">*</span></span>
+    <div class="stack">
+      <div class="periode">
+        <label class="inline">Du <input type="date" class="input date" [class.invalid]="errors()['periode']" [value]="du()" (input)="setDu($event)"></label>
+        <label class="inline">au <input type="date" class="input date" [class.invalid]="errors()['periode']" [value]="au()" (input)="setAu($event)"></label>
+        <button type="button" class="btn-small" (click)="moisPrecedent()">Mois précédent</button>
+      </div>
+      @if (errors()['periode']; as message) { <span class="err">{{ message }}</span> }
+    </div>
+
+    <label for="cfl-client" class="row-label">Client<span class="req" aria-hidden="true">*</span></label>
+    <div class="stack">
+      <select id="cfl-client" class="input" [class.invalid]="errors()['client']" (change)="setClient($event)">
+        <option value="" [selected]="clientId() === null">— Choisir un client —</option>
+        @for (client of clients(); track client.id) {
+          <option [value]="client.id" [selected]="clientId() === client.id">{{ client.nom || client.code }}</option>
+        }
+      </select>
+      @if (errors()['client']; as message) { <span class="err">{{ message }}</span> }
+    </div>
+
+    <label for="cfl-commande" class="row-label">Commande</label>
+    <select id="cfl-commande" class="input" [disabled]="clientId() === null" (change)="setCommande($event)">
+      <option value="" [selected]="commandeId() === null">Toutes les commandes</option>
+      @for (commande of commandes(); track commande.id) {
+        <option [value]="commande.id" [selected]="commandeId() === commande.id">{{ commande.numero }}{{ commande.libelle ? ' — ' + commande.libelle : '' }}</option>
+      }
+    </select>
+
+    <label for="cfl-personne" class="row-label">Personne</label>
+    <select id="cfl-personne" class="input" [disabled]="personneLocked()" [title]="personneLocked() ? 'Seuls les profils Admin et Direction peuvent choisir une autre personne.' : ''" (change)="setPersonne($event)">
+      @if (!personneLocked()) {
+        <option value="" [selected]="personneId() === null">Toutes les personnes</option>
+      }
+      @for (personne of reference().personnes; track personne.id) {
+        <option [value]="personne.id" [selected]="personneId() === personne.id">{{ personne.nom }}</option>
+      }
+    </select>
+
+    <label for="cfl-type" class="row-label">Type</label>
+    <select id="cfl-type" class="input" (change)="setType($event)">
+      <option value="" [selected]="typeAction() === null">Tous les types</option>
+      @for (type of reference().types; track type.cle) {
+        <option [value]="type.cle" [selected]="typeAction() === type.cle">{{ type.libelle }}</option>
+      }
+    </select>
+
+    <!-- Tags : pastilles (saisie assistée) ; la case « sans tag » vide et grise le champ -->
+    <label for="cfl-tags" class="row-label top">Tags</label>
+    <div class="stack tags-stack">
+      <div class="tags-field">
+        <div class="tag-box" [class.focus]="tagFocus() && !sansTag()" [class.off]="sansTag()">
+          @for (tag of tags(); track tag; let i = $index) {
+            <span class="tag-chip">{{ tag }}<button type="button" class="tag-remove" [attr.aria-label]="'Retirer le tag ' + tag" (click)="retirerTag(i)"><lucide-icon [img]="X" [size]="11" [strokeWidth]="2.6" /></button></span>
+          }
+          <input id="cfl-tags" type="text" class="tag-input" autocomplete="off" role="combobox" aria-controls="cfl-tags-list" [attr.aria-expanded]="tagMenuOpen()"
+            [disabled]="sansTag()" [value]="tagInput()" [placeholder]="sansTag() ? 'Sans tag uniquement' : tags().length ? '' : 'Tous les tags — saisir pour filtrer…'"
+            (input)="onTagInput($event)" (keydown)="onTagKey($event)" (focus)="tagFocus.set(true)" (blur)="onTagBlur()">
+        </div>
+        @if (tagMenuOpen()) {
+          <div id="cfl-tags-list" class="tag-menu" role="listbox" aria-label="Tags proposés">
+            @for (tag of suggestions(); track tag) {
+              <button type="button" class="tag-option" role="option" aria-selected="false" (mousedown)="choisirTag(tag, $event)">{{ tag }}</button>
+            }
+          </div>
+        }
+      </div>
+      <label class="check"><input type="checkbox" [checked]="sansTag()" (change)="setSansTag($event)">Uniquement les pointages sans tag</label>
+      <span class="hint">{{ tagHint() }}</span>
+    </div>
+  </div>
+
+  <div class="modal-foot">
+    <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+    <button type="button" class="btn-save btn-open" [disabled]="opening()" (click)="ouvrir()">
+      <lucide-icon [img]="FileText" [size]="16" />{{ opening() ? 'Préparation du PDF…' : 'Ouvrir le PDF' }}
+    </button>
+  </div>
+</div>

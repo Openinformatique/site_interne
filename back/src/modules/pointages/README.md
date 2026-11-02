@@ -134,6 +134,22 @@ ordre que le PDF), ligne « Total temps de travail » en bas (formule `SOMME`).
 Rendu : `infrastructure/exceljs-releve.spreadsheet.ts` (port
 `RELEVE_SPREADSHEET`).
 
+### `GET /api/v1/pointages/export-cfl.pdf?du=…&au=…&clientId=…`
+
+« Export (format CFL) » — travaux réalisés pour **un client** (obligatoire)
+sur une période `du` → `au` (« AAAA-MM-JJ », jours à Paris, bornes incluses,
+un an au plus). Filtres facultatifs : `commandeId` (commande du client),
+`utilisateurId` (Admin / Direction ; les autres profils n'exportent que leurs
+pointages, une autre personne → `403`), `typeAction`, `tags` (« a,b » ou
+paramètre répété : **au moins un** des tags en tête de la description, sans
+casse ni accents) ou `sansTag=true` (description sans tag). Lignes **du plus
+récent au plus ancien** : Demandeur (contact « NOM Prénom »), Date, Libellé
+(description complète), Tps (mn) = **durée du créneau**, Pers. (salarié).
+PDF `inline` (maquette validée le 02/11/2026, gabarit `export-cfl` du module
+pdf) : en-tête logo, titre, client, période et filtres ; synthèse pointages /
+temps total / minutes ; tableau encadré, ligne de total ; pied « Page x / n »
+et « Édité le … ». Contrôleur séparé : `presentation/export-cfl.controller.ts`.
+
 ## Structure
 
 - `domain/pointage.port.ts` — port, types, codes facturable, types d'action
@@ -146,3 +162,7 @@ Rendu : `infrastructure/exceljs-releve.spreadsheet.ts` (port
 - `infrastructure/exceljs-releve.spreadsheet.ts` (+ spec) — classeur Excel.
 - `infrastructure/typeorm-pointage.repository.ts` — requêtes TypeORM.
 - `presentation/pointages.controller.ts`, `presentation/dto/pointage.dto.ts`.
+- Export (format CFL) : `domain/export-cfl.ts` (+ spec, filtres et tags),
+  `application/export-cfl.use-case.ts` (droits, période),
+  `infrastructure/typeorm-export-cfl.repository.ts` (port `EXPORT_CFL`),
+  `presentation/export-cfl.controller.ts`, `presentation/dto/export-cfl.dto.ts`.

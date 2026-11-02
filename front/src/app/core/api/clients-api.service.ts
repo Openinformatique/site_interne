@@ -13,8 +13,10 @@ import {
   Contact,
   ContactInput,
   Contrat,
+  ContratAssistance,
   ContratInput,
   ContratMouvement,
+  EditionContratsCriteres,
 } from '../models/client.model';
 
 export interface ListClientsQuery {
@@ -63,6 +65,21 @@ export class ClientsApi {
 
   mouvements(clientId: number, contratId: number): Observable<ContratMouvement[]> {
     return this.api.get<ContratMouvement[]>(`/clients/${clientId}/contrats/${contratId}/mouvements`);
+  }
+
+  /** Contrats proposés à l'édition groupée (Pointages › Éditions › Contrats d'assistance). */
+  contratsAssistance(): Observable<ContratAssistance[]> {
+    return this.api.get<ContratAssistance[]>('/contrats-assistance');
+  }
+
+  /** Zip des « Suivi du contrat » arrêtés à une date (un PDF par contrat). */
+  editionContrats(criteres: EditionContratsCriteres): Observable<{ blob: Blob; filename: string }> {
+    return this.api.download('/contrats-assistance/edition.zip', {
+      arreteAu: criteres.arreteAu,
+      groupe: criteres.groupe ?? undefined,
+      clientId: criteres.clientId ?? undefined,
+      contratId: criteres.contratId ?? undefined,
+    });
   }
 
   /** Édition PDF « Suivi du contrat d'assistance ». */
