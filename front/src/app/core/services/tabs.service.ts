@@ -145,6 +145,25 @@ export class TabsService {
     this.persistState();
   }
 
+  /**
+   * Déconnexion : ne garde que le Tableau de bord, sans confirmation (les
+   * modifications non enregistrées sont abandonnées), détruit les pages
+   * conservées et efface les onglets mémorisés dans le navigateur.
+   */
+  reinitialiser(): void {
+    this.tabsState()
+      .filter(tab => tab.id !== DASHBOARD_TAB.id)
+      .forEach(tab => this.notifyTabClosed(tab.id));
+    this.tabsState.set([{ ...DASHBOARD_TAB }]);
+    this.setActiveTab(DASHBOARD_TAB.id);
+    this.restoredActiveTabId = null;
+    this.dirtyChecks.clear();
+    this.dirtyUrlsState.set(new Set());
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(TabsService.storageKey);
+    }
+  }
+
   /** Ferme tous les onglets fermables ; le Tableau de bord devient l'onglet actif. */
   async closeAllTabs(): Promise<void> {
     await this.closeTabs(this.tabsState(), DASHBOARD_TAB.id, true);

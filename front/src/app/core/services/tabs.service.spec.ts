@@ -42,6 +42,21 @@ describe('TabsService — fermeture multiple', () => {
     expect(service.activeTabId()).toBe(DASHBOARD_TAB.id);
   });
 
+  it('La déconnexion ne garde que le Tableau de bord et oublie les onglets mémorisés', () => {
+    const fermes: string[] = [];
+    service.onTabClosed((id) => fermes.push(id));
+    service.activateTab('/c');
+    service.setDirty('/b', true);
+
+    service.reinitialiser();
+
+    expect(ids()).toEqual([DASHBOARD_TAB.id]);
+    expect(service.activeTabId()).toBe(DASHBOARD_TAB.id);
+    expect(fermes).toEqual(['/a', '/b', '/c', '/d']);
+    expect(service.dirtyUrls().size).toBe(0);
+    expect(localStorage.getItem('nobleui.dynamic-tabs')).toBeNull();
+  });
+
   it('Fermer les autres garde le Tableau de bord et l\'onglet visé', async () => {
     await service.closeOtherTabs('/b');
     expect(ids()).toEqual([DASHBOARD_TAB.id, '/b']);

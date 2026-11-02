@@ -112,7 +112,14 @@ et les onglets, quel que soit l'onglet ouvert. Maquette validée le
 ## Onglets
 
 `TabsService` (`core/services/tabs.service.ts`) gère les onglets ouverts,
-mémorisés dans `localStorage` :
+mémorisés dans `localStorage` (retrouvés après un rechargement de la page) :
+
+- à la **déconnexion** (menu du profil), `AuthStore.logout` appelle
+  `TabsService.reinitialiser()` : seul le Tableau de bord reste, les pages
+  conservées sont détruites (modifications non enregistrées abandonnées) et
+  les onglets mémorisés sont effacés ; la connexion suivante repart du
+  Tableau de bord seul. Une session expirée (refresh refusé) ne ferme pas les
+  onglets ;
 
 - chaque page ouverte depuis le menu ajoute son onglet ; une page déjà ouverte
   réactive son onglet existant ;

@@ -7,6 +7,7 @@ import { ApiClient } from '../api/api-client.service';
 import { CurrentUser } from '../models/current-user.model';
 import { UserRole } from '../models/enums';
 import { UiAccessService } from '../ui-access/ui-access.service';
+import { TabsService } from '../services/tabs.service';
 
 /** Réponse de POST /auth/login (le refresh token part en cookie HttpOnly, PAS ici). */
 interface LoginResponse {
@@ -42,6 +43,7 @@ export class AuthStore {
   private api = inject(ApiClient);
   private router = inject(Router);
   private uiAccessService = inject(UiAccessService);
+  private tabsService = inject(TabsService);
 
   // --- État (signaux privés + lectures publiques en lecture seule) ---
   private readonly _accessToken = signal<string | null>(null);
@@ -127,7 +129,11 @@ export class AuthStore {
     }
   }
 
-  /** Déconnexion : révoque la session côté back, purge le store, retourne au login. */
+  /**
+   * Déconnexion : révoque la session côté back, purge le store, ferme les
+   * onglets ouverts (la prochaine connexion repart du Tableau de bord seul),
+   * retourne au login.
+   */
   logout(): void {
     this.api
       .post<void>('/auth/logout')
@@ -135,6 +141,8 @@ export class AuthStore {
         catchError(() => of(void 0)), // même si le réseau échoue, on nettoie côté client
         finalize(() => {
           this.clearSession();
+          // Avant de quitter le layout : la page affichée n'est pas conservée.
+          this.tabsService.reinitialiser();
           void this.router.navigate(['/auth/login']);
         }),
       )
