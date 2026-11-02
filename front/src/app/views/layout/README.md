@@ -51,7 +51,32 @@ personnages) de l'illustration `Fichier-2.png` du site openinformatique.com.
 
 ## Barre du haut
 
-Recherche globale, interrupteur jour/nuit, menu du profil.
+Recherche globale, interrupteur jour/nuit, cloche d'alertes, menu du profil.
+
+### Cloche d'alertes (pointages incomplets)
+
+Entre l'interrupteur jour/nuit et la pastille de profil. Maquette validée le
+02/11/2026.
+
+- **Contenu** : jours ouvrés (lundi à vendredi) des 14 jours précédant
+  aujourd'hui où l'utilisateur connecté a pointé moins de 7 h, du plus récent
+  au plus ancien (`GET /pointages/alertes`, règles dans le README du module
+  pointages back). Chacun ne voit que ses propres jours.
+- **Pastille** rouge avec le nombre de jours ; absente quand tout est à jour.
+- **Liste** (`ngbDropdown`) : en-tête « Pointages incomplets » + pastille
+  « N jours » ; par jour, date complète, « 3,50 h saisies · 3,50 h
+  manquantes » (ou « Aucun pointage »), ancienneté (« hier », « il y a N
+  jours ») ; icône orange (jour partiel) ou rouge (aucun pointage). Plus de
+  6 jours : défilement. Aucune alerte : « Tous tes pointages sont à jour ».
+- **Clic** sur un jour : onglet Pointages sur la semaine du jour, pour
+  l'utilisateur connecté (`PointagesNavigation` : la page lit la demande à sa
+  création ou, déjà ouverte, dès qu'elle est émise).
+- **Mise à jour** (`AlertesPointageStore`) : au démarrage, après chaque
+  création, modification ou suppression de pointage dans l'application
+  (`PointagesApi.changed$`), à l'ouverture de la cloche et toutes les
+  5 minutes.
+- Couleurs : variables `--alertes-*` de `navbar.component.scss` (clair et
+  sombre, valeurs de la maquette).
 
 L'interrupteur jour/nuit est une glissière encadrée d'un soleil et d'une lune ;
 l'icône du thème actif est colorée (soleil doré, lune couleur primaire). Le

@@ -34,6 +34,7 @@ import Swal from 'sweetalert2';
 
 import { PointagesApi } from '../../../../core/api/pointages-api.service';
 import { AuthStore } from '../../../../core/auth/auth.store';
+import { PointagesNavigation } from '../../../../core/services/pointages-navigation.service';
 import { ApiError } from '../../../../core/models/api.model';
 import { FACTURABLE, Pointage, PointageInput, PointagesReference } from '../../../../core/models/pointage.model';
 import { PointageModalComponent, PointageModalResult } from '../pointage-modal/pointage-modal.component';
@@ -109,6 +110,7 @@ export class PointagesPageComponent implements OnInit {
   private readonly modal = inject(NgbModal);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly navigation = inject(PointagesNavigation);
 
   @ViewChild('calendar') private calendarComponent?: FullCalendarComponent;
 
@@ -132,7 +134,7 @@ export class PointagesPageComponent implements OnInit {
   readonly pointages = signal<Pointage[]>([]);
   readonly weekend = signal(false);
   /** Lundi de la semaine affichée. */
-  readonly semaine = signal<Date>(lundiDe(new Date()));
+  readonly semaine = signal<Date>(lundiDe(this.navigation.consommer() ?? new Date()));
   readonly weekPickerOpen = signal(false);
   readonly copie = signal<Pointage | null>(null);
   readonly bulle = signal<Bulle | null>(null);
@@ -195,6 +197,8 @@ export class PointagesPageComponent implements OnInit {
   readonly calendarOptions = computed<CalendarOptions>(() => ({
     plugins: [timeGridPlugin, interactionPlugin],
     initialView: 'timeGridWeek',
+    // Semaine demandée à la création (cloche d'alertes), sinon la semaine courante.
+    initialDate: untracked(() => this.semaine()),
     locale: frLocale,
     headerToolbar: false,
     firstDay: 1,
@@ -249,6 +253,25 @@ export class PointagesPageComponent implements OnInit {
   private restauration = false;
 
   constructor() {
+    // Page déjà ouverte : semaine demandée par la cloche d'alertes, pour
+    // l'utilisateur connecté.
+    effect(() => {
+      if (!this.navigation.demande()) {
+        return;
+      }
+      untracked(() => {
+        const jour = this.navigation.consommer();
+        const moi = this.moi();
+        if (moi) {
+          this.copie.set(null);
+          this.personneId.set(moi);
+        }
+        if (jour) {
+          this.allerA(jour);
+        }
+      });
+    });
+
     // Rechargement à chaque changement de personne ou de semaine.
     effect(() => {
       const personneId = this.personneId();
@@ -262,9 +285,7 @@ export class PointagesPageComponent implements OnInit {
   ngOnInit(): void {
     this.api.reference().subscribe((reference) => {
       this.reference.set(reference);
-      const moi = this.auth.currentUser()?.id ?? '';
-      const self = reference.personnes.find((personne) => personne.id.toLowerCase() === moi.toLowerCase());
-      this.personneId.set(self?.id ?? reference.personnes[0]?.id ?? '');
+      this.personneId.set(this.moi() ?? reference.personnes[0]?.id ?? '');
     });
     this.observerHauteur();
   }
@@ -320,6 +341,12 @@ export class PointagesPageComponent implements OnInit {
   /** Export (format CFL) : travaux réalisés pour un client sur une période (export-cfl-modal). */
   ouvrirExportCfl(): void {
     ouvrirFenetreExportCfl(this.modal);
+  }
+
+  /** Identifiant de l'utilisateur connecté dans la liste des personnes (casse du référentiel). */
+  private moi(): string | undefined {
+    const moi = this.auth.currentUser()?.id.toLowerCase() ?? '';
+    return this.reference().personnes.find((personne) => personne.id.toLowerCase() === moi)?.id;
   }
 
   private allerA(date: Date): void {

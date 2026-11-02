@@ -46,6 +46,53 @@
         </label>
       </li>
 
+      <!-- Alertes : jours ouvrés incomplets (pointages) -->
+      <li class="nav-item nav-alertes" ngbDropdown placement="bottom-end" #alertesDropdown="ngbDropdown" (openChange)="$event && alertesStore.rafraichir()">
+        <button type="button" class="bell" ngbDropdownToggle [attr.aria-label]="alertesLabel()" [title]="alertesLabel()">
+          <lucide-icon [img]="bellIcon" [size]="20" />
+          @if (alertes().length) {
+            <span class="bell-count">{{ alertes().length }}</span>
+          }
+        </button>
+        <div ngbDropdownMenu class="alertes-panel">
+          <div class="alertes-head">
+            <div class="alertes-title">
+              Pointages incomplets
+              @if (alertes().length) {
+                <span class="alertes-chip">{{ alertes().length }} jour{{ alertes().length > 1 ? 's' : '' }}</span>
+              }
+            </div>
+            <div class="alertes-sub">Jours ouvrés des 2 dernières semaines avec moins de 7 h saisies</div>
+          </div>
+          @if (alertes().length) {
+            <div class="alertes-list">
+              @for (alerte of alertes(); track alerte.jour) {
+                <button type="button" class="alerte" ngbDropdownItem (click)="ouvrirAlerte(alerte); alertesDropdown.close()">
+                  <span class="alerte-icon" [class.partiel]="alerte.heures > 0">
+                    <lucide-icon [img]="alerte.heures > 0 ? clockIcon : calendarXIcon" />
+                  </span>
+                  <span class="alerte-body">
+                    <span class="alerte-date">{{ dateLongue(alerte.jour) }}</span>
+                    <span class="alerte-heures">
+                      {{ alerte.heures > 0 ? heures(alerte.heures) + ' saisies' : 'Aucun pointage' }} ·
+                      <b>{{ heures(alerte.manquantes) }} manquantes</b>
+                    </span>
+                  </span>
+                  <span class="alerte-age">{{ anciennete(alerte.joursEcoules) }}</span>
+                </button>
+              }
+            </div>
+            <div class="alertes-foot">Clic sur une alerte : ouvrir les pointages de la semaine</div>
+          } @else {
+            <div class="alertes-empty">
+              <span class="alertes-ok"><lucide-icon [img]="checkIcon" /></span>
+              <div class="alertes-empty-title">Tous tes pointages sont à jour</div>
+              <div class="alertes-empty-sub">Aucun jour ouvré des 2 dernières semaines sous 7 h.</div>
+            </div>
+          }
+        </div>
+      </li>
+
       <!-- Profil utilisateur -->
       <li class="nav-item nav-profile" ngbDropdown>
         <a class="nav-link" ngbDropdownToggle id="profileDropdown">

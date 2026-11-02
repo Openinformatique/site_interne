@@ -85,3 +85,13 @@ export interface ClientPointageOptions {
   contacts: PointageContactOption[];
   commandes: PointageCommandeOption[];
 }
+
+/** Jour ouvré où l'utilisateur connecté a pointé moins de 7 h (cloche d'alertes). */
+export interface JourIncomplet {
+  /** AAAA-MM-JJ. */
+  jour: string;
+  heures: number;
+  manquantes: number;
+  /** Jours écoulés (1 = hier). */
+  joursEcoules: number;
+}

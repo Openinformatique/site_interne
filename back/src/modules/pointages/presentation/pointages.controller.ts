@@ -34,6 +34,7 @@ import { ReleveMensuelUseCase } from '../application/releve-mensuel.use-case';
 import type { PointageInput } from '../domain/pointage.port';
 import {
   ClientPointageOptionsResponseDto,
+  JourIncompletResponseDto,
   ListPointagesQueryDto,
   PointageResponseDto,
   PointagesReferenceResponseDto,
@@ -68,6 +69,20 @@ export class PointagesController {
     private readonly pointages: PointagesUseCase,
     private readonly releve: ReleveMensuelUseCase,
   ) {}
+
+  @Get('alertes')
+  @ApiOperation({
+    summary: 'Pointages incomplets (cloche)',
+    description:
+      "Jours ouvrés des 14 jours précédant aujourd'hui où l'utilisateur connecté a pointé moins de 7 h ; du plus récent au plus ancien.",
+  })
+  @ApiOkResponse({ type: JourIncompletResponseDto, isArray: true })
+  async alertes(
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<JourIncompletResponseDto[]> {
+    const jours = await this.pointages.alertes(user);
+    return jours.map((jour) => JourIncompletResponseDto.fromDomain(jour));
+  }
 
   @Get('reference')
   @ApiOperation({

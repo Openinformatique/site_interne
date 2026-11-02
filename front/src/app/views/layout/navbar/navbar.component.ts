@@ -14,6 +14,10 @@ import {
   MonitorIcon,
   LogOutIcon,
   TextAlignJustifyIcon,
+  BellIcon,
+  CalendarXIcon,
+  CheckIcon,
+  ClockIcon,
 } from 'lucide-angular';
 
 import { ThemeModeService } from '../../../core/services/theme-mode.service';
@@ -21,6 +25,9 @@ import { AuthStore } from '../../../core/auth/auth.store';
 import { USER_ROLE_LABELS, SEARCH_RESULT_TYPE_LABELS } from '../../../core/models/enums';
 import { SearchApi } from '../../../core/api/search-api.service';
 import { SearchResult } from '../../../core/models/search.model';
+import { AlertesPointageStore } from '../../../core/services/alertes-pointage.store';
+import { PointagesNavigation } from '../../../core/services/pointages-navigation.service';
+import { JourIncomplet } from '../../../core/models/pointage.model';
 
 @Component({
   selector: 'app-navbar',
@@ -36,6 +43,10 @@ export class NavbarComponent implements OnInit {
   readonly monitorIcon = MonitorIcon;
   readonly logOutIcon = LogOutIcon;
   readonly textAlignJustifyIcon = TextAlignJustifyIcon;
+  readonly bellIcon = BellIcon;
+  readonly calendarXIcon = CalendarXIcon;
+  readonly checkIcon = CheckIcon;
+  readonly clockIcon = ClockIcon;
 
   currentTheme = 'light';
 
@@ -44,6 +55,16 @@ export class NavbarComponent implements OnInit {
   private searchApi = inject(SearchApi);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private pointagesNavigation = inject(PointagesNavigation);
+  readonly alertesStore = inject(AlertesPointageStore);
+
+  /** Jours ouvrés incomplets de l'utilisateur connecté (cloche). */
+  readonly alertes = this.alertesStore.alertes;
+  readonly alertesLabel = computed(() => {
+    const nombre = this.alertes().length;
+    const s = nombre > 1 ? 's' : '';
+    return nombre ? `Alertes : ${nombre} jour${s} de pointage incomplet${s}` : 'Alertes : pointages à jour';
+  });
 
   readonly searchControl = new FormControl('', { nonNullable: true });
   readonly results = signal<SearchResult[]>([]);
@@ -73,6 +94,8 @@ export class NavbarComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.alertesStore.demarrer(this.destroyRef);
+
     this.themeModeService.currentTheme.subscribe((theme) => {
       this.currentTheme = theme;
       this.showActiveTheme(this.currentTheme);
@@ -123,6 +146,34 @@ export class NavbarComponent implements OnInit {
   onLogout(e: Event) {
     e.preventDefault();
     this.authStore.logout();
+  }
+
+  // --- Alertes (cloche) ------------------------------------------------------
+
+  /** Ouvre les pointages de l'utilisateur connecté sur la semaine du jour incomplet. */
+  ouvrirAlerte(alerte: JourIncomplet): void {
+    const [annee, mois, jour] = alerte.jour.split('-').map(Number);
+    this.pointagesNavigation.ouvrirSemaine(new Date(annee!, mois! - 1, jour!));
+  }
+
+  /** « Vendredi 30 octobre 2026 ». */
+  dateLongue(iso: string): string {
+    const [annee, mois, jour] = iso.split('-').map(Number);
+    const texte = new Date(annee!, mois! - 1, jour!).toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+    return texte.charAt(0).toUpperCase() + texte.slice(1);
+  }
+
+  heures(value: number): string {
+    return `${value.toFixed(2).replace('.', ',')} h`;
+  }
+
+  anciennete(jours: number): string {
+    return jours === 1 ? 'hier' : `il y a ${jours} jours`;
   }
 
   goToResult(result: SearchResult): void {

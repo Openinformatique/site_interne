@@ -5,6 +5,11 @@ voir `back/src/modules/pointages/README.md`. Maquette validée le 01/11/2026.
 
 ## Écran (`pointages-page/`)
 
+Ouverture sur une semaine donnée depuis la cloche d'alertes de la barre du
+haut (`core/services/pointages-navigation.service.ts`) : la page affiche
+alors les pointages de l'utilisateur connecté sur la semaine du jour choisi
+(à sa création : `initialDate` du planning ; déjà ouverte : `gotoDate`).
+
 Pas d'en-tête (titre porté par l'onglet) : barre d'outils puis planning, qui
 prend toute la hauteur et toute la largeur disponibles (pas de limite
 `container-xxl`, marges latérales de 16 px : règle dans `styles/_custom.scss`). La page ne défile jamais ; seul le planning

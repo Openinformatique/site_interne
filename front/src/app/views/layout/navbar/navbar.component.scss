@@ -14,3 +14,155 @@
   line-height: 1;
   user-select: none;
 }
+
+// Cloche d'alertes (pointages incomplets) — valeurs de la maquette validée le 02/11/2026.
+:host {
+  --alertes-danger: #ff3366;
+  --alertes-danger-soft: #ffe5ec;
+  --alertes-danger-fg: #d61a4b;
+  --alertes-warning-soft: #fff5d6;
+  --alertes-warning-fg: #8a6500;
+  --alertes-success-soft: #e1f5ea;
+  --alertes-success-fg: #05793a;
+  --alertes-hover: rgba(101, 113, 255, .06);
+  --alertes-shadow: 0 .5rem 1.5rem rgba(33, 42, 58, .12);
+}
+
+:host-context([data-bs-theme='dark']) {
+  --alertes-danger-soft: rgba(255, 51, 102, .16);
+  --alertes-danger-fg: #ff6b8f;
+  --alertes-warning-soft: rgba(251, 188, 6, .16);
+  --alertes-warning-fg: #fbbc06;
+  --alertes-success-soft: rgba(5, 163, 74, .18);
+  --alertes-success-fg: #4cd38a;
+  --alertes-hover: rgba(101, 113, 255, .1);
+  --alertes-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .5);
+}
+
+// Espacement visuel identique de part et d'autre du dessin de la cloche
+// (22 px) : l'interrupteur porte déjà 14 px de marge (styles/_navbar.scss),
+// d'où la marge gauche annulée. Sélecteur aussi précis que la règle globale.
+.navbar .navbar-content .navbar-nav .nav-item.nav-alertes { margin-left: 0; }
+
+.bell {
+  position: relative;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--bs-secondary-color);
+  cursor: pointer;
+
+  &::after { display: none; } // flèche Bootstrap du dropdown
+  lucide-icon { display: flex; }
+  &:hover, &[aria-expanded='true'] { background: var(--bs-tertiary-bg); color: #6571ff; }
+  &:focus-visible { outline: 2px solid #6571ff; outline-offset: 2px; }
+}
+
+// Pastille ronde centrée sur le coin haut droit du dessin de la cloche
+// (dessin de 20 px dans un bouton de 36 px) : elle n'en masque qu'un coin.
+.bell-count {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  display: grid;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+  border: 2px solid var(--bs-body-bg);
+  border-radius: 50%;
+  box-sizing: content-box;
+  background: var(--alertes-danger);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.alertes-panel {
+  width: 380px;
+  max-width: calc(100vw - 24px);
+  margin-top: 6px !important;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 8px;
+  background: var(--bs-body-bg);
+  box-shadow: var(--alertes-shadow);
+}
+
+.alertes-head { padding: 14px 16px 12px; border-bottom: 1px solid var(--bs-border-color); }
+.alertes-title { display: flex; align-items: center; gap: 8px; color: var(--bs-body-color); font-weight: 500; }
+.alertes-chip { margin-left: auto; padding: 2px 8px; border-radius: 20px; background: var(--alertes-danger-soft); color: var(--alertes-danger-fg); font-size: 11.5px; font-weight: 500; }
+.alertes-sub { margin-top: 3px; color: var(--bs-secondary-color); font-size: 12px; white-space: normal; }
+
+.alertes-list { max-height: 360px; overflow-y: auto; }
+
+.alerte {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--bs-border-color);
+  background: transparent;
+  color: var(--bs-body-color);
+  font-size: 14px;
+  text-align: left;
+  white-space: normal;
+  cursor: pointer;
+
+  &:last-child { border-bottom: 0; }
+  &:hover, &:focus, &:focus-visible, &:active { background: var(--alertes-hover); color: var(--bs-body-color); outline: none; }
+  &:hover .alerte-date, &:focus-visible .alerte-date { color: #6571ff; }
+}
+
+.alerte-icon {
+  display: grid;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--alertes-danger-soft);
+  color: var(--alertes-danger-fg);
+
+  &.partiel { background: var(--alertes-warning-soft); color: var(--alertes-warning-fg); }
+  lucide-icon { width: 16px; height: 16px; }
+}
+
+.alerte-body { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+.alerte-date { font-weight: 500; }
+.alerte-heures {
+  margin-top: 2px;
+  color: var(--bs-secondary-color);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+
+  b { color: var(--alertes-danger-fg); font-weight: 500; }
+}
+.alerte-age { flex: none; padding-top: 2px; color: var(--bs-secondary-color); font-size: 11.5px; white-space: nowrap; }
+
+.alertes-foot { padding: 10px 16px; border-top: 1px solid var(--bs-border-color); background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); font-size: 12px; }
+
+.alertes-empty { padding: 28px 16px; text-align: center; }
+.alertes-ok {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 10px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--alertes-success-soft);
+  color: var(--alertes-success-fg);
+
+  lucide-icon { width: 22px; height: 22px; }
+}
+.alertes-empty-title { color: var(--bs-body-color); font-weight: 500; }
+.alertes-empty-sub { margin-top: 4px; color: var(--bs-secondary-color); font-size: 12px; }

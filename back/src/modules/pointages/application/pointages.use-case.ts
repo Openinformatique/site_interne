@@ -5,7 +5,13 @@ import {
   ValidationException,
 } from '../../../common/exceptions/app-exceptions';
 import type { AuthenticatedUser } from '../../../common/interfaces/authenticated-user';
+import { jourMetier } from '../../../common/utils/sql-date.util';
 import { UserRole } from '../../users/domain/user-role.enum';
+import {
+  JOURS_EXAMINES,
+  joursIncomplets,
+  type JourIncomplet,
+} from '../domain/alertes-pointage';
 import {
   POINTAGES,
   TYPES_COMMANDE,
@@ -106,6 +112,25 @@ export class PointagesUseCase {
       ]);
     }
     return this.pointages.list(utilisateurId, du, au);
+  }
+
+  /**
+   * Jours ouvrés incomplets (moins de 7 h) de l'utilisateur connecté sur les
+   * 14 jours précédant aujourd'hui (règles dans domain/alertes-pointage.ts).
+   */
+  async alertes(
+    user: AuthenticatedUser,
+    aujourdhui = jourMetier(new Date()),
+  ): Promise<JourIncomplet[]> {
+    // Bornes larges d'un jour : le jour exact est situé à Paris ensuite.
+    const debut = new Date(`${aujourdhui}T00:00:00Z`);
+    debut.setUTCDate(debut.getUTCDate() - JOURS_EXAMINES - 1);
+    const pointages = await this.pointages.list(
+      user.userId,
+      debut,
+      new Date(`${aujourdhui}T00:00:00Z`),
+    );
+    return joursIncomplets(pointages, aujourdhui);
   }
 
   async create(

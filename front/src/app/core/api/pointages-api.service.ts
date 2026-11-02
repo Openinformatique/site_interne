@@ -1,12 +1,21 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 
 import { ApiClient } from './api-client.service';
-import { ClientPointageOptions, Pointage, PointageInput, PointagesReference } from '../models/pointage.model';
+import { ClientPointageOptions, JourIncomplet, Pointage, PointageInput, PointagesReference } from '../models/pointage.model';
 
 @Injectable({ providedIn: 'root' })
 export class PointagesApi {
   private api = inject(ApiClient);
+  private readonly changedSubject = new Subject<void>();
+
+  /** Émet après chaque création, modification ou suppression de pointage (ex. cloche d'alertes). */
+  readonly changed$ = this.changedSubject.asObservable();
+
+  /** Jours ouvrés incomplets (moins de 7 h) de l'utilisateur connecté, sur 2 semaines. */
+  alertes(): Observable<JourIncomplet[]> {
+    return this.api.get<JourIncomplet[]>('/pointages/alertes');
+  }
 
   /** Types d'action, tags, personnes sélectionnables et clients actifs. */
   reference(): Observable<PointagesReference> {
@@ -23,15 +32,15 @@ export class PointagesApi {
   }
 
   create(input: PointageInput): Observable<Pointage> {
-    return this.api.post<Pointage>('/pointages', input);
+    return this.api.post<Pointage>('/pointages', input).pipe(tap(() => this.changedSubject.next()));
   }
 
   update(id: number, input: PointageInput): Observable<Pointage> {
-    return this.api.put<Pointage>(`/pointages/${id}`, input);
+    return this.api.put<Pointage>(`/pointages/${id}`, input).pipe(tap(() => this.changedSubject.next()));
   }
 
   delete(id: number): Observable<void> {
-    return this.api.delete<void>(`/pointages/${id}`);
+    return this.api.delete<void>(`/pointages/${id}`).pipe(tap(() => this.changedSubject.next()));
   }
 
   /** Édition PDF « Relevé mensuel » d'une personne (mois de 1 à 12). */

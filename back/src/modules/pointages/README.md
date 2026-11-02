@@ -33,11 +33,11 @@ et commande (temps passé), qui affichent le jour du pointage **à Paris**
 
 ## Codes `facturable`
 
-| Code | Signification                                                  |
-| ---- | -------------------------------------------------------------- |
-| 0    | non facturable                                                 |
-| 1    | facturable                                                     |
-| 2    | en attente (nouveau code, propre à la nouvelle application)    |
+| Code | Signification                                                   |
+| ---- | --------------------------------------------------------------- |
+| 0    | non facturable                                                  |
+| 1    | facturable                                                      |
+| 2    | en attente (nouveau code, propre à la nouvelle application)     |
 | 3, 4 | codes repris de l'ancienne application, affichés « en attente » |
 
 `temps_facturable` (« durée contrat », heures) : temps imputé à la commande / au
@@ -95,6 +95,21 @@ déplacement et au redimensionnement depuis le planning.
 ### `DELETE /api/v1/pointages/:id`
 
 Suppression définitive (`204`).
+
+### `GET /api/v1/pointages/alertes`
+
+Cloche d'alertes de la barre du haut : jours incomplets de l'**utilisateur
+connecté** (aucun paramètre), du plus récent au plus ancien. Règles
+(`domain/alertes-pointage.ts`) :
+
+- jours examinés : les 14 jours calendaires précédant aujourd'hui (à Paris,
+  aujourd'hui exclu), du lundi au vendredi seulement ;
+- heures du jour = durée (fin − début) de **tous** ses pointages commencés ce
+  jour-là à Paris, absences comprises (congés, fériés, arrêts) ;
+- alerte si moins de **7 h** (`HEURES_ATTENDUES`) ; un férié non pointé
+  déclenche donc l'alerte ;
+- ligne : `jour`, `heures`, `manquantes` (7 − heures), `joursEcoules`
+  (1 = hier).
 
 ### `GET /api/v1/pointages/releve.pdf?utilisateurId=…&annee=…&mois=…&contenu=…`
 

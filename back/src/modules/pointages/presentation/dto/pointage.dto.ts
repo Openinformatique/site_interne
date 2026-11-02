@@ -29,6 +29,7 @@ import type {
   TypeAction,
 } from '../../domain/pointage.port';
 import type { PointagesReference } from '../../application/pointages.use-case';
+import type { JourIncomplet } from '../../domain/alertes-pointage';
 
 const INSTANT = 'Date et heure invalides (ISO 8601).';
 const TEMPS_MESSAGE = 'Durée invalide (0 à 24 h, 4 décimales maximum).';
@@ -145,6 +146,21 @@ export class SavePointageRequestDto {
   @Min(0, { message: TEMPS_MESSAGE })
   @Max(24, { message: TEMPS_MESSAGE })
   tempsFacturable: number | null = null;
+}
+
+/** Jour ouvré où l'utilisateur a pointé moins de 7 h (cloche d'alertes). */
+export class JourIncompletResponseDto {
+  @ApiProperty({ example: '2026-10-30' }) jour!: string;
+  @ApiProperty({ description: 'Heures pointées.', example: 3.5 })
+  heures!: number;
+  @ApiProperty({ description: 'Heures manquantes pour atteindre 7 h.' })
+  manquantes!: number;
+  @ApiProperty({ description: 'Jours écoulés (1 = hier).' })
+  joursEcoules!: number;
+
+  static fromDomain(jour: JourIncomplet): JourIncompletResponseDto {
+    return Object.assign(new JourIncompletResponseDto(), jour);
+  }
 }
 
 export class PointageResponseDto {
