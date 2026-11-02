@@ -37,7 +37,8 @@
     "migration:show": "npm run typeorm -- migration:show",
     "migration:run:test": "cross-env NODE_ENV=test npm run typeorm -- migration:run",
     "seed": "ts-node src/database/seeds/run-seed.ts",
-    "seed:test": "cross-env NODE_ENV=test ts-node src/database/seeds/run-seed.ts"
+    "seed:test": "cross-env NODE_ENV=test ts-node src/database/seeds/run-seed.ts",
+    "seed:reset-passwords": "ts-node src/database/seeds/reset-seed-passwords.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
