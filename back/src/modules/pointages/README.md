@@ -4,7 +4,8 @@ Temps passé par les salariés, repris de l'application historique (table
 `pointages` : voir [docs/schema-metier.md](../../../docs/schema-metier.md)).
 
 Écran servi : **Pointages** (menu GÉNÉRAL › Pointages) — planning hebdomadaire
-d'une personne, saisie, déplacement, changement de durée et suppression.
+d'une personne, saisie, déplacement, changement de durée et suppression ;
+édition « Relevé mensuel » (PDF et Excel).
 
 ## Droits
 
@@ -95,10 +96,53 @@ déplacement et au redimensionnement depuis le planning.
 
 Suppression définitive (`204`).
 
+### `GET /api/v1/pointages/releve.pdf?utilisateurId=…&annee=…&mois=…&contenu=…`
+
+Édition PDF « Relevé mensuel des pointages » (écran Pointages › Éditions ›
+Relevé mensuel), renvoyée `inline` (le front l'ouvre dans un nouvel onglet).
+Mêmes droits que la liste (`403` pour la personne d'un autre sans profil Admin
+ou Direction). `mois` de 1 à 12 ; `contenu` : `detail` (défaut) ou `synthese`.
+Nom de fichier : `Releve_AAAA-MM_<nom affiché>[_synthese].pdf`.
+
+Règles (`domain/releve-mensuel.ts`, reprises de l'ancien relevé) :
+
+- pointages **commençant** dans le mois, heure de Paris ; temps = durée des
+  créneaux (pas `temps_facturable`) ;
+- regroupement **client** (code client ; `INTERNE` pour le temps sans client)
+  › **type d'action** (libellé TYPA) › **commande** (n° de commande client,
+  sinon n° de devis) ;
+- une ligne par **description et statut facturable** (Oui ; Non ; En attente
+  pour les codes 2 à 4), heures cumulées ;
+- tri binaire, comme l'ancien relevé (majuscules, puis `[`, puis minuscules) ;
+- vignettes : temps de travail, clients, interne (sans client hors absences),
+  absences (`CP`, `FERIE`, `ARRET`) ;
+- en-tête : nom affiché de l'utilisateur (`users.display_name`).
+
+Rendu : `pdf/infrastructure/releve-mensuel.renderer.ts` (gabarit
+`releve-mensuel`). Détaillé : colonnes Client / Type / N° cde / Description /
+Temps / Facturable, totaux par commande et type (teinte de la couleur TYPA),
+par client et général, rappel « (suite) » en haut de page. Synthétique :
+Client / Type d'action / Commandes / Temps, sans totaux.
+
+### `GET /api/v1/pointages/releve.xlsx?utilisateurId=…&annee=…&mois=…`
+
+Même relevé, **détaillé uniquement**, en classeur Excel téléchargé
+(`attachment`, `Releve_AAAA-MM_<nom>.xlsx`) : titre en ligne 1, tableau
+filtrable à partir de la ligne 3 (Client / Type d'action / N° cde /
+Description / Temps (h) / Facturable, groupes répétés sur chaque ligne, même
+ordre que le PDF), ligne « Total temps de travail » en bas (formule `SOMME`).
+Rendu : `infrastructure/exceljs-releve.spreadsheet.ts` (port
+`RELEVE_SPREADSHEET`).
+
 ## Structure
 
 - `domain/pointage.port.ts` — port, types, codes facturable, types d'action
   soumis à règle.
 - `application/pointages.use-case.ts` (+ spec) — droits et règles de saisie.
+- `domain/releve-mensuel.ts` (+ spec) — regroupement et cumuls du relevé,
+  bornes du mois.
+- `application/releve-mensuel.use-case.ts` — éditions PDF et Excel du
+  relevé.
+- `infrastructure/exceljs-releve.spreadsheet.ts` (+ spec) — classeur Excel.
 - `infrastructure/typeorm-pointage.repository.ts` — requêtes TypeORM.
 - `presentation/pointages.controller.ts`, `presentation/dto/pointage.dto.ts`.

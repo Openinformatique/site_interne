@@ -4,11 +4,14 @@ import PDFDocument from 'pdfkit';
 import { ResourceNotFoundException } from '../../../common/exceptions/app-exceptions';
 import {
   PdfGeneratorPort,
+  PDF_TEMPLATE_RELEVE_MENSUEL,
   PDF_TEMPLATE_SUIVI_CONTRAT,
   PDF_TEMPLATE_TECHNICAL_DEMO,
+  ReleveMensuelPdfData,
   SuiviContratPdfData,
   TechnicalDemoPdfData,
 } from '../domain/pdf-generator.port';
+import { renderReleveMensuel } from './releve-mensuel.renderer';
 
 /**
  * Générateur PDF local basé sur PDFKit (bibliothèque serveur stable,
@@ -25,6 +28,9 @@ export class PdfKitPdfGenerator implements PdfGeneratorPort {
     }
     if (template === PDF_TEMPLATE_SUIVI_CONTRAT) {
       return this.renderSuiviContrat(data as SuiviContratPdfData);
+    }
+    if (template === PDF_TEMPLATE_RELEVE_MENSUEL) {
+      return this.collect(renderReleveMensuel(data as ReleveMensuelPdfData));
     }
     throw new ResourceNotFoundException(`Le gabarit PDF "${template}"`);
   }

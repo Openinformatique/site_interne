@@ -10,7 +10,10 @@ import {
   Post,
   Put,
   Query,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -20,18 +23,21 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiProduces,
   ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { ValidationException } from '../../../common/exceptions/app-exceptions';
 import type { AuthenticatedUser } from '../../../common/interfaces/authenticated-user';
 import { PointagesUseCase } from '../application/pointages.use-case';
+import { ReleveMensuelUseCase } from '../application/releve-mensuel.use-case';
 import type { PointageInput } from '../domain/pointage.port';
 import {
   ClientPointageOptionsResponseDto,
   ListPointagesQueryDto,
   PointageResponseDto,
   PointagesReferenceResponseDto,
+  ReleveMensuelQueryDto,
   SavePointageRequestDto,
 } from './dto/pointage.dto';
 
@@ -44,6 +50,9 @@ const idPipe = (field: string) =>
       ]),
   });
 
+const XLSX_MIME =
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
 const FORBIDDEN =
   'Pointages d’une autre personne : réservé aux profils Admin et Direction (ACCESS_DENIED).';
 
@@ -55,7 +64,10 @@ const FORBIDDEN =
 @ApiBearerAuth()
 @Controller('pointages')
 export class PointagesController {
-  constructor(private readonly pointages: PointagesUseCase) {}
+  constructor(
+    private readonly pointages: PointagesUseCase,
+    private readonly releve: ReleveMensuelUseCase,
+  ) {}
 
   @Get('reference')
   @ApiOperation({
@@ -81,6 +93,65 @@ export class PointagesController {
       this.pointages.commandes(clientId),
     ]);
     return { contacts, commandes };
+  }
+
+  @Get('releve.pdf')
+  @ApiOperation({
+    summary: 'Édition PDF « Relevé mensuel des pointages »',
+    description:
+      'Pointages d’une personne commençant dans le mois (heure de Paris), par client, type d’action et commande. ' +
+      '« detail » : une ligne par description et statut facturable, avec totaux ; « synthese » : une ligne par client et type d’action. ' +
+      'Renvoyé « inline » : le front l’ouvre dans la visionneuse du navigateur.',
+  })
+  @ApiProduces('application/pdf')
+  @ApiOkResponse({ description: 'Fichier PDF.' })
+  @ApiForbiddenResponse({ description: FORBIDDEN })
+  @ApiNotFoundResponse({ description: 'Personne inconnue.' })
+  async releveMensuelPdf(
+    @Query() query: ReleveMensuelQueryDto,
+    @CurrentUser() user: AuthenticatedUser,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const { buffer, filename } = await this.releve.pdf(
+      user,
+      query.utilisateurId,
+      query.annee,
+      query.mois,
+      query.contenu === 'synthese',
+    );
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader('Content-Disposition', disposition('inline', filename));
+    return new StreamableFile(buffer);
+  }
+
+  @Get('releve.xlsx')
+  @ApiOperation({
+    summary: 'Relevé mensuel des pointages au format Excel (détaillé)',
+    description:
+      'Mêmes lignes que le PDF détaillé, en tableau filtrable : client, type d’action, commande, description, temps, facturable ; total en bas. ' +
+      '`contenu` est ignoré.',
+  })
+  @ApiProduces(XLSX_MIME)
+  @ApiOkResponse({ description: 'Classeur Excel.' })
+  @ApiForbiddenResponse({ description: FORBIDDEN })
+  @ApiNotFoundResponse({ description: 'Personne inconnue.' })
+  async releveMensuelExcel(
+    @Query() query: ReleveMensuelQueryDto,
+    @CurrentUser() user: AuthenticatedUser,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const { buffer, filename } = await this.releve.excel(
+      user,
+      query.utilisateurId,
+      query.annee,
+      query.mois,
+    );
+    response.setHeader('Content-Type', XLSX_MIME);
+    response.setHeader(
+      'Content-Disposition',
+      disposition('attachment', filename),
+    );
+    return new StreamableFile(buffer);
   }
 
   @Get()
@@ -154,6 +225,12 @@ export class PointagesController {
   ): Promise<void> {
     return this.pointages.delete(user, id);
   }
+}
+
+/** En-tête Content-Disposition avec nom de fichier accentué (RFC 5987). */
+function disposition(type: 'inline' | 'attachment', filename: string): string {
+  const encode = encodeURIComponent(filename);
+  return `${type}; filename="${encode}"; filename*=UTF-8''${encode}`;
 }
 
 function toInput(body: SavePointageRequestDto): PointageInput {

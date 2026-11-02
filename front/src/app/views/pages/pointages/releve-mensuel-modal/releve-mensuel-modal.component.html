@@ -1,0 +1,71 @@
+<div class="fiche-card modal-card" role="dialog" aria-modal="true" aria-labelledby="releve-title">
+  <div class="card-head">
+    <h2 id="releve-title" class="modal-title-text">
+      @if (format() === 'excel') {
+        <lucide-icon [img]="FileSpreadsheet" [size]="18" class="excel" />Relevé mensuel (Excel)
+      } @else {
+        <lucide-icon [img]="FileText" [size]="18" class="accent" />Relevé mensuel
+      }
+    </h2>
+    <button type="button" class="icon-btn borderless" aria-label="Fermer" (click)="close()"><lucide-icon [img]="X" [size]="16" /></button>
+  </div>
+
+  <!-- Libellés à gauche, comme les autres fenêtres de l'écran -->
+  <div class="rows">
+    <label for="rel-personne" class="row-label">Personne</label>
+    <div class="stack">
+      <select id="rel-personne" class="input" [disabled]="verrouillee()" [title]="verrouillee() ? 'Seuls les profils Admin et Direction peuvent choisir une autre personne.' : ''" (change)="setPersonne($event)">
+        @for (personne of personnes(); track personne.id) {
+          <option [value]="personne.id" [selected]="personne.id === personneId()">{{ personne.label }}</option>
+        }
+      </select>
+      @if (verrouillee()) {
+        <span class="hint"><lucide-icon [img]="Lock" [size]="13" />Seuls les profils Admin et Direction peuvent choisir une autre personne.</span>
+      }
+    </div>
+
+    <label for="rel-mois" class="row-label">Mois</label>
+    <div class="month">
+      <button type="button" class="icon-btn" aria-label="Mois précédent" title="Mois précédent" [disabled]="moisIndex() === mois.length - 1" (click)="decaler(-1)"><lucide-icon [img]="ChevronLeft" [size]="16" /></button>
+      <select id="rel-mois" class="input" (change)="setMois($event)">
+        @for (option of mois; track option.cle; let i = $index) {
+          <option [value]="option.cle" [selected]="i === moisIndex()">{{ option.libelle }}</option>
+        }
+      </select>
+      <button type="button" class="icon-btn" aria-label="Mois suivant" title="Mois suivant" [disabled]="moisIndex() === 0" (click)="decaler(1)"><lucide-icon [img]="ChevronRight" [size]="16" /></button>
+    </div>
+
+    @if (format() === 'pdf') {
+      <span class="row-label" id="rel-contenu-label">Contenu</span>
+      <div class="stack">
+        <div class="seg" role="radiogroup" aria-labelledby="rel-contenu-label">
+          <button type="button" role="radio" [attr.aria-checked]="contenu() === 'detail'" [class.on]="contenu() === 'detail'" (click)="contenu.set('detail')">Détaillé</button>
+          <button type="button" role="radio" [attr.aria-checked]="contenu() === 'synthese'" [class.on]="contenu() === 'synthese'" (click)="contenu.set('synthese')">Synthétique</button>
+        </div>
+        <span class="hint">{{ aide() }}</span>
+      </div>
+    } @else {
+      <span class="row-label">Contenu</span>
+      <span class="hint excel-hint">Version détaillée : une ligne par description, client, type d'action et commande répétés sur chaque ligne, filtres automatiques, total en bas.</span>
+    }
+  </div>
+
+  <!-- Récapitulatif du mois choisi -->
+  <div class="recap" [class.vide]="recap()?.vide" role="status">
+    <lucide-icon [img]="Clock" [size]="16" />
+    <span>{{ recap()?.texte ?? 'Calcul du récapitulatif…' }}</span>
+  </div>
+
+  <div class="modal-foot">
+    <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+    <button type="button" class="btn-save btn-print" [disabled]="impossible()" (click)="valider()">
+      @if (format() === 'excel') {
+        <lucide-icon [img]="Download" [size]="16" />
+        {{ impression() ? 'Préparation…' : 'Télécharger le fichier Excel' }}
+      } @else {
+        <lucide-icon [img]="Printer" [size]="16" />
+        {{ impression() ? 'Préparation…' : 'Imprimer le relevé' }}
+      }
+    </button>
+  </div>
+</div>

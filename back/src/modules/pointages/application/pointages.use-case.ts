@@ -218,7 +218,7 @@ function canManageOthers(user: AuthenticatedUser): boolean {
 }
 
 /** Les pointages d'une autre personne sont réservés aux profils Admin et Direction. */
-function assertAccess(
+export function assertAccess(
   user: AuthenticatedUser,
   utilisateurId: string | null,
 ): void {

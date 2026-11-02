@@ -152,6 +152,14 @@ export class TypeOrmPointageRepository implements PointagePort {
     return rows.map((row) => ({ id: row.id, nom: row.displayName }));
   }
 
+  async nomPersonne(id: string): Promise<string | null> {
+    const user = await this.users.findOne({
+      select: { id: true, displayName: true },
+      where: { id },
+    });
+    return user?.displayName ?? null;
+  }
+
   async clients(): Promise<ClientOption[]> {
     const rows = await this.clientsRepo.find({
       select: { id: true, codeClient: true, raisonSociale: true },

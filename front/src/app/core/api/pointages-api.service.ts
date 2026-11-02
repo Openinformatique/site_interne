@@ -33,4 +33,17 @@ export class PointagesApi {
   delete(id: number): Observable<void> {
     return this.api.delete<void>(`/pointages/${id}`);
   }
+
+  /** Édition PDF « Relevé mensuel » d'une personne (mois de 1 à 12). */
+  releveMensuelPdf(utilisateurId: string, annee: number, mois: number, contenu: ContenuReleve): Observable<{ blob: Blob; filename: string }> {
+    return this.api.download('/pointages/releve.pdf', { utilisateurId, annee, mois, contenu });
+  }
+
+  /** Relevé mensuel détaillé au format Excel (tableau filtrable). */
+  releveMensuelExcel(utilisateurId: string, annee: number, mois: number): Observable<{ blob: Blob; filename: string }> {
+    return this.api.download('/pointages/releve.xlsx', { utilisateurId, annee, mois });
+  }
 }
+
+/** Contenu du relevé mensuel : une ligne par description, ou par client et type d'action. */
+export type ContenuReleve = 'detail' | 'synthese';

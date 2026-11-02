@@ -56,6 +56,21 @@
 .track.on .knob { left: 20px; }
 .total-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 8px; background: rgba(101, 113, 255, .10); color: #5765f5; font-size: 13px; font-weight: 600; }
 
+// --- Éditions (menu en bout de barre) ---------------------------------------
+.editions-btn { gap: 6px; }
+.editions-btn::after { display: none; } // flèche Bootstrap remplacée par l'icône
+.editions-btn .chevron { color: var(--pt-muted); }
+.editions-btn:hover, .editions.show .editions-btn { border-color: #6571ff; }
+.editions.show .editions-btn { background: rgba(101, 113, 255, .10); color: #5765f5; }
+.editions-menu { width: 300px; padding: 6px; border: 1px solid var(--bs-border-color); border-radius: 8px; background: var(--bs-body-bg); box-shadow: 0 8px 24px rgba(33, 42, 58, .12); }
+:host-context([data-bs-theme='dark']) .editions-menu { box-shadow: 0 8px 24px rgba(0, 0, 0, .5); }
+.editions-item { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 9px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--pt-text); text-align: left; white-space: normal; cursor: pointer; }
+.editions-item:hover, .editions-item:focus { background: rgba(101, 113, 255, .10); color: var(--pt-text); }
+.editions-ico { flex: none; margin-top: 1px; color: var(--pt-muted); }
+.editions-item:hover .editions-ico, .editions-item:focus .editions-ico { color: #6571ff; }
+.editions-item b { display: block; font-size: 13px; font-weight: 500; }
+.editions-item small { display: block; margin-top: 2px; font-size: 12px; color: var(--pt-muted); }
+
 // --- Bandeau de copie ------------------------------------------------------
 // Bandeau flottant en bas du planning : il ne prend pas de place, donc la
 // hauteur des heures et la position du planning ne bougent pas pendant une copie.

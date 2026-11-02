@@ -9,6 +9,8 @@ export const FACTURABLE_CODES = [0, 1, 2, 3, 4];
 
 /** Types d'action (TYPA) sans client : temps interne, congés, fériés, arrêts. */
 export const TYPES_SANS_CLIENT = ['AUTRE', 'CP', 'FERIE', 'ARRET'];
+/** Absences (congés, fériés, arrêts) : comptées à part dans le relevé mensuel. */
+export const TYPES_ABSENCE = ['CP', 'FERIE', 'ARRET'];
 /** Développement sur devis : commande hors contrat obligatoire. */
 export const TYPES_COMMANDE = ['DEVIS'];
 /** Assistance sur contrat / téléphonique : commande sous contrat et contact obligatoires. */
@@ -92,6 +94,8 @@ export interface PointagePort {
   /** Libellés des tags du paramétrage (TAGS). */
   tags(): Promise<string[]>;
   personnes(): Promise<PersonneOption[]>;
+  /** Nom affiché d'un utilisateur (actif ou non), null si inconnu. */
+  nomPersonne(id: string): Promise<string | null>;
   /** Clients actifs (raison sociale). */
   clients(): Promise<ClientOption[]>;
   contacts(clientId: number): Promise<ContactOption[]>;

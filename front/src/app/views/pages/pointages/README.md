@@ -24,6 +24,9 @@ défilement remis à zéro) et au redimensionnement.
   referme.
 - **Week-end** : affiche samedi et dimanche (jours ouvrés par défaut).
 - **Semaine : x h** : total des jours affichés.
+- **Éditions** (tout à droite, maquette validée le 02/11/2026) : menu
+  « Relevé mensuel » et « Relevé mensuel (Excel) » (voir ci-dessous). Le
+  menu se referme au choix d'une option, avant l'ouverture de la fenêtre.
 
 ### Planning (FullCalendar, vue semaine)
 
@@ -77,8 +80,32 @@ Enregistrer.
   commande de type contrat (liste filtrée, suffixe « (contrat) »). Commandes
   clôturées et contacts inactifs masqués, sauf ceux du pointage.
 
+## Relevé mensuel (`releve-mensuel-modal/`)
+
+Fenêtre de 520 px, libellés à gauche :
+
+- **Personne** : celle affichée sur le planning ; liste grisée avec cadenas
+  et explication sauf pour les profils Admin et Direction (comme l'écran).
+- **Mois** : ‹ / liste des 24 derniers mois / › ; mois en cours par défaut.
+- **Contenu** : Détaillé (une ligne par description) ou Synthétique (une
+  ligne par client et type d'action, sans totaux), avec une phrase d'aide.
+- **Récapitulatif** du mois (« 176 h pointées en septembre 2026 · 11 clients ·
+  145 pointages »), recalculé à chaque changement ; « Aucun pointage » grise
+  le bouton.
+- **Imprimer le relevé** : PDF ouvert dans un nouvel onglet du navigateur
+  (onglet ouvert pendant le clic pour éviter le blocage des fenêtres), puis
+  fermeture de la fenêtre. Contenu du PDF : voir
+  `back/src/modules/pointages/README.md`.
+
+**Relevé mensuel (Excel)** : même fenêtre (`format: 'excel'`), titre
+« Relevé mensuel (Excel) » à icône verte, sans choix du contenu (version
+détaillée seulement, phrase d'explication à la place) ; bouton « Télécharger
+le fichier Excel » : classeur téléchargé, puis fermeture de la fenêtre.
+
 ## Fichiers
 
 - `pointages.utils.ts` (+ spec) : tags, titres, semaines, heures.
+- `releve-mensuel-modal/releve-mensuel.utils.ts` (+ spec) : mois proposés,
+  bornes, récapitulatif.
 - `access/` : clé `pointages.page.access` (manifeste pour le panneau
   d'administration des accès UI).

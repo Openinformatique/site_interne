@@ -12,8 +12,22 @@ import {
 import frLocale from '@fullcalendar/core/locales/fr';
 import interactionPlugin, { DateClickArg, EventResizeDoneArg } from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
-import { CalendarIcon, ChevronLeft, ChevronRight, Clock, Copy, LucideAngularModule, Pencil, Trash2, X } from 'lucide-angular';
+import { NgbDropdownModule, NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import {
+  CalendarIcon,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Copy,
+  FileSpreadsheet,
+  FileText,
+  LucideAngularModule,
+  Pencil,
+  Printer,
+  Trash2,
+  X,
+} from 'lucide-angular';
 import Swal from 'sweetalert2';
 
 import { PointagesApi } from '../../../../core/api/pointages-api.service';
@@ -21,6 +35,7 @@ import { AuthStore } from '../../../../core/auth/auth.store';
 import { ApiError } from '../../../../core/models/api.model';
 import { FACTURABLE, Pointage, PointageInput, PointagesReference } from '../../../../core/models/pointage.model';
 import { PointageModalComponent, PointageModalResult } from '../pointage-modal/pointage-modal.component';
+import { FormatReleve, ouvrirReleveMensuel } from '../releve-mensuel-modal/releve-mensuel-modal.component';
 import {
   couleurType,
   dureeHeures,
@@ -80,7 +95,7 @@ interface Fantome {
  */
 @Component({
   selector: 'app-pointages-page',
-  imports: [FullCalendarModule, LucideAngularModule],
+  imports: [FullCalendarModule, LucideAngularModule, NgbDropdownModule],
   templateUrl: './pointages-page.component.html',
   styleUrl: './pointages-page.component.scss',
 })
@@ -93,12 +108,16 @@ export class PointagesPageComponent implements OnInit {
 
   @ViewChild('calendar') private calendarComponent?: FullCalendarComponent;
 
+  readonly ChevronDown = ChevronDown;
   readonly ChevronLeft = ChevronLeft;
   readonly ChevronRight = ChevronRight;
   readonly CalendarIcon = CalendarIcon;
   readonly Clock = Clock;
   readonly Copy = Copy;
+  readonly FileSpreadsheet = FileSpreadsheet;
+  readonly FileText = FileText;
   readonly Pencil = Pencil;
+  readonly Printer = Printer;
   readonly Trash2 = Trash2;
   readonly X = X;
 
@@ -278,6 +297,13 @@ export class PointagesPageComponent implements OnInit {
 
   annulerCopie(): void {
     this.copie.set(null);
+  }
+
+  // --- Éditions ------------------------------------------------------------
+
+  /** Relevé mensuel (PDF ou Excel) : personne affichée par défaut, modifiable par Admin et Direction. */
+  ouvrirReleveMensuel(format: FormatReleve = 'pdf'): void {
+    ouvrirReleveMensuel(this.modal, this.personneOptions(), this.personneId(), this.personneLocked(), format);
   }
 
   private allerA(date: Date): void {

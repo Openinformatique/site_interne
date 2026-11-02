@@ -32,6 +32,20 @@
         <span class="track" [class.on]="weekend()" aria-hidden="true"><span class="knob"></span></span>Week-end
       </button>
       <span class="total-pill"><lucide-icon [img]="Clock" [size]="15" />Semaine : {{ totalSemaine() }} h</span>
+      <!-- Éditions : relevé mensuel -->
+      <div ngbDropdown #editions="ngbDropdown" placement="bottom-end" class="editions">
+        <button type="button" class="chip-btn editions-btn" ngbDropdownToggle><lucide-icon [img]="Printer" [size]="15" />Éditions<lucide-icon [img]="ChevronDown" [size]="14" class="chevron" /></button>
+        <div ngbDropdownMenu class="editions-menu">
+          <button type="button" ngbDropdownItem class="editions-item" (click)="editions.close(); ouvrirReleveMensuel()">
+            <lucide-icon [img]="FileText" [size]="18" class="editions-ico" />
+            <span><b>Relevé mensuel</b><small>Temps passé d'une personne sur un mois, par client</small></span>
+          </button>
+          <button type="button" ngbDropdownItem class="editions-item" (click)="editions.close(); ouvrirReleveMensuel('excel')">
+            <lucide-icon [img]="FileSpreadsheet" [size]="18" class="editions-ico" />
+            <span><b>Relevé mensuel (Excel)</b><small>Version détaillée en tableau filtrable</small></span>
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 

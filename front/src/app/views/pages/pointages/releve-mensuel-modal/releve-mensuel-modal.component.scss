@@ -1,0 +1,39 @@
+@use '../../clients/client-fiche/fiche-shared' as fiche;
+
+@include fiche.fiche-tokens;
+@include fiche.fiche-components;
+
+// Mêmes valeurs que la maquette validée (libellés à gauche, choix du mois ‹ › ,
+// contenu Détaillé / Synthétique, récapitulatif).
+.modal-card { box-shadow: 0 18px 48px rgba(0, 0, 0, .25); }
+.modal-title-text { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 16px; font-weight: 600; color: var(--fiche-emph); }
+.accent { color: #6571ff; }
+// Vert « classeur », comme l'icône de l'entrée de menu.
+.excel { color: #05a34a; }
+.excel-hint { min-height: 36px; align-items: center; }
+
+.rows { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 14px 12px; align-items: start; padding: 18px 20px; }
+.row-label { display: flex; align-items: center; min-height: 36px; margin: 0; font-size: 13px; font-weight: 500; color: var(--fiche-text); }
+.stack { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.input:disabled { background: var(--bs-tertiary-bg); color: var(--fiche-muted); cursor: not-allowed; }
+:host-context([data-bs-theme='dark']) .input { color-scheme: dark; }
+.hint { display: flex; align-items: flex-start; gap: 6px; font-size: 12px; line-height: 1.4; color: var(--fiche-muted); }
+.hint lucide-icon { flex: none; margin-top: 1px; }
+
+.month { display: flex; align-items: center; gap: 6px; }
+.month .input { flex: 1; min-width: 0; }
+.month .icon-btn { width: 36px; height: 36px; }
+.icon-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.seg { display: flex; border: 1px solid var(--bs-border-color); border-radius: 8px; overflow: hidden; }
+.seg button { flex: 1; height: 36px; border: 0; background: var(--bs-body-bg); color: var(--fiche-text); font-size: 13px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--bs-border-color); }
+.seg button.on { background: #6571ff; color: #fff; font-weight: 500; }
+
+.recap { display: flex; align-items: center; gap: 10px; margin: 0 20px 18px; padding: 10px 14px; border-radius: 8px; background: rgba(101, 113, 255, .08); color: var(--fiche-emph); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.recap lucide-icon { flex: none; color: #6571ff; }
+.recap.vide { background: var(--bs-tertiary-bg); color: var(--fiche-muted); }
+.recap.vide lucide-icon { color: var(--fiche-muted); }
+
+.btn-print { display: inline-flex; align-items: center; gap: 8px; }
+.btn-save:disabled { opacity: .5; cursor: not-allowed; }

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsIn,
   IsInt,
@@ -50,6 +50,35 @@ export class ListPointagesQueryDto {
   @ApiProperty({ example: '2026-11-01T23:00:00.000Z' })
   @IsISO8601({}, { message: INSTANT })
   au!: string;
+}
+
+/** Contenu du relevé mensuel. */
+export const CONTENUS_RELEVE = ['detail', 'synthese'] as const;
+
+/** Query de GET /pointages/releve.pdf : relevé mensuel d'une personne. */
+export class ReleveMensuelQueryDto {
+  @ApiProperty({ description: "Identifiant de l'utilisateur." })
+  @IsUUID('all', { message: 'Personne invalide.' })
+  utilisateurId!: string;
+
+  @ApiProperty({ example: 2026 })
+  @Type(() => Number)
+  @IsInt({ message: 'Année invalide.' })
+  @Min(2000, { message: 'Année invalide.' })
+  @Max(2100, { message: 'Année invalide.' })
+  annee!: number;
+
+  @ApiProperty({ example: 9, description: 'Mois de 1 à 12.' })
+  @Type(() => Number)
+  @IsInt({ message: 'Mois invalide.' })
+  @Min(1, { message: 'Mois invalide.' })
+  @Max(12, { message: 'Mois invalide.' })
+  mois!: number;
+
+  @ApiPropertyOptional({ enum: CONTENUS_RELEVE, default: 'detail' })
+  @IsOptional()
+  @IsIn(CONTENUS_RELEVE, { message: 'Contenu invalide.' })
+  contenu?: (typeof CONTENUS_RELEVE)[number];
 }
 
 /** Corps de POST /pointages et PUT /pointages/:id. */

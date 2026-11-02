@@ -43,6 +43,57 @@ export interface SuiviContratPdfData {
   editeLe: string;
 }
 
+/** Édition « Relevé mensuel des pointages » (écran Pointages › Éditions). */
+export const PDF_TEMPLATE_RELEVE_MENSUEL = 'releve-mensuel';
+
+/** Statut facturable d'une ligne du relevé (codes 2 à 4 : en attente). */
+export type ReleveFacturable = 'oui' | 'non' | 'attente';
+
+/** Pointages de même description et de même statut, cumulés. */
+export interface ReleveMensuelPdfLigne {
+  description: string;
+  heures: number;
+  facturable: ReleveFacturable;
+}
+
+export interface ReleveMensuelPdfCommande {
+  /** N° de commande client, sinon n° de devis ; null : sans commande. */
+  numero: string | null;
+  heures: number;
+  lignes: ReleveMensuelPdfLigne[];
+}
+
+export interface ReleveMensuelPdfType {
+  libelle: string;
+  /** Couleur TYPA « R,V,B », null si non paramétrée. */
+  couleur: string | null;
+  heures: number;
+  commandes: ReleveMensuelPdfCommande[];
+}
+
+export interface ReleveMensuelPdfClient {
+  /** Code client (« INTERNE » pour le temps sans client). */
+  client: string;
+  heures: number;
+  types: ReleveMensuelPdfType[];
+}
+
+/** Données de l'édition « Relevé mensuel ». */
+export interface ReleveMensuelPdfData {
+  personne: string;
+  /** « Septembre 2026 ». */
+  periode: string;
+  /** Synthèse : une ligne par client et type d'action, sans totaux. */
+  synthese: boolean;
+  total: number;
+  clients: number;
+  interne: number;
+  absences: number;
+  groupes: ReleveMensuelPdfClient[];
+  /** « JJ/MM/AAAA », en pied de chaque page. */
+  editeLe: string;
+}
+
 /** Données du gabarit de démonstration technique. */
 export interface TechnicalDemoPdfData {
   generatedAt: Date;
