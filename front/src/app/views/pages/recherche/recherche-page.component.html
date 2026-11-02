@@ -1,0 +1,117 @@
+@if (resultat(); as r) {
+  <div class="res-head">
+    <h1>Recherche : <span>« {{ q }} »</span></h1>
+    <button type="button" class="chip" (click)="aller('r-clients')">{{ pluriel(r.clients.total, 'client', 'clients') }}</button>
+    <button type="button" class="chip" (click)="aller('r-commandes')">{{ pluriel(r.commandes.total, 'commande', 'commandes') }}</button>
+    <button type="button" class="chip" (click)="aller('r-pointages')">{{ pluriel(r.pointages.total, 'pointage', 'pointages') }}</button>
+    <div class="res-sub">Sans tenir compte des majuscules ni des accents · plusieurs mots : chacun doit être présent</div>
+  </div>
+
+  @if (r.termes.length === 0) {
+    <div class="card"><div class="card-empty">Saisis au moins 2 caractères dans la barre de recherche.</div></div>
+  }
+
+  <!-- Clients -->
+  <section class="card" id="r-clients">
+    <div class="card-head"><h2><lucide-icon [img]="icons.clients" />Clients</h2><span class="cnt">{{ r.clients.total }}</span></div>
+    @if (r.clients.items.length === 0) {
+      <div class="card-empty">Aucun client ne contient « {{ q }} » (code, raison sociale, adresse, ville, n° de TVA, groupe).</div>
+    } @else {
+      <div class="tw">
+        <table>
+          <thead><tr><th>Code</th><th>Raison sociale</th><th>Ville</th><th>Groupe</th><th>Statut</th></tr></thead>
+          <tbody>
+            @for (client of r.clients.items; track client.id) {
+              <tr tabindex="0" title="Ouvrir le client" (click)="navigation.ouvrirClient(client)" (keydown.enter)="navigation.ouvrirClient(client)">
+                <td class="nw b"><app-surligne [texte]="client.codeClient" [termes]="r.termes" /></td>
+                <td><app-surligne [texte]="client.raisonSociale" [termes]="r.termes" /></td>
+                <td><app-surligne [texte]="client.ville" [termes]="r.termes" /></td>
+                <td><app-surligne [texte]="client.groupe" [termes]="r.termes" /></td>
+                <td><span class="st" [class.on]="client.actif" [class.off]="!client.actif">{{ client.actif ? 'Actif' : 'Inactif' }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="card-foot">
+        @if (partiel(r.clients.total, r.clients.items.length); as p) { {{ p }} · }Actifs d'abord, puis par raison sociale · clic : ouvrir le client
+      </div>
+    }
+  </section>
+
+  <!-- Commandes -->
+  <section class="card" id="r-commandes">
+    <div class="card-head"><h2><lucide-icon [img]="icons.commandes" />Commandes</h2><span class="cnt">{{ r.commandes.total }}</span></div>
+    @if (r.commandes.items.length === 0) {
+      <div class="card-empty">Aucune commande ne contient « {{ q }} » (n° de commande ou de devis, libellé, contrat, client).</div>
+    } @else {
+      <div class="tw">
+        <table>
+          <thead><tr><th>Client</th><th>N° commande</th><th>Libellé</th><th>Date commande</th><th>Statut</th></tr></thead>
+          <tbody>
+            @for (commande of r.commandes.items; track commande.id) {
+              <tr tabindex="0" title="Ouvrir la commande" (click)="navigation.ouvrirCommande(commande)" (keydown.enter)="navigation.ouvrirCommande(commande)">
+                <td class="nw"><app-surligne [texte]="commande.client || commande.codeClient" [termes]="r.termes" /></td>
+                <td class="nw b"><app-surligne [texte]="numeroCommande(commande)" [termes]="r.termes" /></td>
+                <td>
+                  <app-surligne [texte]="commande.libelle" [termes]="r.termes" />
+                  @if (commande.contrat) {
+                    <div class="sub">contrat : <app-surligne [texte]="commande.contrat" [termes]="r.termes" /></div>
+                  }
+                </td>
+                <td class="nw">{{ frDate(commande.dateCommande) }}</td>
+                <td><span class="st" [class.on]="!commande.cloturee" [class.off]="commande.cloturee">{{ commande.cloturee ? 'Clôturée' : 'En cours' }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="card-foot">
+        @if (partiel(r.commandes.total, r.commandes.items.length); as p) { {{ p }} · }En cours d'abord, puis par date de commande décroissante · clic : ouvrir la commande
+      </div>
+    }
+  </section>
+
+  <!-- Pointages -->
+  <section class="card" id="r-pointages">
+    <div class="card-head">
+      <h2><lucide-icon [img]="icons.pointages" />Pointages</h2><span class="cnt">{{ r.pointages.total.toLocaleString('fr-FR') }}</span>
+      @if (r.pointages.total) {
+        <span class="tot">Total : <b>{{ heures(r.pointages.heures) }}</b></span>
+      }
+    </div>
+    @if (r.pointages.items.length === 0) {
+      <div class="card-empty">Aucun pointage ne contient « {{ q }} » (description et tags, client, commande).</div>
+    } @else {
+      <div class="tw">
+        <table>
+          <thead><tr><th>Date</th><th>Personne</th><th>Client</th><th>Commande</th><th>Type</th><th class="num">Durée</th><th>Description</th></tr></thead>
+          <tbody>
+            @for (pointage of r.pointages.items; track pointage.id) {
+              <tr tabindex="0" title="Ouvrir les pointages de la semaine" (click)="navigation.ouvrirPointage(pointage)" (keydown.enter)="navigation.ouvrirPointage(pointage)">
+                <td class="nw">{{ frDate(pointage.jour) }}</td>
+                <td class="nw">{{ pointage.personne }}</td>
+                <td class="nw">
+                  @if (pointage.codeClient) { <app-surligne [texte]="pointage.codeClient" [termes]="r.termes" /> } @else { <span class="mut">Interne</span> }
+                </td>
+                <td class="nw">
+                  @if (pointage.commande) { <app-surligne [texte]="pointage.commande" [termes]="r.termes" /> } @else { <span class="mut">—</span> }
+                </td>
+                <td>{{ pointage.type }}</td>
+                <td class="num">{{ heures(pointage.heures) }}</td>
+                <td><app-surligne [texte]="pointage.description" [termes]="r.termes" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="card-foot">
+        @if (partiel(r.pointages.total, r.pointages.items.length); as p) { {{ p }} (total d'heures sur tous) · }Du plus récent au plus ancien · clic : ouvrir les pointages de la personne sur la semaine
+      </div>
+    }
+  </section>
+} @else if (erreur()) {
+  <div class="card"><div class="card-empty">La recherche n'a pas pu aboutir. Réessaie dans un instant.</div></div>
+} @else {
+  <div class="card"><div class="card-empty">Recherche de « {{ q }} »…</div></div>
+}

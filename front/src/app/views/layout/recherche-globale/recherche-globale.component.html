@@ -1,0 +1,80 @@
+<div class="input-group">
+  <div class="input-group-text">
+    <lucide-icon [img]="icons.search" />
+  </div>
+  <input type="text" class="form-control" placeholder="Rechercher un client, une commande, un pointage…" aria-label="Recherche globale"
+         role="combobox" [attr.aria-expanded]="ouvert()" aria-controls="recherche-globale-liste" autocomplete="off"
+         [formControl]="saisie" (keydown)="clavier($event)" (focus)="rouvrir()" (blur)="fermer()" />
+</div>
+
+@if (ouvert() && resultat(); as r) {
+  <!-- mousedown empêché : le champ garde le focus, la liste reste ouverte jusqu'au clic. -->
+  <div class="dd" id="recherche-globale-liste" role="listbox" (mousedown)="$event.preventDefault()">
+    @if (aucun()) {
+      <div class="vide">Aucun client, aucune commande ni aucun pointage ne contient « {{ saisie.value.trim() }} ».</div>
+    } @else {
+      <!-- Clients -->
+      <div class="grp-h"><lucide-icon [img]="icons.clients" />Clients<span class="n">{{ r.clients.total }}</span></div>
+      @for (client of r.clients.items; track client.id) {
+        <button type="button" class="it" role="option" [class.sel]="index(client) === selection()" [attr.aria-selected]="index(client) === selection()"
+                (click)="ouvrir({ type: 'client', client })">
+          <span class="l">
+            <span class="t"><b><app-surligne [texte]="client.codeClient" [termes]="r.termes" /></b> · <app-surligne [texte]="client.raisonSociale" [termes]="r.termes" /></span>
+            <span class="s">{{ client.ville || '—' }}{{ client.groupe ? ' · ' + client.groupe : '' }}</span>
+          </span>
+          @if (!client.actif) { <span class="r">Inactif</span> }
+        </button>
+      } @empty {
+        <div class="empty">Aucun client ne contient « {{ saisie.value.trim() }} ».</div>
+      }
+      @if (r.clients.total > r.clients.items.length) {
+        <button type="button" class="more" (click)="toutVoir()">Voir les {{ pluriel(r.clients.total, 'client', 'clients') }}</button>
+      }
+      <div class="sep"></div>
+
+      <!-- Commandes -->
+      <div class="grp-h"><lucide-icon [img]="icons.commandes" />Commandes<span class="n">{{ r.commandes.total }}</span></div>
+      @for (commande of r.commandes.items; track commande.id) {
+        <button type="button" class="it" role="option" [class.sel]="index(commande) === selection()" [attr.aria-selected]="index(commande) === selection()"
+                (click)="ouvrir({ type: 'commande', commande })">
+          <span class="l">
+            <span class="t"><b><app-surligne [texte]="numeroCommande(commande)" [termes]="r.termes" /></b> · <app-surligne [texte]="commande.libelle" [termes]="r.termes" /></span>
+            <span class="s">
+              <app-surligne [texte]="commande.client || commande.codeClient" [termes]="r.termes" />
+              @if (commande.contrat) { · contrat : <app-surligne [texte]="commande.contrat" [termes]="r.termes" /> }
+            </span>
+          </span>
+          <span class="r">{{ commande.cloturee ? 'Clôturée' : 'En cours' }}</span>
+        </button>
+      } @empty {
+        <div class="empty">Aucune commande ne contient « {{ saisie.value.trim() }} ».</div>
+      }
+      @if (r.commandes.total > r.commandes.items.length) {
+        <button type="button" class="more" (click)="toutVoir()">Voir les {{ pluriel(r.commandes.total, 'commande', 'commandes') }}</button>
+      }
+      <div class="sep"></div>
+
+      <!-- Pointages -->
+      <div class="grp-h"><lucide-icon [img]="icons.pointages" />Pointages<span class="n">{{ r.pointages.total.toLocaleString('fr-FR') }}</span></div>
+      @for (pointage of r.pointages.items; track pointage.id) {
+        <button type="button" class="it" role="option" [class.sel]="index(pointage) === selection()" [attr.aria-selected]="index(pointage) === selection()"
+                (click)="ouvrir({ type: 'pointage', pointage })">
+          <span class="l">
+            <span class="t"><app-surligne [texte]="pointage.description || '(sans description)'" [termes]="r.termes" /></span>
+            <span class="s">{{ jour(pointage.jour) }} · {{ pointage.personne }}@if (pointage.codeClient) { · <app-surligne [texte]="pointage.codeClient" [termes]="r.termes" /> }</span>
+          </span>
+          <span class="r">{{ heures(pointage.heures) }}</span>
+        </button>
+      } @empty {
+        <div class="empty">Aucun pointage ne contient « {{ saisie.value.trim() }} ».</div>
+      }
+      @if (r.pointages.total > r.pointages.items.length) {
+        <button type="button" class="more" (click)="toutVoir()">Voir les {{ pluriel(r.pointages.total, 'pointage', 'pointages') }}</button>
+      }
+    }
+    <div class="dd-foot">
+      <lucide-icon [img]="icons.search" /><span><b>Entrée</b> : tous les résultats pour « {{ saisie.value.trim() }} »</span>
+      <span class="nav">↑ ↓ pour naviguer</span>
+    </div>
+  </div>
+}

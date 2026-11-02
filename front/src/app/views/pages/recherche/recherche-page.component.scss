@@ -1,0 +1,51 @@
+// Onglet « Recherche » — valeurs de la maquette validée (clair et sombre).
+:host {
+  display: block;
+  --rech-primary: #6571ff;
+  --rech-primary-soft: rgba(101, 113, 255, .1);
+  --rech-hover: rgba(101, 113, 255, .06);
+  --rech-success-soft: #e1f5ea;
+  --rech-success-fg: #05793a;
+}
+
+:host-context([data-bs-theme='dark']) {
+  --rech-primary-soft: rgba(101, 113, 255, .16);
+  --rech-hover: rgba(101, 113, 255, .1);
+  --rech-success-soft: rgba(5, 163, 74, .18);
+  --rech-success-fg: #4cd38a;
+}
+
+.res-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 18px; }
+.res-head h1 { margin: 0; font-size: 18px; font-weight: 500; }
+.res-head h1 span { color: var(--rech-primary); }
+.chip { padding: 3px 10px; border: 1px solid var(--bs-border-color); border-radius: 20px; background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); font-size: 12.5px; font-weight: 500; cursor: pointer; }
+.chip:hover, .chip:focus-visible { border-color: var(--rech-primary); color: var(--rech-primary); outline: none; }
+.res-sub { width: 100%; color: var(--bs-secondary-color); font-size: 12.5px; }
+
+.card { min-width: 0; margin-bottom: 20px; border: 1px solid var(--bs-border-color); border-radius: 6px; background: var(--bs-body-bg); scroll-margin-top: 130px; }
+.card-head { display: flex; align-items: center; gap: 8px; padding: 14px 18px; border-bottom: 1px solid var(--bs-border-color); }
+.card-head h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; font-weight: 500; }
+.card-head h2 lucide-icon { display: flex; width: 17px; height: 17px; color: var(--bs-secondary-color); }
+.cnt { padding: 2px 8px; border-radius: 20px; background: var(--rech-primary-soft); color: var(--rech-primary); font-size: 12px; font-weight: 500; }
+.tot { margin-left: auto; color: var(--bs-secondary-color); font-size: 12.5px; }
+.tot b { color: var(--bs-body-color); font-weight: 500; }
+.card-empty { padding: 18px; color: var(--bs-secondary-color); font-size: 13px; }
+.card-foot { padding: 9px 18px; border-top: 1px solid var(--bs-border-color); color: var(--bs-secondary-color); font-size: 12px; }
+
+.tw { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th { padding: 8px 12px; border-bottom: 1px solid var(--bs-border-color); background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); font-size: 12px; font-weight: 500; text-align: left; white-space: nowrap; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--bs-border-color); vertical-align: top; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr { cursor: pointer; }
+tbody tr:hover td, tbody tr:focus-visible td { background: var(--rech-hover); }
+tbody tr:focus-visible { outline: none; }
+th:first-child, td:first-child { padding-left: 18px; }
+.num { text-align: right; white-space: nowrap; }
+.nw { white-space: nowrap; }
+.mut { color: var(--bs-secondary-color); }
+.b { font-weight: 500; }
+.sub { margin-top: 2px; color: var(--bs-secondary-color); font-size: 12px; }
+.st { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11.5px; font-weight: 500; white-space: nowrap; }
+.st.on { background: var(--rech-success-soft); color: var(--rech-success-fg); }
+.st.off { border: 1px solid var(--bs-border-color); background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); }

@@ -16,15 +16,3 @@ export const USER_ROLE_LABELS: Record<UserRole, string> = {
   [UserRole.Employee]: 'Employé',
 };
 
-export enum SearchResultType {
-  Contact = 'CONTACT',
-  Product = 'PRODUCT',
-  Order = 'ORDER',
-  Invoice = 'INVOICE',
-}
-export const SEARCH_RESULT_TYPE_LABELS: Record<SearchResultType, string> = {
-  [SearchResultType.Contact]: 'Contact',
-  [SearchResultType.Product]: 'Produit',
-  [SearchResultType.Order]: 'Commande',
-  [SearchResultType.Invoice]: 'Facture',
-};

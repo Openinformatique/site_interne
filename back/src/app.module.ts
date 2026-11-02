@@ -16,6 +16,7 @@ import { ObservabilityModule } from './modules/observability/observability.modul
 import { ParametresModule } from './modules/parametres/parametres.module';
 import { PdfModule } from './modules/pdf/pdf.module';
 import { PointagesModule } from './modules/pointages/pointages.module';
+import { RechercheModule } from './modules/recherche/recherche.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { TableauDeBordModule } from './modules/tableau-de-bord/tableau-de-bord.module';
@@ -52,6 +53,7 @@ import { UsersModule } from './modules/users/users.module';
     CommandesModule,
     PointagesModule,
     TableauDeBordModule,
+    RechercheModule,
     // Endpoints de démonstration : routes inexistantes lorsque désactivés.
     ...(isTechnicalDemoEnabled() ? [TechnicalDemoModule] : []),
   ],

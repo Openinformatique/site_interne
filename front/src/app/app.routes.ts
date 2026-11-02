@@ -56,6 +56,11 @@ export const routes: Routes = [
         canActivate: [roleGuard, uiAccessGuard],
         data: { roles: [UserRole.Admin, UserRole.Direction], uiAccessKey: PARAMETRES_UI_KEYS.PAGE_ACCESS },
       },
+      // Recherche globale (barre du haut) : un onglet par recherche (?q=…).
+      {
+        path: 'recherche',
+        loadComponent: () => import('./views/pages/recherche/recherche-page.component').then(c => c.RecherchePageComponent),
+      },
       {
         path: 'profile',
         loadChildren: () => import('./views/pages/profile/profile.routes'),

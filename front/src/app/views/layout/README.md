@@ -51,7 +51,7 @@ personnages) de l'illustration `Fichier-2.png` du site openinformatique.com.
 
 ## Barre du haut
 
-Recherche globale, interrupteur jour/nuit, cloche d'alertes, menu du profil.
+Recherche globale (clients, commandes, pointages : `views/pages/recherche/README.md`), interrupteur jour/nuit, cloche d'alertes, menu du profil.
 
 ### Cloche d'alertes (pointages incomplets)
 

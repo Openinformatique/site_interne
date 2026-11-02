@@ -135,7 +135,9 @@ export class PointagesPageComponent implements OnInit {
   readonly pointages = signal<Pointage[]>([]);
   readonly weekend = signal(false);
   /** Lundi de la semaine affichée. */
-  readonly semaine = signal<Date>(lundiDe(this.navigation.consommer() ?? new Date()));
+  /** Semaine et personne demandées à la création (cloche d'alertes, recherche globale). */
+  private readonly demandeInitiale = this.navigation.consommer();
+  readonly semaine = signal<Date>(lundiDe(this.demandeInitiale?.jour ?? new Date()));
   readonly weekPickerOpen = signal(false);
   readonly copie = signal<Pointage | null>(null);
   readonly bulle = signal<Bulle | null>(null);
@@ -254,21 +256,21 @@ export class PointagesPageComponent implements OnInit {
   private restauration = false;
 
   constructor() {
-    // Page déjà ouverte : semaine demandée par la cloche d'alertes, pour
-    // l'utilisateur connecté.
+    // Page déjà ouverte : semaine et personne demandées par la cloche
+    // d'alertes (utilisateur connecté) ou la recherche globale.
     effect(() => {
       if (!this.navigation.demande()) {
         return;
       }
       untracked(() => {
-        const jour = this.navigation.consommer();
-        const moi = this.moi();
-        if (moi) {
+        const demande = this.navigation.consommer();
+        const personne = this.personneDemandee(demande?.personneId ?? null) ?? this.moi();
+        if (personne) {
           this.copie.set(null);
-          this.personneId.set(moi);
+          this.personneId.set(personne);
         }
-        if (jour) {
-          this.allerA(jour);
+        if (demande) {
+          this.allerA(demande.jour);
         }
       });
     });
@@ -286,7 +288,7 @@ export class PointagesPageComponent implements OnInit {
   ngOnInit(): void {
     this.api.reference().subscribe((reference) => {
       this.reference.set(reference);
-      this.personneId.set(this.moi() ?? reference.personnes[0]?.id ?? '');
+      this.personneId.set(this.personneDemandee(this.demandeInitiale?.personneId ?? null) ?? this.moi() ?? reference.personnes[0]?.id ?? '');
     });
     this.observerHauteur();
   }
@@ -345,6 +347,12 @@ export class PointagesPageComponent implements OnInit {
   }
 
   /** Identifiant de l'utilisateur connecté dans la liste des personnes (casse du référentiel). */
+  /** Personne demandée si elle figure dans la liste (sinon : droits insuffisants). */
+  private personneDemandee(id: string | null): string | undefined {
+    const cherche = id?.toLowerCase();
+    return cherche ? this.reference().personnes.find((personne) => personne.id.toLowerCase() === cherche)?.id : undefined;
+  }
+
   private moi(): string | undefined {
     const moi = this.auth.currentUser()?.id.toLowerCase() ?? '';
     return this.reference().personnes.find((personne) => personne.id.toLowerCase() === moi)?.id;

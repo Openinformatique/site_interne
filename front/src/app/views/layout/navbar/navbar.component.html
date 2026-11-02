@@ -6,28 +6,9 @@
       <img src="images/logo-mini-dark.png" class="logo-mini logo-mini-dark" alt="logo">
     </div>
 
-    <!-- Recherche globale (branchée en F10) -->
+    <!-- Recherche globale : clients, commandes, pointages (layout/recherche-globale) -->
     <div class="search-form position-relative">
-      <div class="input-group">
-        <div class="input-group-text">
-          <lucide-icon [img]="searchIcon" />
-        </div>
-        <input type="text" class="form-control" placeholder="Rechercher (contact, produit, commande, facture)…"
-               [formControl]="searchControl" (focus)="searchOpen.set(results().length > 0)" />
-      </div>
-      @if (searchOpen() && results().length > 0) {
-        <div class="dropdown-menu show w-100 mt-1" style="max-height: 360px; overflow-y: auto;">
-          @for (r of results(); track r.type + r.id) {
-            <button type="button" class="dropdown-item d-flex justify-content-between align-items-center" (click)="goToResult(r)">
-              <span class="text-truncate">
-                <strong>{{ r.label }}</strong>
-                <span class="text-secondary small ms-1">{{ r.subtitle }}</span>
-              </span>
-              <span class="badge bg-light text-dark ms-2">{{ typeLabels[r.type] }}</span>
-            </button>
-          }
-        </div>
-      }
+      <app-recherche-globale />
     </div>
 
     <ul class="navbar-nav">

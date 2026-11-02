@@ -1,5 +1,5 @@
 import { MenuItem } from './menu.model';
-import { Building2Icon, CalendarClockIcon, ClipboardListIcon, LayoutDashboardIcon, LucideIconData, SlidersHorizontalIcon, UsersIcon } from 'lucide-angular';
+import { Building2Icon, CalendarClockIcon, ClipboardListIcon, LayoutDashboardIcon, LucideIconData, SearchIcon, SlidersHorizontalIcon, UsersIcon } from 'lucide-angular';
 import { UserRole } from '../../../core/models/enums';
 import { CLIENTS_UI_KEYS } from '../../pages/clients/access/clients-access.keys';
 import { COMMANDES_UI_KEYS } from '../../pages/commandes/access/commandes-access.keys';
@@ -41,10 +41,15 @@ export const MENU: MenuItem[] = [
   },
 ];
 
+/** Icônes d'onglet des pages hors menu (ex. onglet « Recherche : terme »). */
+const ICONES_HORS_MENU: Record<string, LucideIconData> = {
+  '/recherche': SearchIcon,
+};
+
 /**
  * Icône de l'entrée de premier niveau d'où provient une page (onglets) : le
  * lien le plus long qui préfixe l'URL l'emporte (ex. /clients/196 → icône de
- * Clients). Undefined si aucune entrée ne correspond.
+ * Clients) ; à défaut, icône des pages hors menu. Undefined si rien ne correspond.
  */
 export function menuIconForUrl(url: string): LucideIconData | undefined {
   const path = url.split(/[?#]/)[0];
@@ -59,5 +64,5 @@ export function menuIconForUrl(url: string): LucideIconData | undefined {
       }
     }
   }
-  return best?.icon;
+  return best?.icon ?? ICONES_HORS_MENU[path];
 }
