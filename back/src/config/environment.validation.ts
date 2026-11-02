@@ -15,13 +15,16 @@ import {
 /**
  * Environnements pris en charge par le socle.
  *
- * Volontairement limité à local / development / test : la production
- * sera ajoutée lorsque la cible d'hébergement sera connue.
+ * `production` correspond au déploiement sur le serveur (voir
+ * deploiement.md à la racine du dépôt) : logs JSON, throttling actif,
+ * erreurs assainies — même comportement que development côté code,
+ * seule la configuration .env.production diffère.
  */
 export enum NodeEnvironment {
   Local = 'local',
   Development = 'development',
   Test = 'test',
+  Production = 'production',
 }
 
 /** Niveaux de log acceptés par Pino. */
@@ -94,7 +97,8 @@ export class EnvironmentVariables {
   // --- Application ---------------------------------------------------------
 
   @IsEnum(NodeEnvironment, {
-    message: 'NODE_ENV doit valoir "local", "development" ou "test".',
+    message:
+      'NODE_ENV doit valoir "local", "development", "test" ou "production".',
   })
   NODE_ENV!: NodeEnvironment;
 

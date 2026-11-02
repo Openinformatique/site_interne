@@ -15,6 +15,11 @@ coverage/
 .env.development
 .env.test
 .env.*.local
+.env.production
+
+# Fichiers propres au serveur de production (créés sur la VM, voir deploiement.md)
+docker-compose.override.yml
+ecosystem.config.js
 
 # Logs
 logs/
