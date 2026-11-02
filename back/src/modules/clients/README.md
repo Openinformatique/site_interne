@@ -45,6 +45,7 @@ Réponse : enveloppe standard, `data` = lignes (`ClientSummaryResponseDto`),
 | `GET /clients/:id/contrats`                           | contrats avec `credit`, `debit`, `restant` (heures)                                    |
 | `POST /clients/:id/contrats` · `PUT …/contrats/:cid`  | création / modification d'un contrat                                                   |
 | `GET /clients/:id/contrats/:cid/mouvements`           | suivi du contrat : commandes (crédit) et pointages (débit), date décroissante          |
+| `GET /clients/:id/contrats/:cid/suivi.pdf`            | édition PDF « Suivi du contrat d'assistance » (`inline`)                               |
 | `GET /clients/:id/contacts`                           | contacts actifs et inactifs, triés par nom                                             |
 | `POST /clients/:id/contacts` · `PUT …/contacts/:ctid` | création / modification d'un contact                                                   |
 | `GET /clients/:id/commandes`                          | commandes du client (`includeClosed`, `du`, `au`)                                      |
@@ -63,7 +64,19 @@ Règles :
 - **suivi d'un contrat** (heures) : crédit = jours commandés des commandes du
   contrat × `HJOUR` (paramètre `TDIV`/`HJOUR`, rubrique 02, 8 par défaut) ;
   débit = temps facturable des pointages de ces commandes, quel que soit le
-  code de facturation ; restant = crédit − débit (peut être négatif) ;
+  code de facturation, **à partir du jour de la première commande** (date de
+  commande, sinon de devis ; jour du pointage à Paris) — les pointages
+  antérieurs ne sont pas repris ; restant = crédit − débit (peut être
+  négatif). Règle commune à la liste des contrats, aux mouvements et à
+  l'édition PDF (`domain/contrat-suivi.ts`) ;
+- **édition PDF « Suivi du contrat »** (`ContratSuiviPdfUseCase`, gabarit
+  `suivi-contrat` du module pdf, maquette validée le 02/11/2026) : en-tête
+  logo, titre, client, « Contrat : libellé » ; synthèse temps crédité / débité
+  / solde ; tableau encadré Date, Demandeur (contact du pointage « NOM
+  Prénom », vide sans contact), Nature (description du pointage ; libellé seul
+  de la commande), Débit (h), Crédit (h), du plus récent au plus ancien,
+  commandes surlignées en vert ; pied « Édité le … » sur chaque page. Contrat
+  sans commande : édition avec crédit 0 h ;
 - **contacts** : le nom reste stocké au format historique « NOM,Prénom »
   (`domain/contact-name.ts`), nom en majuscules ; civilité 1 = M., 2 = Mme ;
   poste = libellé du paramétrage `FONC` ; e-mail au format valide ;

@@ -99,8 +99,10 @@ Ouverte dans un onglet : `/clients/:id` (consultation / modification) ou
     crédité, débité, restant — rouge si négatif) et mouvements : présentation
     **Synthétique** (par défaut : pointages consécutifs regroupés en une ligne
     « Développement » sans date) ou **Détaillée**, filtre Tout / Commandes /
-    Pointages. « Imprimer le suivi » : prévu plus tard, sans effet pour
-    l'instant.
+    Pointages. **« Imprimer le suivi »** (contrat enregistré) : édition PDF
+    « Suivi du contrat d'assistance » ouverte dans un nouvel onglet du
+    navigateur (visionneuse : impression, enregistrement) — voir le README du
+    module clients du back pour le contenu.
   - Contact : civilité\*, statut, nom\*, prénom, poste\* (paramétrage `FONC`),
     téléphone, e-mail (format vérifié).
 

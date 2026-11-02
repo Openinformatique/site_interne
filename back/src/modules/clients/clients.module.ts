@@ -5,6 +5,8 @@ import { ParametreEntity } from '../parametres/infrastructure/entities/parametre
 import { PointageEntity } from '../pointages/infrastructure/entities/pointage.entity';
 import { ClientFicheUseCase } from './application/client-fiche.use-case';
 import { ClientRelationsUseCase } from './application/client-relations.use-case';
+import { ContratSuiviPdfUseCase } from './application/contrat-suivi-pdf.use-case';
+import { PdfModule } from '../pdf/pdf.module';
 import { ListClientsUseCase } from './application/list-clients.use-case';
 import { CLIENT_FICHE } from './domain/client-fiche.port';
 import { CLIENT_REPOSITORY } from './domain/client-repository.port';
@@ -29,12 +31,14 @@ import { ClientsController } from './presentation/clients.controller';
       PointageEntity,
       ParametreEntity,
     ]),
+    PdfModule,
   ],
   controllers: [ClientsController],
   providers: [
     ListClientsUseCase,
     ClientFicheUseCase,
     ClientRelationsUseCase,
+    ContratSuiviPdfUseCase,
     { provide: CLIENT_REPOSITORY, useClass: TypeOrmClientRepository },
     { provide: CLIENT_FICHE, useClass: TypeOrmClientFicheRepository },
   ],

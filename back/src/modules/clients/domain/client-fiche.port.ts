@@ -50,7 +50,10 @@ export interface ContratSummary {
   dateEcheance: string | null;
   /** Heures créditées : jours commandés × heures par jour. */
   credit: number;
-  /** Heures débitées : temps facturable des pointages des commandes du contrat. */
+  /**
+   * Heures débitées : temps facturable des pointages des commandes du contrat,
+   * à partir de la première commande (voir contrat-suivi.ts).
+   */
   debit: number;
   restant: number;
 }
@@ -59,9 +62,14 @@ export interface ContratSummary {
 export interface ContratMouvement {
   type: 'COMMANDE' | 'POINTAGE';
   date: string | null;
+  /** Commande : « N° — libellé » ; pointage : description. */
   libelle: string;
+  /** Édition PDF : libellé seul de la commande ; description du pointage. */
+  nature: string;
   /** Login du salarié (pointage). */
   utilisateur: string | null;
+  /** Contact du pointage, « NOM Prénom ». */
+  demandeur: string | null;
   credit: number;
   debit: number;
 }

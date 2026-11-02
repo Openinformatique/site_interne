@@ -65,6 +65,11 @@ export class ClientsApi {
     return this.api.get<ContratMouvement[]>(`/clients/${clientId}/contrats/${contratId}/mouvements`);
   }
 
+  /** Édition PDF « Suivi du contrat d'assistance ». */
+  suiviContratPdf(clientId: number, contratId: number): Observable<{ blob: Blob; filename: string }> {
+    return this.api.download(`/clients/${clientId}/contrats/${contratId}/suivi.pdf`);
+  }
+
   saveContrat(clientId: number, contratId: number | null, input: ContratInput): Observable<Contrat> {
     return contratId === null
       ? this.api.post<Contrat>(`/clients/${clientId}/contrats`, input)

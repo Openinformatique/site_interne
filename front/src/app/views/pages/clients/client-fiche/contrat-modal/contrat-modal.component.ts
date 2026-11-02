@@ -106,8 +106,30 @@ export class ContratModalComponent {
     this.activeModal.dismiss();
   }
 
-  /** Impression du suivi : prévue plus tard, sans effet pour l'instant. */
-  print(): void {}
+  /**
+   * « Imprimer le suivi » : PDF ouvert dans un nouvel onglet du navigateur
+   * (visionneuse PDF : impression, enregistrement).
+   */
+  print(): void {
+    const contrat = this.contrat();
+    if (!contrat) {
+      return;
+    }
+    // Onglet ouvert pendant le clic (sinon bloqué par le navigateur), rempli à réception.
+    const tab = window.open('', '_blank');
+    this.clientsApi.suiviContratPdf(this.clientId, contrat.id).subscribe({
+      next: ({ blob }) => {
+        const url = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+        if (tab) {
+          tab.location.href = url;
+        } else {
+          window.open(url, '_blank');
+        }
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      },
+      error: () => tab?.close(),
+    });
+  }
 
   save(): void {
     const draft = this.draft();

@@ -18,6 +18,11 @@ import type {
   ContratSummary,
 } from '../domain/client-fiche.port';
 import { joinNomContact, splitNomContact } from '../domain/contact-name';
+import {
+  debutDuSuivi,
+  nomDemandeur,
+  pointageDansLeSuivi,
+} from '../domain/contrat-suivi';
 import { ClientContratEntity } from './entities/client-contrat.entity';
 import { ClientEntity } from './entities/client.entity';
 import { ContactEntity } from './entities/contact.entity';
@@ -135,11 +140,21 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
       .createQueryBuilder('commande')
       .select('commande.clientContratId', 'contratId')
       .addSelect('SUM(COALESCE(commande.nbJoursCommande, 0))', 'jours')
+      .addSelect(
+        'MIN(COALESCE(commande.dateCommande, commande.dateDevis))',
+        'premiere',
+      )
       .where('commande.clientContratId IN (:...ids)', { ids })
       .groupBy('commande.clientContratId')
-      .getRawMany<{ contratId: number; jours: string | number }>();
+      .getRawMany<{
+        contratId: number;
+        jours: string | number;
+        premiere: Date | string | null;
+      }>();
 
-    const debits = await this.pointages
+    // Pointages lus un à un : seul le jour à Paris permet d'écarter ceux
+    // antérieurs à la première commande (voir contrat-suivi.ts).
+    const pointages = await this.pointages
       .createQueryBuilder('pointage')
       .innerJoin(
         CommandeEntity,
@@ -147,10 +162,14 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
         'commande.id = pointage.commandeId AND commande.deletedAt IS NULL',
       )
       .select('commande.clientContratId', 'contratId')
-      .addSelect('SUM(COALESCE(pointage.tempsFacturable, 0))', 'heures')
+      .addSelect(sqlUtcText('pointage.dateHeureDebut'), 'debut')
+      .addSelect('pointage.tempsFacturable', 'heures')
       .where('commande.clientContratId IN (:...ids)', { ids })
-      .groupBy('commande.clientContratId')
-      .getRawMany<{ contratId: number; heures: string | number }>();
+      .getRawMany<{
+        contratId: number;
+        debut: string | null;
+        heures: string | number | null;
+      }>();
 
     const creditBy = new Map(
       credits.map((c) => [
@@ -158,9 +177,22 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
         Number(c.jours) * heuresParJour,
       ]),
     );
-    const debitBy = new Map(
-      debits.map((d) => [Number(d.contratId), Number(d.heures)]),
+    const debutBy = new Map(
+      credits.map((c) => [Number(c.contratId), sqlDateToIso(c.premiere)]),
     );
+    const debitBy = new Map<number, number>();
+    for (const pointage of pointages) {
+      const contratId = Number(pointage.contratId);
+      const jour = pointage.debut
+        ? jourMetier(utcTextToDate(pointage.debut))
+        : null;
+      if (pointageDansLeSuivi(jour, debutBy.get(contratId) ?? null)) {
+        debitBy.set(
+          contratId,
+          (debitBy.get(contratId) ?? 0) + Number(pointage.heures ?? 0),
+        );
+      }
+    }
 
     return contrats.map((contrat) => {
       const credit = round4(creditBy.get(contrat.id) ?? 0);
@@ -197,11 +229,13 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
     const pointages = await this.pointages
       .createQueryBuilder('pointage')
       .leftJoin(UserEntity, 'salarie', 'salarie.id = pointage.utilisateurId')
+      .leftJoin(ContactEntity, 'contact', 'contact.id = pointage.contactId')
       // Instant UTC lu en texte, puis jour à Paris (voir sql-date.util).
       .select(sqlUtcText('pointage.dateHeureDebut'), 'debut')
       .addSelect('pointage.description', 'description')
       .addSelect('pointage.tempsFacturable', 'heures')
       .addSelect('salarie.login', 'login')
+      .addSelect('contact.nomContact', 'contact')
       .where('pointage.commandeId IN (:...ids)', {
         ids: commandes.map((c) => c.id),
       })
@@ -210,8 +244,12 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
         description: string | null;
         heures: string | null;
         login: string | null;
+        contact: string | null;
       }>();
 
+    const debut = debutDuSuivi(
+      commandes.map((c) => c.dateCommande ?? c.dateDevis),
+    );
     const mouvements: ContratMouvement[] = [
       ...commandes.map((commande) => ({
         type: 'COMMANDE' as const,
@@ -223,18 +261,30 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
         ]
           .filter(Boolean)
           .join(' — '),
+        nature:
+          commande.libelleCommande?.trim() ||
+          commande.numeroCommandeClient ||
+          commande.numeroDevis ||
+          '',
         utilisateur: null,
+        demandeur: null,
         credit: round4(Number(commande.nbJoursCommande ?? 0) * heuresParJour),
         debit: 0,
       })),
-      ...pointages.map((pointage) => ({
-        type: 'POINTAGE' as const,
-        date: pointage.debut ? jourMetier(utcTextToDate(pointage.debut)) : null,
-        libelle: pointage.description ?? '',
-        utilisateur: pointage.login,
-        credit: 0,
-        debit: round4(Number(pointage.heures ?? 0)),
-      })),
+      ...pointages
+        .map((pointage) => ({
+          type: 'POINTAGE' as const,
+          date: pointage.debut
+            ? jourMetier(utcTextToDate(pointage.debut))
+            : null,
+          libelle: pointage.description ?? '',
+          nature: pointage.description?.trim() ?? '',
+          utilisateur: pointage.login,
+          demandeur: nomDemandeur(pointage.contact),
+          credit: 0,
+          debit: round4(Number(pointage.heures ?? 0)),
+        }))
+        .filter((pointage) => pointageDansLeSuivi(pointage.date, debut)),
     ];
     // Date décroissante ; à date égale, la commande sous les pointages
     // (elle les précède chronologiquement).

@@ -7,7 +7,10 @@ import {
   Post,
   Put,
   Query,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -15,6 +18,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiProduces,
   ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
@@ -24,6 +28,7 @@ import { PaginatedResult } from '../../../common/pagination/paginated-result';
 import { SortDirection } from '../../../common/pagination/sort-direction.enum';
 import { ClientFicheUseCase } from '../application/client-fiche.use-case';
 import { ClientRelationsUseCase } from '../application/client-relations.use-case';
+import { ContratSuiviPdfUseCase } from '../application/contrat-suivi-pdf.use-case';
 import { ListClientsUseCase } from '../application/list-clients.use-case';
 import { ClientCommandesQueryDto } from './dto/client-commandes-query.dto';
 import {
@@ -61,6 +66,7 @@ export class ClientsController {
     private readonly listClients: ListClientsUseCase,
     private readonly fiche: ClientFicheUseCase,
     private readonly relations: ClientRelationsUseCase,
+    private readonly suiviPdf: ContratSuiviPdfUseCase,
   ) {}
 
   @Get()
@@ -188,6 +194,30 @@ export class ClientsController {
     return mouvements.map((mouvement) =>
       ContratMouvementResponseDto.fromDomain(mouvement),
     );
+  }
+
+  @Get(':id/contrats/:contratId/suivi.pdf')
+  @ApiOperation({
+    summary: "Édition PDF « Suivi du contrat d'assistance »",
+    description:
+      'Commandes (crédit) et pointages à partir de la première commande (débit), du plus récent au plus ancien. ' +
+      'Renvoyé « inline » : le front l’ouvre dans la visionneuse du navigateur.',
+  })
+  @ApiProduces('application/pdf')
+  @ApiOkResponse({ description: 'Fichier PDF.' })
+  @ApiNotFoundResponse({ description: 'Client ou contrat introuvable.' })
+  async suiviContratPdf(
+    @Param('id', idPipe('id')) id: number,
+    @Param('contratId', idPipe('contratId')) contratId: number,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const { buffer, filename } = await this.suiviPdf.execute(id, contratId);
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader(
+      'Content-Disposition',
+      `inline; filename="${encodeURIComponent(filename)}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+    );
+    return new StreamableFile(buffer);
   }
 
   @Get(':id/contacts')
