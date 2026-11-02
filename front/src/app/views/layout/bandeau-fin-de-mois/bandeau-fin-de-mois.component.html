@@ -1,0 +1,17 @@
+@if (visible()) {
+  <div class="bandeau" role="status">
+    <span class="b-ico"><lucide-icon [img]="icons.calendrier" [size]="18" /></span>
+    <div class="b-txt">
+      <b>{{ titre() }}</b>
+      <span>Pense à envoyer ton relevé mensuel en fin de journée, une fois tes pointages du jour saisis.</span>
+    </div>
+    <div class="b-actions">
+      <button type="button" class="b-btn" [disabled]="enCours() === 'detail'" (click)="ouvrirReleve('detail')">
+        <lucide-icon [img]="icons.fichier" [size]="15" />{{ enCours() === 'detail' ? 'Génération…' : 'Relevé détaillé (PDF)' }}
+      </button>
+      <button type="button" class="b-btn" [disabled]="enCours() === 'synthese'" (click)="ouvrirReleve('synthese')">
+        <lucide-icon [img]="icons.fichier" [size]="15" />{{ enCours() === 'synthese' ? 'Génération…' : 'Relevé synthétique (PDF)' }}
+      </button>
+    </div>
+  </div>
+}

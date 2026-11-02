@@ -6,6 +6,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { FooterComponent } from '../footer/footer.component';
 import { ResizeBroadcastDirective } from '../../../core/directives/resize-broadcast.directive';
 import { TabsComponent } from '../tabs/tabs.component';
+import { BandeauFinDeMoisComponent } from '../bandeau-fin-de-mois/bandeau-fin-de-mois.component';
 import { TabsService } from '../../../core/services/tabs.service';
 
 @Component({
@@ -16,7 +17,8 @@ import { TabsService } from '../../../core/services/tabs.service';
         SidebarComponent,
         FooterComponent,
         ResizeBroadcastDirective,
-        TabsComponent
+        TabsComponent,
+        BandeauFinDeMoisComponent
     ],
     templateUrl: './base.component.html',
     styleUrl: './base.component.scss'

@@ -20,6 +20,19 @@
       margin-top: $navbar-height;
       flex: 0 0 auto;
     }
+    // Bandeau de fin de mois affiché : c'est lui qui se place sous la navbar
+    // (layout/bandeau-fin-de-mois), fixe lui aussi au défilement ; les onglets
+    // suivent sans marge et se fixent sous lui (hauteur publiée par le bandeau).
+    app-bandeau-fin-de-mois:not(:empty) {
+      position: sticky;
+      top: $navbar-height;
+      z-index: $zindex-navbar - 1;
+      margin-top: $navbar-height;
+    }
+    app-bandeau-fin-de-mois:not(:empty) + .workspace-tabs-row {
+      top: calc(#{$navbar-height} + var(--bandeau-fin-de-mois-h, 0px));
+      margin-top: 0;
+    }
     .page-content {
       flex-grow: 1;
       padding: 25px;

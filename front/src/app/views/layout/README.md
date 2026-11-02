@@ -83,6 +83,32 @@ l'icône du thème actif est colorée (soleil doré, lune couleur primaire). Le
 thème est mémorisé par `ThemeModeService` (`localStorage`). Styles :
 `styles/_navbar.scss` (`.theme-switcher-wrapper`).
 
+## Bandeau de fin de mois (`bandeau-fin-de-mois/`)
+
+Affiché le **dernier jour ouvré du mois** (dernier jour du lundi au vendredi,
+fériés non pris en compte : `fin-de-mois.utils.ts`), entre la barre du haut
+et les onglets, quel que soit l'onglet ouvert. Maquette validée le
+02/11/2026.
+
+- Texte : « Dernier jour ouvré d'octobre » + rappel d'envoyer le relevé
+  mensuel en fin de journée. Fond orange clair (variables `--bandeau-*`,
+  clair et sombre). Pas de fermeture.
+- Boutons « Relevé détaillé (PDF) » et « Relevé synthétique (PDF) » : relevé
+  mensuel du mois en cours de l'utilisateur connecté
+  (`GET /pointages/releve.pdf`, contenu `detail` / `synthese`), ouvert dans un
+  nouvel onglet ; « Génération… » pendant l'appel.
+- La date est réévaluée chaque minute (application laissée ouverte d'un jour
+  à l'autre).
+- **Test** : en développement, `environment.development.ts` →
+  `dateDuJourSimulee` (AAAA-MM-JJ) remplace la date du jour ; `null` = date
+  réelle ; toujours `null` en production.
+- Placement : quand il est affiché, le bandeau prend la marge qui place les
+  onglets sous la barre fixe et reste ancré sous elle au défilement
+  (`position: sticky`, `styles/_vertical-wrapper.scss`) ; les onglets se fixent
+  juste dessous. Sa hauteur est publiée dans `--bandeau-fin-de-mois-h`
+  (position des onglets, pages à hauteur fixe comme le planning des
+  pointages).
+
 ## Onglets
 
 `TabsService` (`core/services/tabs.service.ts`) gère les onglets ouverts,

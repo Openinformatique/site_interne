@@ -1,0 +1,74 @@
+// Bandeau de fin de mois — valeurs exactes de la maquette validée (clair et sombre).
+:host {
+  display: block;
+  --bandeau-warning: #fbbc06;
+  --bandeau-soft: #fff5d6;
+  --bandeau-border: #f5d77a;
+  --bandeau-fg: #8a6500;
+  --bandeau-strong: #6b4e00;
+}
+
+:host-context([data-bs-theme='dark']) {
+  --bandeau-soft: rgba(251, 188, 6, .16);
+  --bandeau-border: rgba(251, 188, 6, .35);
+  --bandeau-fg: #fbbc06;
+  --bandeau-strong: #fcd15b;
+}
+
+.bandeau {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 25px;
+  border-bottom: 1px solid var(--bandeau-border);
+  // Teinte (semi-transparente en sombre) posée sur le fond de page opaque :
+  // même couleur que la maquette, sans laisser voir la page qui défile dessous.
+  background: linear-gradient(var(--bandeau-soft), var(--bandeau-soft)), var(--bs-app-bg);
+  color: var(--bandeau-fg);
+  font-size: 14px;
+}
+
+.b-ico {
+  display: grid;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--bandeau-warning);
+  color: #3d2c00;
+
+  lucide-icon { display: flex; }
+}
+
+.b-txt {
+  flex: 1;
+  min-width: 240px;
+  line-height: 1.35;
+
+  b { color: var(--bandeau-strong); font-weight: 500; }
+  span { display: block; font-size: 12.5px; }
+}
+
+.b-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.b-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--bandeau-border);
+  border-radius: 6px;
+  background: var(--bs-body-bg);
+  color: var(--bandeau-strong);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+
+  lucide-icon { display: flex; }
+  &:hover:not(:disabled) { border-color: var(--bandeau-warning); background: var(--bandeau-warning); color: #3d2c00; }
+  &:focus-visible { outline: 2px solid var(--bandeau-warning); outline-offset: 2px; }
+  &:disabled { opacity: .6; cursor: default; }
+}

@@ -27,7 +27,8 @@
 // haut (60) + onglets (49) + marge haute (25), marge basse (16, voir
 // _custom.scss) et pied de page (51). Le planning prend toute la hauteur
 // restante et défile à l'intérieur de sa carte, jamais la page.
-.page { position: relative; display: flex; flex-direction: column; height: calc(100vh - 201px); min-height: 420px; }
+// Hauteur fixe : moins le bandeau de fin de mois quand il est affiché (layout/bandeau-fin-de-mois).
+.page { position: relative; display: flex; flex-direction: column; height: calc(100vh - 201px - var(--bandeau-fin-de-mois-h, 0px)); min-height: 420px; }
 .card-box { background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: 12px; box-shadow: 0 5px 18px rgba(36, 54, 93, .06); }
 .muted { color: var(--pt-muted); }
 .accent { color: #6571ff; }
