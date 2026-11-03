@@ -198,6 +198,8 @@
   color: var(--bs-primary);
   background-color: var(--bs-body-bg);
   border-color: var(--bs-border-color);
+  // Trait vert du logo (maquette des couleurs du logo, 03/11/2026).
+  box-shadow: inset 0 2px 0 var(--oi-green);
 }
 
 .workspace-tab-trigger,

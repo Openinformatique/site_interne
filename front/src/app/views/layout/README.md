@@ -3,6 +3,31 @@
 Cadre commun à toutes les pages (`BaseComponent`) : menu latéral (`sidebar/`),
 barre du haut (`navbar/`), barre d'onglets (`tabs/`) et pied de page (`footer/`).
 
+## Couleurs du thème (logo OpenInformatique)
+
+Maquette validée le 03/11/2026 : le thème reprend des touches des couleurs du
+logo, fonds, cartes et mise en page restant inchangés. Variables définies dans
+`styles/_custom.scss` (clair / sombre) :
+
+| Variable                          | Clair     | Sombre    | Usage                                                         |
+| --------------------------------- | --------- | --------- | ------------------------------------------------------------- |
+| `--oi-primary` (+ `-rgb`, `-hover`) | `#3d7fb9` | `#5b9bd5` | couleur principale (bleu du « Open ») : boutons, liens, actif |
+| `--oi-green` (+ `-rgb`)           | `#489234` | `#62b04a` | touches (vert de l'« Informatique »)                         |
+| `--oi-grey`, `--oi-grey-muted`    | `#baacaa` | `#8f8583` | gris chaud de l'arc : rubriques du menu, décor                |
+
+- `$primary` (Bootstrap) = bleu du logo ; en sombre, `--bs-primary` et les
+  boutons `.btn-primary` prennent la variante éclaircie.
+- Les composants n'écrivent plus la couleur principale en dur : ils utilisent
+  `var(--oi-primary)` / `rgba(var(--oi-primary-rgb), …)`.
+- Touches de vert : trait de l'entrée de menu active (sur fond bleuté), trait
+  en haut de l'onglet actif, anneau de la pastille de profil, statuts
+  positifs (« En cours », « Actif »), bouton « Export Excel », boutons de ligne
+  du tableau de bord au survol. Jamais sur les titres.
+- Barre du haut : liseré bleu de 2 px en bas. Menu : rappel très atténué de
+  l'arc du logo en bas.
+- Inchangés : couleurs d'alerte (rouge, orange), couleurs des types de
+  pointage (paramétrage), autres verts (crédits des contrats, présence).
+
 ## Menu latéral
 
 Défini dans [`sidebar/menu.ts`](sidebar/menu.ts), affiché par `SidebarComponent`

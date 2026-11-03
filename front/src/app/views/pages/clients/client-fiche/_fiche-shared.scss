@@ -30,9 +30,9 @@
   .card-title { margin: 0; padding: 14px 20px; border-bottom: 1px solid var(--bs-border-color); font-size: 15px; font-weight: 600; color: var(--fiche-emph); }
   .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px 10px 20px; border-bottom: 1px solid var(--bs-border-color); }
   .card-head h2, .card-head h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--fiche-emph); }
-  .count { display: inline-flex; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: rgba(101, 113, 255, .14); color: #5765f5; font-size: 11.5px; font-weight: 700; vertical-align: 1px; }
+  .count { display: inline-flex; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: rgba(var(--oi-primary-rgb), .14); color: var(--oi-primary); font-size: 11.5px; font-weight: 700; vertical-align: 1px; }
 
-  .add-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid rgba(101, 113, 255, .45); border-radius: 8px; background: transparent; color: #5765f5; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .add-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid rgba(var(--oi-primary-rgb), .45); border-radius: 8px; background: transparent; color: var(--oi-primary); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
   .icon-btn { display: inline-flex; flex: none; width: 32px; height: 32px; align-items: center; justify-content: center; border: 1px solid var(--bs-border-color); border-radius: 8px; background: transparent; color: var(--fiche-muted); cursor: pointer; }
   .icon-btn.borderless { border-color: transparent; }
 
@@ -44,19 +44,19 @@
   .cap { display: flex; align-items: center; gap: 2px; height: 18px; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .req { color: var(--fiche-danger); }
   .input { width: 100%; height: 38px; padding: 0 12px; box-sizing: border-box; border: 1px solid var(--bs-border-color); border-radius: 6px; outline: none; background: var(--bs-body-bg); color: var(--fiche-text); font-size: 14px; font-weight: 400; }
-  .input:focus { border-color: #6571ff; box-shadow: 0 0 0 3px rgba(101, 113, 255, .12); }
+  .input:focus { border-color: var(--oi-primary); box-shadow: 0 0 0 3px rgba(var(--oi-primary-rgb), .12); }
   .input.invalid { border-color: var(--fiche-danger); }
   .err { color: var(--fiche-danger); font-size: 12px; font-weight: 400; }
 
   // Interrupteur (statut, commandes clôturées).
   .switch { display: inline-flex; align-items: center; gap: 10px; height: 38px; padding: 0; border: 0; background: transparent; cursor: pointer; color: var(--fiche-text); font-size: 14px; }
-  .switch:focus-visible { outline: 2px solid #6571ff; outline-offset: 2px; border-radius: 6px; }
+  .switch:focus-visible { outline: 2px solid var(--oi-primary); outline-offset: 2px; border-radius: 6px; }
   .track { position: relative; display: block; flex: none; width: 40px; height: 22px; border-radius: 11px; background: var(--fiche-track-off); transition: background .2s; }
-  .track.on { background: #6571ff; }
+  .track.on { background: var(--oi-primary); }
   .knob { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: left .2s; }
   .track.on .knob { left: 20px; }
 
-  .pill { display: inline-flex; padding: 3px 8px; border-radius: 6px; background: #20bd7b; color: #fff; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .pill { display: inline-flex; padding: 3px 8px; border-radius: 6px; background: var(--oi-green); color: #fff; font-size: 11px; font-weight: 700; white-space: nowrap; }
   .pill.off { background: var(--fiche-pill-off-bg); color: var(--fiche-pill-off-color); }
 
   // Tableaux.
@@ -74,6 +74,6 @@
   // Pied des modales.
   .modal-foot { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--bs-border-color); }
   .btn-outline { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border: 1px solid var(--bs-border-color); border-radius: 6px; background: transparent; color: var(--fiche-text); font-size: 14px; cursor: pointer; }
-  .btn-save { height: 38px; padding: 0 18px; border: 0; border-radius: 6px; background: #6571ff; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .btn-save { height: 38px; padding: 0 18px; border: 0; border-radius: 6px; background: var(--oi-primary); color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; }
   .btn-save:disabled { opacity: .55; cursor: default; }
 }

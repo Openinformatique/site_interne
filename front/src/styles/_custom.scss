@@ -75,3 +75,106 @@
   padding-right: 16px;
   padding-bottom: 16px;
 }
+
+// --- Couleurs du logo OpenInformatique (maquette validée le 03/11/2026) -----
+// Bleu du « Open » : couleur principale ; vert de l'« Informatique » : touches
+// (marqueurs d'élément actif, statuts positifs, export) ; gris chaud de l'arc :
+// rubriques du menu et décor. Variantes éclaircies en thème sombre. Les
+// composants utilisent --oi-primary / --oi-primary-rgb au lieu d'une couleur
+// écrite en dur.
+:root,
+[data-bs-theme='light'] {
+  --oi-primary: #3d7fb9;
+  --oi-primary-rgb: 61, 127, 185;
+  --oi-primary-hover: #346c9d;
+  --oi-green: #489234;
+  --oi-green-rgb: 72, 146, 52;
+  --oi-grey: #baacaa;
+  --oi-grey-muted: #a09592;
+}
+
+[data-bs-theme='dark'] {
+  --oi-primary: #5b9bd5;
+  --oi-primary-rgb: 91, 155, 213;
+  --oi-primary-hover: #4a8ac4;
+  --oi-green: #62b04a;
+  --oi-green-rgb: 98, 176, 74;
+  --oi-grey: #8f8583;
+  --oi-grey-muted: #8f8583;
+  // Bootstrap compile la couleur principale du thème clair : en sombre, la variante éclaircie.
+  --bs-primary: var(--oi-primary);
+  --bs-primary-rgb: var(--oi-primary-rgb);
+  --bs-link-color: var(--oi-primary);
+  --bs-link-color-rgb: var(--oi-primary-rgb);
+  --bs-link-hover-color: var(--oi-primary-hover);
+}
+
+// Boutons principaux : couleur du thème, clair comme sombre.
+.btn-primary {
+  --bs-btn-bg: var(--oi-primary);
+  --bs-btn-border-color: var(--oi-primary);
+  --bs-btn-hover-bg: var(--oi-primary-hover);
+  --bs-btn-hover-border-color: var(--oi-primary-hover);
+  --bs-btn-active-bg: var(--oi-primary-hover);
+  --bs-btn-active-border-color: var(--oi-primary-hover);
+  --bs-btn-disabled-bg: var(--oi-primary);
+  --bs-btn-disabled-border-color: var(--oi-primary);
+}
+
+// Barre du haut : fin liseré bleu en bas.
+.navbar::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--oi-primary);
+}
+
+// Menu : rubriques en gris chaud, élément actif en bleu marqué d'un trait vert,
+// rappel discret de l'arc du logo en bas du menu.
+.sidebar .sidebar-body .sidebar-nav .nav-item.nav-category {
+  color: var(--oi-grey-muted);
+}
+
+// Fond bleuté débordant de 8 px de part et d'autre (marge négative compensée
+// par le retrait), trait vert ramené au bord du menu.
+.sidebar .sidebar-body .sidebar-nav .nav-item.mm-active > .nav-link {
+  margin: 0 -8px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: rgba(var(--oi-primary-rgb), .08);
+  color: var(--oi-primary);
+}
+
+.sidebar .sidebar-body .sidebar-nav .nav-item.mm-active > .nav-link::before {
+  left: -17px;
+  background: var(--oi-green);
+}
+
+.sidebar .sidebar-body .sidebar-nav .nav-item.mm-active > .nav-link .link-icon {
+  color: var(--oi-primary);
+  fill: rgba(var(--oi-primary-rgb), .1);
+}
+
+.sidebar .sidebar-body {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar .sidebar-body::after {
+  content: '';
+  position: absolute;
+  bottom: -110px;
+  left: -70px;
+  width: 260px;
+  height: 260px;
+  border: 22px solid var(--oi-grey);
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  opacity: .18;
+  transform: rotate(-20deg);
+  pointer-events: none;
+}

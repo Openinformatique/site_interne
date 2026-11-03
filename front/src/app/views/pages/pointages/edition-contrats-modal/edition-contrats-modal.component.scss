@@ -14,7 +14,7 @@
 .input:disabled { background: var(--bs-tertiary-bg); color: var(--fiche-muted); }
 :host-context([data-bs-theme='dark']) .input { color-scheme: dark; }
 
-.compteur { display: flex; align-items: center; gap: 10px; margin: 0 20px 18px; padding: 10px 14px; border-radius: 8px; background: rgba(101, 113, 255, .08); color: var(--fiche-emph); font-size: 13.5px; }
+.compteur { display: flex; align-items: center; gap: 10px; margin: 0 20px 18px; padding: 10px 14px; border-radius: 8px; background: rgba(var(--oi-primary-rgb), .08); color: var(--fiche-emph); font-size: 13.5px; }
 .compteur.vide { background: var(--bs-tertiary-bg); color: var(--fiche-muted); }
 
 .btn-download { display: inline-flex; align-items: center; gap: 8px; }

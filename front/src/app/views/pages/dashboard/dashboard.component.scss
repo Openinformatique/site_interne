@@ -3,7 +3,7 @@
 :host {
   display: block;
   container-type: inline-size;
-  --dash-primary: #6571ff;
+  --dash-primary: var(--oi-primary);
   --dash-danger: #ff3366;
   --dash-danger-soft: #ffe5ec;
   --dash-danger-fg: #d61a4b;
@@ -44,7 +44,7 @@
 .dash-card { min-width: 0; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: 6px; }
 .card-head { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--bs-border-color); }
 .card-head h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; font-weight: 500; }
-.card-head h2 lucide-icon { width: 18px; height: 18px; color: var(--bs-secondary-color); }
+.card-head h2 lucide-icon { width: 18px; height: 18px; color: var(--dash-primary); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
 .chip { padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .chip.danger { background: var(--dash-danger-soft); color: var(--dash-danger-fg); }
@@ -107,7 +107,7 @@ td.act { width: 1%; text-align: right; }
 .btn-icon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--dash-primary); border-radius: 4px; background: transparent; color: var(--dash-primary); cursor: pointer; }
 .btn-icon lucide-icon { width: 15px; height: 15px; }
 .btn-icon:disabled { opacity: .5; cursor: default; }
-.btn-icon:hover:not(:disabled) { background: var(--dash-primary); color: #fff; }
+.btn-icon:hover:not(:disabled) { border-color: var(--oi-green); background: var(--oi-green); color: #fff; }
 .btn-icon:focus-visible { outline: 2px solid var(--dash-primary); outline-offset: 2px; }
 
 // Congés : frise de 15 jours

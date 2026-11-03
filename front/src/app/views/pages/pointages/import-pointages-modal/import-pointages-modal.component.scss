@@ -5,8 +5,8 @@
 
 // Valeurs exactes de la maquette validée (clair et sombre).
 :host {
-  --import-primary: #6571ff;
-  --import-primary-soft: rgba(101, 113, 255, .1);
+  --import-primary: var(--oi-primary);
+  --import-primary-soft: rgba(var(--oi-primary-rgb), .1);
   --import-danger-soft: #ffe5ec;
   --import-danger-fg: #d61a4b;
   --import-success: #05a34a;
@@ -15,7 +15,7 @@
 }
 
 :host-context([data-bs-theme='dark']) {
-  --import-primary-soft: rgba(101, 113, 255, .16);
+  --import-primary-soft: rgba(var(--oi-primary-rgb), .16);
   --import-danger-soft: rgba(255, 51, 102, .16);
   --import-danger-fg: #ff6b8f;
   --import-success-soft: rgba(5, 163, 74, .18);

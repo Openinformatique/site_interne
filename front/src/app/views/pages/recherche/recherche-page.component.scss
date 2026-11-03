@@ -1,16 +1,16 @@
 // Onglet « Recherche » — valeurs de la maquette validée (clair et sombre).
 :host {
   display: block;
-  --rech-primary: #6571ff;
-  --rech-primary-soft: rgba(101, 113, 255, .1);
-  --rech-hover: rgba(101, 113, 255, .06);
+  --rech-primary: var(--oi-primary);
+  --rech-primary-soft: rgba(var(--oi-primary-rgb), .1);
+  --rech-hover: rgba(var(--oi-primary-rgb), .06);
   --rech-success-soft: #e1f5ea;
   --rech-success-fg: #05793a;
 }
 
 :host-context([data-bs-theme='dark']) {
-  --rech-primary-soft: rgba(101, 113, 255, .16);
-  --rech-hover: rgba(101, 113, 255, .1);
+  --rech-primary-soft: rgba(var(--oi-primary-rgb), .16);
+  --rech-hover: rgba(var(--oi-primary-rgb), .1);
   --rech-success-soft: rgba(5, 163, 74, .18);
   --rech-success-fg: #4cd38a;
 }
