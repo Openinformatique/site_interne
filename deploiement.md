@@ -118,7 +118,7 @@ sudo chown deploy:deploy /opt/site-interne
 git clone https://github.com/Openinformatique/site_interne.git /opt/site-interne
 ```
 
-**✔ Vérification :** `ls /opt/site-interne` affiche `back  deploiement.md  front  package.json`.
+**✔ Vérification :** `ls /opt/site-interne` affiche `back  deploiement.md  front  package.json  scripts`.
 
 > Si le dépôt devient privé plus tard : GitHub refuse de réutiliser la deploy key de
 > l'ERP (`~/.ssh/id_ed25519`) sur un second dépôt. Il faudra générer une seconde clé
@@ -511,36 +511,38 @@ Depuis votre PC, dans un navigateur :
 
 ### 11.1 Mettre à jour le site (nouvelle version du code)
 
-Sur le PC : committez et poussez sur `main`. Puis, sur le serveur, créez une fois ce script :
+Le script de déploiement est **versionné dans le dépôt** (`scripts/deploy.sh`) : il
+arrive sur le serveur avec le code, rien à créer à la main.
+
+1. Sur le PC : mergez sur `main` (et poussez).
+2. Connectez-vous en SSH au serveur (PuTTY), utilisateur `deploy`.
+3. Lancez :
 
 ```bash
-tee ~/deployer-site-interne.sh > /dev/null <<'EOF'
-#!/usr/bin/env bash
-# Met à jour le site interne depuis GitHub et redéploie back + front.
-set -euo pipefail
-
-cd /opt/site-interne && git pull
-
-cd /opt/site-interne/back
-npm ci
-npm run build
-NODE_ENV=production npm run migration:run
-pm2 restart site-interne-api
-
-cd /opt/site-interne/front
-npm ci
-npm run build
-rsync -a --delete /opt/site-interne/front/dist/demo1/browser/ /var/www/site-interne/
-
-echo "✔ Déploiement du site interne terminé."
-EOF
-chmod +x ~/deployer-site-interne.sh
+bash /opt/site-interne/scripts/deploy.sh
 ```
 
-Ensuite, chaque mise à jour = `~/deployer-site-interne.sh`.
+Le script enchaîne :
 
-> Ne modifiez jamais le code directement sur le serveur : `git pull` serait bloqué. Les
-> fichiers propres au serveur (`.env.production`, `ecosystem.config.js`) sont ignorés par git.
+| Étape | Ce qui est fait |
+|---|---|
+| 1/4 Récupération du code | `git pull --ff-only` |
+| 2/4 Backend | `npm ci` (seulement si `back/package-lock.json` a changé) → build → migrations → `pm2 restart site-interne-api` |
+| 3/4 Frontend | `npm ci` (seulement si `front/package-lock.json` a changé) → build → `rsync` vers `/var/www/site-interne` |
+| 4/4 Vérification | attend que l'API réponde sur `/api/v1/health` (6 tentatives, 30 s au total) |
+
+**✔ Vérification :** le script se termine par `✔ Déploiement terminé, l'API répond.`
+
+> Les empreintes des `package-lock.json` sont mémorisées dans `~/.site-interne-deploy`.
+> Pour forcer un `npm ci` complet : `rm -rf ~/.site-interne-deploy` puis relancez le script.
+
+> Modifier `scripts/deploy.sh` : le run qui fait le `git pull` de la nouvelle version
+> s'exécute encore avec l'**ancienne** (bash l'a déjà chargée). Relancez le script une
+> seconde fois pour que la nouvelle version s'applique.
+
+> Ne modifiez jamais le code directement sur le serveur : `git pull --ff-only` serait
+> bloqué. Les fichiers propres au serveur (`.env.production`, `ecosystem.config.js`) sont
+> ignorés par git.
 
 ### 11.2 Consulter les logs
 
@@ -634,7 +636,7 @@ pm2 start site-interne-api
 | `http://212.227.13.4:8080` ne répond pas (délai dépassé) | Port fermé dans UFW ou dans le pare-feu IONOS | Étape 3. Sur le serveur, `curl -I http://127.0.0.1:8080` doit répondre `200` |
 | **502 Bad Gateway** sur le port 8080 | L'API `site-interne-api` est arrêtée ou plante | `pm2 ls` puis `pm2 logs site-interne-api` |
 | L'API refuse de démarrer : « Configuration invalide, démarrage refusé » | Variable manquante/incorrecte dans `.env.production` | Le message liste les variables en erreur ; comparez avec l'étape 6 |
-| `NODE_ENV doit valoir "local", "development" ou "test"` | Le code cloné ne gère pas encore `production` | Poussez la version à jour sur `main`, puis `~/deployer-site-interne.sh` |
+| `NODE_ENV doit valoir "local", "development" ou "test"` | Le code cloné ne gère pas encore `production` | Poussez la version à jour sur `main`, puis `bash /opt/site-interne/scripts/deploy.sh` |
 | L'API démarre puis s'arrête : `EADDRINUSE 127.0.0.1:3001` | Port 3001 déjà pris | `sudo ss -tlnp \| grep 3001` ; choisissez un autre port dans `APP_PORT` **et** dans `proxy_pass` (étape 9) |
 | `migration:run` : « Variable d'environnement manquante » | Préfixe `NODE_ENV=production` oublié | Relancez avec `NODE_ENV=production` devant |
 | `migration:run` : `Login failed for user 'site_interne_app'` | Mot de passe de `.env.production` différent de celui de l'étape 5 | Corrigez `DB_PASSWORD`, ou changez le mot de passe du login : `ALTER LOGIN [site_interne_app] WITH PASSWORD = N'...'` (avec sa) |
@@ -642,7 +644,9 @@ pm2 start site-interne-api
 | Mot de passe admin inconnu après le seed | `SEED_ADMIN_PASSWORD` vide au premier seed | Cherchez la ligne « mot de passe généré » dans la sortie du seed ; le seeder ne réécrit jamais un compte existant |
 | `npm ci` ou `npm run build` se termine par **Killed** | Mémoire insuffisante | `free -h` ; arrêtez temporairement l'API (`pm2 stop site-interne-api`) pendant le build |
 | Un upload échoue vers 25 Mo | Limite nginx | `client_max_body_size` (étape 9) et `STORAGE_MAX_FILE_SIZE` (étape 6) |
-| `git pull` refuse (« local changes would be overwritten ») | Fichiers modifiés sur le serveur | `cd /opt/site-interne && git status` ; `git restore <fichier>` |
+| `git pull --ff-only` échoue (« local changes would be overwritten » ou « Not possible to fast-forward ») | Fichiers modifiés sur le serveur | `cd /opt/site-interne && git status` ; `git restore <fichier>` |
+| `deploy.sh` : erreurs `\r: command not found` | Fins de ligne Windows (CRLF) dans le script | Vérifiez que `.gitattributes` contient `*.sh text eol=lf`, puis re-commitez le script |
+| `deploy.sh` finit par « ✘ L'API ne répond pas après redémarrage » | L'API plante au démarrage | `pm2 logs site-interne-api` : le message d'erreur indique la cause |
 
 ---
 
@@ -664,7 +668,10 @@ pm2 start site-interne-api
 - `/opt/site-interne/back/.env.production` — configuration et secrets
 - `/opt/site-interne/back/ecosystem.config.js` — configuration PM2
 - `/etc/nginx/sites-available/site-interne` (+ lien dans `sites-enabled`) — configuration nginx
-- `~/deployer-site-interne.sh` et `~/sauvegarde-site-interne.sh` — scripts d'exploitation
+- `~/sauvegarde-site-interne.sh` — script de sauvegarde
+- `~/.site-interne-deploy/` — empreintes des `package-lock.json` (recréées automatiquement)
+
+Le script de déploiement, lui, est versionné : `/opt/site-interne/scripts/deploy.sh`.
 
 ### Pour tout retirer (retour à l'état d'avant)
 
