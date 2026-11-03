@@ -63,14 +63,18 @@ Règles :
 - pas de suppression (client, contrat, contact) : statut actif / inactif ;
   le dernier enregistrement l'emporte ;
 - `created_by` / `updated_by` = utilisateur connecté ;
-- **suivi d'un contrat** (heures) : crédit = jours commandés des commandes du
-  contrat × `HJOUR` (paramètre `TDIV`/`HJOUR`, rubrique 02, 8 par défaut) ;
-  débit = temps facturable des pointages de ces commandes, quel que soit le
-  code de facturation, **à partir du jour de la première commande** (date de
-  commande, sinon de devis ; jour du pointage à Paris) — les pointages
-  antérieurs ne sont pas repris ; restant = crédit − débit (peut être
-  négatif). Règle commune à la liste des contrats, aux mouvements et à
-  l'édition PDF (`domain/contrat-suivi.ts`) ;
+- **suivi d'un contrat** (heures), **à partir de la date de mise en place du
+  contrat** (incluse) : crédit = jours commandés × `HJOUR` (paramètre
+  `TDIV`/`HJOUR`, rubrique 02, 8 par défaut) des commandes du contrat datées
+  de la mise en place ou après (date de commande, sinon de devis) ; débit =
+  temps facturable des pointages de ces commandes (toutes, même antérieures),
+  quel que soit le code de facturation, faits à partir de la mise en place
+  (jour du pointage à Paris). Commandes et pointages antérieurs ne sont pas
+  repris ; sans date de mise en place, tout est repris ; restant = crédit −
+  débit (peut être négatif). Règle commune à toute l'application
+  (`domain/contrat-suivi.ts` : `commandeDansLeSuivi`, `pointageDansLeSuivi`) :
+  liste des contrats, mouvements, éditions PDF « Suivi du contrat » et
+  contrats d'assistance, tableau de bord (contrats à renouveler) ;
 - **édition PDF « Suivi du contrat »** (`ContratSuiviPdfUseCase`, gabarit
   `suivi-contrat` du module pdf, maquette validée le 02/11/2026) : en-tête
   logo, titre, client, « Contrat : libellé » ; synthèse temps crédité / débité

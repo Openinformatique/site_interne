@@ -23,8 +23,8 @@ d'un module par profil se fait côté front (accès UI `dashboard.section.*`).
   n'a pas de statut actif / inactif.
 - Suivi en heures selon les règles de la fiche client
   (`clients/domain/contrat-suivi.ts`) : crédit = jours commandés × `HJOUR`,
-  débit = temps facturable des pointages des commandes du contrat, à partir de
-  la première commande.
+  débit = temps facturable des pointages des commandes du contrat ; commandes
+  et pointages pris à partir de la date de mise en place du contrat.
 - Retenus si le **crédit total dépasse 1 h** (`CREDIT_MINIMUM`) et s'il
   **reste 1 h ou moins** (`RESTANT_MAXIMUM`, valeur arrondie à 4 décimales), épuisés compris (restant ≤ 0).
 - Tri : restant croissant, puis raison sociale.

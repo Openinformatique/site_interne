@@ -1,19 +1,20 @@
 import {
+  commandeDansLeSuivi,
   contratEnCours,
-  debutDuSuivi,
   mouvementArrete,
   nomDemandeur,
   pointageDansLeSuivi,
 } from './contrat-suivi';
 
 describe('suivi de contrat', () => {
-  it('commence à la première commande datée', () => {
-    expect(debutDuSuivi(['2025-04-10', null, '2024-05-01'])).toBe('2024-05-01');
-    expect(debutDuSuivi([null])).toBeNull();
-    expect(debutDuSuivi([])).toBeNull();
+  it('écarte les commandes antérieures à la mise en place du contrat', () => {
+    expect(commandeDansLeSuivi('2024-02-13', '2024-05-01')).toBe(false);
+    expect(commandeDansLeSuivi('2024-05-01', '2024-05-01')).toBe(true);
+    expect(commandeDansLeSuivi('2023-01-01', null)).toBe(true);
+    expect(commandeDansLeSuivi(null, '2024-05-01')).toBe(false);
   });
 
-  it('écarte les pointages antérieurs à la première commande', () => {
+  it('écarte les pointages antérieurs à la mise en place du contrat', () => {
     expect(pointageDansLeSuivi('2024-04-30', '2024-05-01')).toBe(false);
     expect(pointageDansLeSuivi('2024-05-01', '2024-05-01')).toBe(true);
     expect(pointageDansLeSuivi('2023-01-01', null)).toBe(true);

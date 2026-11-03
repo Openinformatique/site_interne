@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { ClientContratEntity } from '../../clients/infrastructure/entities/client-contrat.entity';
 import { ClientEntity } from '../../clients/infrastructure/entities/client.entity';
 import {
-  debutDuSuivi,
+  commandeDansLeSuivi,
   pointageDansLeSuivi,
 } from '../../clients/domain/contrat-suivi';
 import { CommandeEntity } from '../../commandes/infrastructure/entities/commande.entity';
@@ -87,22 +87,26 @@ export class TypeOrmTableauDeBordRepository implements TableauDeBordPort {
     const ids = [...contratIds];
     // Mêmes règles que la liste des contrats de la fiche client
     // (clients/domain/contrat-suivi.ts) : crédit = jours commandés, débit =
-    // pointages des commandes à partir de la première commande.
-    const credits = await this.commandes
+    // pointages des commandes, les uns et les autres à partir de la mise en
+    // place du contrat.
+    const commandes = await this.commandes
       .createQueryBuilder('commande')
       .select('commande.clientContratId', 'contratId')
-      .addSelect('SUM(COALESCE(commande.nbJoursCommande, 0))', 'jours')
-      .addSelect(
-        'MIN(COALESCE(commande.dateCommande, commande.dateDevis))',
-        'premiere',
-      )
+      .addSelect('COALESCE(commande.nbJoursCommande, 0)', 'jours')
+      .addSelect('COALESCE(commande.dateCommande, commande.dateDevis)', 'date')
       .where('commande.clientContratId IN (:...ids)', { ids })
-      .groupBy('commande.clientContratId')
       .getRawMany<{
         contratId: number;
         jours: string | number;
-        premiere: Date | string | null;
+        date: Date | string | null;
       }>();
+    // Début du suivi : date de mise en place de chaque contrat.
+    const miseEnPlace = await this.contrats
+      .createQueryBuilder('contrat')
+      .select('contrat.id', 'id')
+      .addSelect('contrat.dateMiseEnPlace', 'dateMiseEnPlace')
+      .where('contrat.id IN (:...ids)', { ids })
+      .getRawMany<{ id: number; dateMiseEnPlace: Date | string | null }>();
     const pointages = await this.pointages
       .createQueryBuilder('pointage')
       .innerJoin(
@@ -120,14 +124,24 @@ export class TypeOrmTableauDeBordRepository implements TableauDeBordPort {
         heures: string | number | null;
       }>();
 
-    const debutBy = new Map<number, string | null>();
-    for (const credit of credits) {
-      const contratId = Number(credit.contratId);
-      debutBy.set(contratId, debutDuSuivi([sqlDateToIso(credit.premiere)]));
-      resultat.set(contratId, {
-        credit: Number(credit.jours) * heuresParJour,
-        debit: 0,
-      });
+    const debutBy = new Map(
+      miseEnPlace.map((contrat) => [
+        Number(contrat.id),
+        sqlDateToIso(contrat.dateMiseEnPlace),
+      ]),
+    );
+    for (const commande of commandes) {
+      const contratId = Number(commande.contratId);
+      const suivi = resultat.get(contratId) ?? { credit: 0, debit: 0 };
+      if (
+        commandeDansLeSuivi(
+          sqlDateToIso(commande.date),
+          debutBy.get(contratId) ?? null,
+        )
+      ) {
+        suivi.credit += Number(commande.jours) * heuresParJour;
+      }
+      resultat.set(contratId, suivi);
     }
     for (const pointage of pointages) {
       const contratId = Number(pointage.contratId);

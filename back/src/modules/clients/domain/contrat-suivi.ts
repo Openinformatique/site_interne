@@ -1,23 +1,30 @@
 import { splitNomContact } from './contact-name';
 
 /**
- * Règles du suivi d'un contrat (fenêtre du contrat, liste des contrats et
- * édition PDF « Suivi du contrat ») : crédit = commandes du contrat, débit =
- * pointages sur ces commandes, à partir de la première commande seulement.
+ * Règles du suivi d'un contrat, communes à toute l'application (liste et
+ * fenêtre des contrats, éditions PDF « Suivi du contrat » et contrats
+ * d'assistance, tableau de bord) : crédit = commandes du contrat, débit =
+ * pointages sur ces commandes, les unes comme les autres à partir de la
+ * **date de mise en place du contrat** seulement.
  */
 
 /**
- * Début du suivi : jour (« AAAA-MM-JJ ») de la première commande du contrat ;
- * null si aucune commande n'est datée (aucun pointage écarté).
+ * Une commande datée (commande, sinon devis : `jour`) d'avant la mise en
+ * place du contrat (`debut`) n'est pas reprise ; sans date de mise en place,
+ * toutes les commandes le sont.
  */
-export function debutDuSuivi(
-  datesCommandes: readonly (string | null)[],
-): string | null {
-  const dates = datesCommandes.filter((date): date is string => !!date);
-  return dates.length === 0 ? null : dates.reduce((a, b) => (a < b ? a : b));
+export function commandeDansLeSuivi(
+  jour: string | null,
+  debut: string | null,
+): boolean {
+  return debut === null || (jour !== null && jour >= debut);
 }
 
-/** Un pointage antérieur à la première commande n'est pas repris. */
+/**
+ * Un pointage antérieur à la date de mise en place du contrat (`debut`,
+ * « AAAA-MM-JJ ») n'est pas repris ; sans date de mise en place, tous les
+ * pointages le sont.
+ */
 export function pointageDansLeSuivi(
   jour: string | null,
   debut: string | null,

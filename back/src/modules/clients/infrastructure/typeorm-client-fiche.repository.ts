@@ -20,7 +20,7 @@ import type {
 } from '../domain/client-fiche.port';
 import { joinNomContact, splitNomContact } from '../domain/contact-name';
 import {
-  debutDuSuivi,
+  commandeDansLeSuivi,
   mouvementArrete,
   nomDemandeur,
   pointageDansLeSuivi,
@@ -138,24 +138,22 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
     }
     const ids = contrats.map((contrat) => contrat.id);
 
-    const credits = await this.commandes
+    // Commandes lues une à une : seules celles datées de la mise en place du
+    // contrat ou après sont créditées (voir contrat-suivi.ts).
+    const commandes = await this.commandes
       .createQueryBuilder('commande')
       .select('commande.clientContratId', 'contratId')
-      .addSelect('SUM(COALESCE(commande.nbJoursCommande, 0))', 'jours')
-      .addSelect(
-        'MIN(COALESCE(commande.dateCommande, commande.dateDevis))',
-        'premiere',
-      )
+      .addSelect('COALESCE(commande.nbJoursCommande, 0)', 'jours')
+      .addSelect('COALESCE(commande.dateCommande, commande.dateDevis)', 'date')
       .where('commande.clientContratId IN (:...ids)', { ids })
-      .groupBy('commande.clientContratId')
       .getRawMany<{
         contratId: number;
         jours: string | number;
-        premiere: Date | string | null;
+        date: Date | string | null;
       }>();
 
     // Pointages lus un à un : seul le jour à Paris permet d'écarter ceux
-    // antérieurs à la première commande (voir contrat-suivi.ts).
+    // antérieurs à la mise en place du contrat (voir contrat-suivi.ts).
     const pointages = await this.pointages
       .createQueryBuilder('pointage')
       .innerJoin(
@@ -173,15 +171,25 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
         heures: string | number | null;
       }>();
 
-    const creditBy = new Map(
-      credits.map((c) => [
-        Number(c.contratId),
-        Number(c.jours) * heuresParJour,
-      ]),
-    );
     const debutBy = new Map(
-      credits.map((c) => [Number(c.contratId), sqlDateToIso(c.premiere)]),
+      contrats.map((contrat) => [contrat.id, contrat.dateMiseEnPlace]),
     );
+    const creditBy = new Map<number, number>();
+    for (const commande of commandes) {
+      const contratId = Number(commande.contratId);
+      if (
+        commandeDansLeSuivi(
+          sqlDateToIso(commande.date),
+          debutBy.get(contratId) ?? null,
+        )
+      ) {
+        creditBy.set(
+          contratId,
+          (creditBy.get(contratId) ?? 0) +
+            Number(commande.jours) * heuresParJour,
+        );
+      }
+    }
     const debitBy = new Map<number, number>();
     for (const pointage of pointages) {
       const contratId = Number(pointage.contratId);
@@ -281,6 +289,15 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
     const contratDeCommande = new Map(
       commandes.map((c) => [c.id, c.clientContratId]),
     );
+    // Début du suivi : date de mise en place de chaque contrat.
+    const miseEnPlace = new Map(
+      (
+        await this.contrats.find({
+          select: { id: true, dateMiseEnPlace: true },
+          where: { id: In([...contratIds]) },
+        })
+      ).map((contrat) => [contrat.id, contrat.dateMiseEnPlace]),
+    );
     for (const contratId of contratIds) {
       resultat.set(
         contratId,
@@ -291,6 +308,7 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
           ),
           heuresParJour,
           arreteAu,
+          miseEnPlace.get(contratId) ?? null,
         ),
       );
     }
@@ -308,34 +326,39 @@ export class TypeOrmClientFicheRepository implements ClientFichePort {
     }[],
     heuresParJour: number,
     arreteAu: string | null,
+    debut: string | null,
   ): ContratMouvement[] {
     if (commandes.length === 0) {
       return [];
     }
-    const debut = debutDuSuivi(
-      commandes.map((c) => c.dateCommande ?? c.dateDevis),
-    );
     const mouvements: ContratMouvement[] = [
-      ...commandes.map((commande) => ({
-        type: 'COMMANDE' as const,
-        date: commande.dateCommande ?? commande.dateDevis,
-        // « N° — libellé », ex. « 26/383 — Ajout 240 heures ».
-        libelle: [
-          commande.numeroCommandeClient ?? commande.numeroDevis,
-          commande.libelleCommande,
-        ]
-          .filter(Boolean)
-          .join(' — '),
-        nature:
-          commande.libelleCommande?.trim() ||
-          commande.numeroCommandeClient ||
-          commande.numeroDevis ||
-          '',
-        utilisateur: null,
-        demandeur: null,
-        credit: round4(Number(commande.nbJoursCommande ?? 0) * heuresParJour),
-        debit: 0,
-      })),
+      ...commandes
+        .filter((commande) =>
+          commandeDansLeSuivi(
+            commande.dateCommande ?? commande.dateDevis,
+            debut,
+          ),
+        )
+        .map((commande) => ({
+          type: 'COMMANDE' as const,
+          date: commande.dateCommande ?? commande.dateDevis,
+          // « N° — libellé », ex. « 26/383 — Ajout 240 heures ».
+          libelle: [
+            commande.numeroCommandeClient ?? commande.numeroDevis,
+            commande.libelleCommande,
+          ]
+            .filter(Boolean)
+            .join(' — '),
+          nature:
+            commande.libelleCommande?.trim() ||
+            commande.numeroCommandeClient ||
+            commande.numeroDevis ||
+            '',
+          utilisateur: null,
+          demandeur: null,
+          credit: round4(Number(commande.nbJoursCommande ?? 0) * heuresParJour),
+          debit: 0,
+        })),
       ...pointages
         .map((pointage) => ({
           type: 'POINTAGE' as const,
